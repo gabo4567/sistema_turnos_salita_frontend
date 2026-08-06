@@ -1,0 +1,12 @@
+.turnos-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  text-align: left;
+}
+
+.turnos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
