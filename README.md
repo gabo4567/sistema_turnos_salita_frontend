@@ -1,16 +1,40 @@
-# React + Vite
+# Sistema de Turnos - Salita Municipal (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interfaz web para visualizar y buscar los turnos de la salita municipal. Proyecto personal, pensado como frontend del backend [sistema_turnos_salita](https://github.com/gabo4567/sistema_turnos_salita).
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + Vite
+- Bootstrap 5
+- Oxlint
 
-## React Compiler
+## Estado actual
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Por ahora trabaja con datos de ejemplo (mock) mientras se conecta con la API del backend. Ya tiene la pantalla principal de "Turnos del día" con buscador por nombre de paciente.
 
-## Expanding the Oxlint configuration
+## Cómo correrlo
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Instalar dependencias:
+   ```
+   npm install
+   ```
+2. Levantar el servidor de desarrollo:
+   ```
+   npm run dev
+   ```
+3. Otros scripts disponibles:
+   ```
+   npm run build     # build de producción
+   npm run preview   # previsualizar el build
+   npm run lint      # correr Oxlint
+   ```
+
+## Estructura
+
+```
+src/
+  pages/        # Páginas (TurnosPage)
+  components/   # Componentes reutilizables (TurnoCard)
+  App.jsx       # Componente raíz
+  main.jsx      # Punto de entrada
+```
