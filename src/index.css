@@ -1,25 +1,41 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --color-bg: #f2f4f6;
+  --color-surface: #ffffff;
+  --color-ink: #16283d;
+  --color-ink-soft: #4a5c70;
+  --color-primary: #1b4c7a;
+  --color-primary-dark: #123a5e;
+  --color-accent: #c99a3b;
+  --color-line: #d7dee3;
+  --color-success: #2f7d52;
+  --color-warning: #c97a1f;
+  --color-critical: #b23a3a;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --font-display: 'Source Serif 4', Cambria, Georgia, serif;
+  --font-body: 'Public Sans', 'Segoe UI', Roboto, sans-serif;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  /* Bootstrap theme overrides */
+  --bs-body-bg: var(--color-bg);
+  --bs-body-color: var(--color-ink);
+  --bs-body-font-family: var(--font-body);
+  --bs-border-color: var(--color-line);
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 27, 76, 122;
+  --bs-link-color: var(--color-primary);
+  --bs-link-color-rgb: 27, 76, 122;
+  --bs-link-hover-color: var(--color-primary-dark);
+  --bs-success: var(--color-success);
+  --bs-success-rgb: 47, 125, 82;
+  --bs-warning: var(--color-warning);
+  --bs-warning-rgb: 201, 122, 31;
+  --bs-danger: var(--color-critical);
+  --bs-danger-rgb: 178, 58, 58;
+
+  font: 18px/145% var(--font-body);
+  letter-spacing: 0.1px;
   color-scheme: light;
-  color: var(--text);
-  background: var(--bg);
+  color: var(--color-ink);
+  background: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -39,7 +55,7 @@ body {
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
+  border-inline: 1px solid var(--color-line);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -47,45 +63,191 @@ body {
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-ink);
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 40px;
+  letter-spacing: -0.4px;
+  margin: 0 0 4px;
   @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    font-size: 30px;
   }
 }
 h2 {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 118%;
-  letter-spacing: -0.24px;
+  letter-spacing: -0.1px;
   margin: 0 0 8px;
   @media (max-width: 1024px) {
-    font-size: 20px;
+    font-size: 19px;
   }
 }
 p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.section-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
 }
 
-code {
+/* Masthead */
+.masthead {
+  background: var(--color-primary);
+  color: #fff;
+  border-bottom: 3px solid var(--color-accent);
+}
+
+.masthead-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 999px;
+  border: 2px solid var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.masthead-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+}
+
+.masthead-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.masthead-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.masthead-nav a {
+  border-bottom: 2px solid transparent;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  font-weight: 500;
+  padding: 8px 4px;
+  text-decoration: none;
+}
+
+.masthead-nav a + a {
+  margin-left: 20px;
+}
+
+.masthead-nav a:hover {
+  color: #fff;
+}
+
+.masthead-nav a.active {
+  color: #fff;
+  border-bottom-color: var(--color-accent);
+}
+
+/* Stat strip */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+  margin-bottom: 24px;
+}
+
+.stat-tile {
+  background: var(--color-surface);
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.stat-tile .value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+  display: block;
+}
+
+.stat-tile .label {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+/* Turnos ledger */
+.turnos-ledger {
+  border-top: 1px solid var(--color-line);
+}
+
+.turno-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.turno-row .hora {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.turno-row .paciente {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.turno-row .obra-social {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.badge-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badge-estado::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.badge-estado.espera {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 12%, white);
+}
+.badge-estado.atendido {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, white);
 }
