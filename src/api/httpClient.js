@@ -8,13 +8,13 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch(path, options = {}) {
+export async function apiFetch(path, { headers, ...options } = {}) {
   let response
 
   try {
     response = await fetch(`${BASE_URL}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
       ...options,
+      headers: { 'Content-Type': 'application/json', ...headers },
     })
   } catch {
     throw new ApiError(

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import TurnoCard from '../components/TurnoCard'
-import { getTurnos } from '../api/turnosApi'
+import { getTurnos, cancelarTurno } from '../api/turnosApi'
 
 function TurnosPage() {
   const [busqueda, setBusqueda] = useState('')
@@ -34,6 +34,15 @@ function TurnosPage() {
     setTurnos((prev) =>
       prev.map((turno) => (turno.id === id ? { ...turno, estado: 'atendido' } : turno))
     )
+  }
+
+  const cancelar = async (id) => {
+    try {
+      await cancelarTurno(id)
+      setTurnos((prev) => prev.filter((turno) => turno.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   const turnosFiltrados = turnos.filter((turno) =>
@@ -79,9 +88,9 @@ function TurnosPage() {
       />
 
       {cargando ? (
-        <div className="turnos-ledger" aria-hidden="true">
+        <div className="ledger" aria-hidden="true">
           {[1, 2, 3].map((fantasma) => (
-            <div className="turno-row placeholder-glow" key={fantasma}>
+            <div className="ledger-row turno-row placeholder-glow" key={fantasma}>
               <span className="placeholder col-8"></span>
               <span>
                 <span className="placeholder col-6 d-block mb-1"></span>
@@ -95,9 +104,9 @@ function TurnosPage() {
       ) : turnosFiltrados.length === 0 ? (
         <p className="text-body-secondary">No se encontraron turnos.</p>
       ) : (
-        <div className="turnos-ledger">
+        <div className="ledger">
           {turnosFiltrados.map((turno) => (
-            <TurnoCard key={turno.id} turno={turno} onLlamar={marcarAtendido} />
+            <TurnoCard key={turno.id} turno={turno} onLlamar={marcarAtendido} onCancelar={cancelar} />
           ))}
         </div>
       )}

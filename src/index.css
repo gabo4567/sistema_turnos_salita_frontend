@@ -191,19 +191,22 @@ p {
   color: var(--color-ink-soft);
 }
 
-/* Turnos ledger */
-.turnos-ledger {
+/* Libro de registros (turnos, pacientes) */
+.ledger {
   border-top: 1px solid var(--color-line);
 }
 
-.turno-row {
+.ledger-row {
   display: grid;
-  grid-template-columns: 64px 1fr auto auto;
   align-items: center;
   gap: 16px;
   padding: 12px 4px;
   border-bottom: 1px solid var(--color-line);
   background: var(--color-surface);
+}
+
+.turno-row {
+  grid-template-columns: 64px 1fr auto auto;
 }
 
 .turno-row .hora {
@@ -220,6 +223,52 @@ p {
 .turno-row .obra-social {
   font-size: 13px;
   color: var(--color-ink-soft);
+}
+
+.paciente-row {
+  grid-template-columns: 1fr auto auto;
+}
+
+.paciente-row .nombre {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.paciente-row .dni {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.paciente-row .obra-social {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+.historial-row {
+  grid-template-columns: 110px 1fr 160px;
+}
+
+.historial-row .fecha {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.historial-row .diagnostico {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.historial-row .tratamiento {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.historial-row .medico {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  text-align: right;
 }
 
 .badge-estado {

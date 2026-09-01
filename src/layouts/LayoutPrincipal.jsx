@@ -18,6 +18,9 @@ function LayoutPrincipal() {
             <NavLink to="/" end>
               Turnos del día
             </NavLink>
+            <NavLink to="/pacientes">Pacientes</NavLink>
+            <NavLink to="/nueva-recepcion">Nueva recepción</NavLink>
+            <NavLink to="/nuevo-turno">Nuevo turno</NavLink>
             <NavLink to="/nuevo-paciente">Nuevo paciente</NavLink>
           </nav>
         </div>

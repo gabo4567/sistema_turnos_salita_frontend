@@ -1,4 +1,4 @@
-function TurnoCard({ turno, onLlamar }) {
+function TurnoCard({ turno, onLlamar, onCancelar }) {
   const atendido = turno.estado === 'atendido'
   const hora = new Date(turno.fechaTurno).toLocaleTimeString('es-AR', {
     hour: '2-digit',
@@ -6,8 +6,14 @@ function TurnoCard({ turno, onLlamar }) {
     hour12: false,
   })
 
+  const handleCancelar = () => {
+    if (window.confirm('¿Cancelar este turno?')) {
+      onCancelar(turno.id)
+    }
+  }
+
   return (
-    <div className="turno-row">
+    <div className="ledger-row turno-row">
       <span className="hora">{hora}</span>
       <span>
         <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
@@ -16,14 +22,19 @@ function TurnoCard({ turno, onLlamar }) {
       <span className={`badge-estado ${atendido ? 'atendido' : 'espera'}`}>
         {atendido ? 'Atendido' : 'En espera'}
       </span>
-      <button
-        type="button"
-        className="btn btn-outline-primary btn-sm"
-        disabled={atendido}
-        onClick={() => onLlamar(turno.id)}
-      >
-        Llamar
-      </button>
+      <span className="d-flex gap-2">
+        <button
+          type="button"
+          className="btn btn-outline-primary btn-sm"
+          disabled={atendido}
+          onClick={() => onLlamar(turno.id)}
+        >
+          Llamar
+        </button>
+        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
+          Cancelar
+        </button>
+      </span>
     </div>
   )
 }
