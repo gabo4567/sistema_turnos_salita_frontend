@@ -139,20 +139,25 @@ p {
   gap: 4px;
 }
 
-.masthead-nav a {
+.masthead-nav a,
+.masthead-nav button {
+  border: none;
   border-bottom: 2px solid transparent;
+  background: transparent;
   color: rgba(255, 255, 255, 0.75);
   font-size: 15px;
   font-weight: 500;
   padding: 8px 4px;
   text-decoration: none;
+  cursor: pointer;
 }
 
-.masthead-nav a + a {
+.masthead-nav > * + * {
   margin-left: 20px;
 }
 
-.masthead-nav a:hover {
+.masthead-nav a:hover,
+.masthead-nav button:hover {
   color: #fff;
 }
 
@@ -269,6 +274,47 @@ p {
   font-size: 13px;
   color: var(--color-ink-soft);
   text-align: right;
+}
+
+.medico-row {
+  grid-template-columns: 1fr auto auto;
+}
+
+.medico-row .nombre {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.medico-row .matricula {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.medico-row .especialidad {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+.medico-row .telefono {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+.consultorio-row {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.consultorio-row .numero {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.consultorio-row .piso,
+.consultorio-row .especialidad {
+  font-size: 13px;
+  color: var(--color-ink-soft);
 }
 
 .badge-estado {

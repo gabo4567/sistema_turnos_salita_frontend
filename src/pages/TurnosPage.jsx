@@ -1,37 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import TurnoCard from '../components/TurnoCard'
 import { getTurnos, cancelarTurno } from '../api/turnosApi'
+import { useFetch } from '../hooks/useFetch'
+
+const ordenarPorFecha = (turnos) =>
+  [...turnos].sort((a, b) => new Date(a.fechaTurno) - new Date(b.fechaTurno))
 
 function TurnosPage() {
   const [busqueda, setBusqueda] = useState('')
-  const [turnos, setTurnos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    let cancelado = false
-
-    const cargarTurnos = async () => {
-      try {
-        const datos = await getTurnos()
-        if (!cancelado) {
-          setTurnos([...datos].sort((a, b) => new Date(a.fechaTurno) - new Date(b.fechaTurno)))
-        }
-      } catch (err) {
-        if (!cancelado) setError(err.message)
-      } finally {
-        if (!cancelado) setCargando(false)
-      }
-    }
-
-    cargarTurnos()
-    return () => {
-      cancelado = true
-    }
-  }, [])
+  const { datos, setDatos, cargando, error, setError } = useFetch(() =>
+    getTurnos().then(ordenarPorFecha)
+  )
+  const turnos = datos ?? []
 
   const marcarAtendido = (id) => {
-    setTurnos((prev) =>
+    setDatos((prev) =>
       prev.map((turno) => (turno.id === id ? { ...turno, estado: 'atendido' } : turno))
     )
   }
@@ -39,7 +23,7 @@ function TurnosPage() {
   const cancelar = async (id) => {
     try {
       await cancelarTurno(id)
-      setTurnos((prev) => prev.filter((turno) => turno.id !== id))
+      setDatos((prev) => prev.filter((turno) => turno.id !== id))
     } catch (err) {
       setError(err.message)
     }
@@ -54,8 +38,15 @@ function TurnosPage() {
 
   return (
     <div className="container text-start py-4">
-      <p className="section-label mb-1">Sala de espera</p>
-      <h1 className="mb-4">Turnos del Día</h1>
+      <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <p className="section-label mb-1">Sala de espera</p>
+          <h1 className="mb-0">Turnos del Día</h1>
+        </div>
+        <Link to="/nuevo-turno" className="btn btn-primary">
+          Nuevo turno
+        </Link>
+      </div>
 
       {error && (
         <div className="alert alert-danger" role="alert">
