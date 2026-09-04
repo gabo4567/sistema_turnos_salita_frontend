@@ -1,35 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import PacienteRow from '../components/PacienteRow'
 import { getPacientes } from '../api/pacientesApi'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
+import { useFetch } from '../hooks/useFetch'
 
 function PacientesPage() {
   const [busqueda, setBusqueda] = useState('')
   const [obraSocial, setObraSocial] = useState('')
-  const [pacientes, setPacientes] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    let cancelado = false
-    setCargando(true)
-    setError(null)
-
-    getPacientes({ obraSocial })
-      .then((datos) => {
-        if (!cancelado) setPacientes(datos)
-      })
-      .catch((err) => {
-        if (!cancelado) setError(err.message)
-      })
-      .finally(() => {
-        if (!cancelado) setCargando(false)
-      })
-
-    return () => {
-      cancelado = true
-    }
-  }, [obraSocial])
+  const { datos, cargando, error } = useFetch(() => getPacientes({ obraSocial }), [obraSocial])
+  const pacientes = datos ?? []
 
   const pacientesFiltrados = pacientes.filter(
     (paciente) =>
@@ -39,8 +19,15 @@ function PacientesPage() {
 
   return (
     <div className="container text-start py-4">
-      <p className="section-label mb-1">Padrón</p>
-      <h1 className="mb-4">Pacientes</h1>
+      <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <p className="section-label mb-1">Padrón</p>
+          <h1 className="mb-0">Pacientes</h1>
+        </div>
+        <Link to="/nuevo-paciente" className="btn btn-primary">
+          Nuevo paciente
+        </Link>
+      </div>
 
       {error && (
         <div className="alert alert-danger" role="alert">

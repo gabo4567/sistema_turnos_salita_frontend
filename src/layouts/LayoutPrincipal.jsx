@@ -1,6 +1,15 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Suspense } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import Cargando from '../components/Cargando'
 
 function LayoutPrincipal() {
+  const navigate = useNavigate()
+
+  const handleSalir = () => {
+    localStorage.removeItem('token')
+    navigate('/login')
+  }
+
   return (
     <>
       <header className="masthead">
@@ -19,13 +28,18 @@ function LayoutPrincipal() {
               Turnos del día
             </NavLink>
             <NavLink to="/pacientes">Pacientes</NavLink>
+            <NavLink to="/medicos">Médicos</NavLink>
+            <NavLink to="/consultorios">Consultorios</NavLink>
             <NavLink to="/nueva-recepcion">Nueva recepción</NavLink>
-            <NavLink to="/nuevo-turno">Nuevo turno</NavLink>
-            <NavLink to="/nuevo-paciente">Nuevo paciente</NavLink>
+            <button type="button" onClick={handleSalir}>
+              Salir
+            </button>
           </nav>
         </div>
       </header>
-      <Outlet />
+      <Suspense fallback={<Cargando />}>
+        <Outlet />
+      </Suspense>
     </>
   )
 }
