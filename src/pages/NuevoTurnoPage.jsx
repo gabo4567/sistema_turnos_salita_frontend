@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
 import { getPacientes } from '../api/pacientesApi'
+import { getMedicos } from '../api/medicosApi'
+import { getConsultorios } from '../api/consultoriosApi'
 import { crearTurno } from '../api/turnosApi'
 import { ESPECIALIDADES } from '../constants/turnos'
+import { useFetch } from '../hooks/useFetch'
 
 function NuevoTurnoPage() {
   const [pacientes, setPacientes] = useState([])
   const [cargandoPacientes, setCargandoPacientes] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
 
+  const { datos: medicos, cargando: cargandoMedicos } = useFetch(getMedicos)
+  const { datos: consultorios, cargando: cargandoConsultorios } = useFetch(getConsultorios)
+
   const [busqueda, setBusqueda] = useState('')
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null)
   const [especialidad, setEspecialidad] = useState('')
+  const [medico, setMedico] = useState('')
+  const [consultorio, setConsultorio] = useState('')
   const [fechaTurno, setFechaTurno] = useState('')
   const [observaciones, setObservaciones] = useState('')
 
@@ -47,15 +55,27 @@ function NuevoTurnoPage() {
     setEnviando(true)
 
     try {
-      await crearTurno({
+      const payload = {
         paciente: pacienteSeleccionado.id,
         especialidad,
+        medico,
         fechaTurno: new Date(fechaTurno).toISOString(),
         observaciones,
+      }
+      if (consultorio) payload.consultorio = consultorio
+
+      await crearTurno(payload)
+      setTurnoCreado({
+        paciente: pacienteSeleccionado,
+        especialidad,
+        fechaTurno,
+        medico: medicos.find((m) => m.id === medico),
+        consultorio: consultorios?.find((c) => c.id === consultorio),
       })
-      setTurnoCreado({ paciente: pacienteSeleccionado, especialidad, fechaTurno })
       setPacienteSeleccionado(null)
       setEspecialidad('')
+      setMedico('')
+      setConsultorio('')
       setFechaTurno('')
       setObservaciones('')
     } catch (error) {
@@ -81,7 +101,9 @@ function NuevoTurnoPage() {
 
       {turnoCreado && (
         <div className="alert alert-success" role="alert">
-          Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> (
+          Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> con{' '}
+          {turnoCreado.medico?.nombre ?? 'el médico asignado'}
+          {turnoCreado.consultorio && ` en el consultorio ${turnoCreado.consultorio.numero}`} (
           {ESPECIALIDADES.find((e) => e.valor === turnoCreado.especialidad)?.etiqueta} —{' '}
           {new Date(turnoCreado.fechaTurno).toLocaleString('es-AR')}).
         </div>
@@ -160,6 +182,47 @@ function NuevoTurnoPage() {
               {ESPECIALIDADES.map((esp) => (
                 <option key={esp.valor} value={esp.valor}>
                   {esp.etiqueta}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-4">
+            <label className="form-label" htmlFor="medico">
+              Médico
+            </label>
+            <select
+              id="medico"
+              className="form-select"
+              value={medico}
+              onChange={(e) => setMedico(e.target.value)}
+              disabled={cargandoMedicos}
+              required
+            >
+              <option value="" disabled>
+                Seleccioná una opción
+              </option>
+              {(medicos ?? []).map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-4">
+            <label className="form-label" htmlFor="consultorio">
+              Consultorio
+            </label>
+            <select
+              id="consultorio"
+              className="form-select"
+              value={consultorio}
+              onChange={(e) => setConsultorio(e.target.value)}
+              disabled={cargandoConsultorios}
+            >
+              <option value="">Sin asignar</option>
+              {(consultorios ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  Consultorio {c.numero}
                 </option>
               ))}
             </select>

@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { crearRecepcion } from '../api/recepcionApi'
+import { getMedicos } from '../api/medicosApi'
+import { getConsultorios } from '../api/consultoriosApi'
 import { actualizarCampoAnidado } from '../utils/formUtils'
 import CamposPaciente from '../components/CamposPaciente'
 import { ESPECIALIDADES } from '../constants/turnos'
+import { useFetch } from '../hooks/useFetch'
 
 const estadoInicial = {
   datosPaciente: {
@@ -14,6 +17,8 @@ const estadoInicial = {
     obraSocial: { nombre: '', numeroAfiliado: '' },
   },
   especialidad: '',
+  medico: '',
+  consultorio: '',
   fechaTurno: '',
   observaciones: '',
 }
@@ -23,6 +28,9 @@ function NuevaRecepcionPage() {
   const [errores, setErrores] = useState([])
   const [enviando, setEnviando] = useState(false)
   const [turnoCreado, setTurnoCreado] = useState(null)
+
+  const { datos: medicos, cargando: cargandoMedicos } = useFetch(getMedicos)
+  const { datos: consultorios, cargando: cargandoConsultorios } = useFetch(getConsultorios)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -36,10 +44,11 @@ function NuevaRecepcionPage() {
     setEnviando(true)
 
     try {
-      const turno = await crearRecepcion({
-        ...formData,
-        fechaTurno: new Date(formData.fechaTurno).toISOString(),
-      })
+      const { consultorio, ...resto } = formData
+      const payload = { ...resto, fechaTurno: new Date(formData.fechaTurno).toISOString() }
+      if (consultorio) payload.consultorio = consultorio
+
+      const turno = await crearRecepcion(payload)
       setTurnoCreado(turno)
       setFormData(estadoInicial)
     } catch (error) {
@@ -60,7 +69,9 @@ function NuevaRecepcionPage() {
       <form onSubmit={handleSubmit} noValidate>
         {turnoCreado && (
           <div className="alert alert-success" role="alert">
-            Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> (
+            Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> con{' '}
+            {turnoCreado.medico?.nombre ?? 'el médico asignado'}
+            {turnoCreado.consultorio && ` en el consultorio ${turnoCreado.consultorio.numero}`} (
             {ESPECIALIDADES.find((e) => e.valor === turnoCreado.especialidad)?.etiqueta} —{' '}
             {new Date(turnoCreado.fechaTurno).toLocaleString('es-AR')}).
           </div>
@@ -103,6 +114,49 @@ function NuevaRecepcionPage() {
               {ESPECIALIDADES.map((especialidad) => (
                 <option key={especialidad.valor} value={especialidad.valor}>
                   {especialidad.etiqueta}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-4">
+            <label className="form-label" htmlFor="medico">
+              Médico
+            </label>
+            <select
+              id="medico"
+              name="medico"
+              className="form-select"
+              value={formData.medico}
+              onChange={handleChange}
+              disabled={cargandoMedicos}
+              required
+            >
+              <option value="" disabled>
+                Seleccioná una opción
+              </option>
+              {(medicos ?? []).map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-4">
+            <label className="form-label" htmlFor="consultorio">
+              Consultorio
+            </label>
+            <select
+              id="consultorio"
+              name="consultorio"
+              className="form-select"
+              value={formData.consultorio}
+              onChange={handleChange}
+              disabled={cargandoConsultorios}
+            >
+              <option value="">Sin asignar</option>
+              {(consultorios ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  Consultorio {c.numero}
                 </option>
               ))}
             </select>
