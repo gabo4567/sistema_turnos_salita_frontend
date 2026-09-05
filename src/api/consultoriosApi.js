@@ -10,3 +10,14 @@ export function crearConsultorio(consultorio) {
     body: JSON.stringify(consultorio),
   })
 }
+
+export function actualizarConsultorio(id, consultorio) {
+  return apiFetch(`/consultorios/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(consultorio),
+  })
+}
+
+export function darDeBajaConsultorio(id) {
+  return apiFetch(`/consultorios/${id}`, { method: 'DELETE' })
+}

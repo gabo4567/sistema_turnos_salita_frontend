@@ -1,17 +1,26 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ConsultorioRow from '../components/ConsultorioRow'
-import { getConsultorios } from '../api/consultoriosApi'
+import { getConsultorios, darDeBajaConsultorio } from '../api/consultoriosApi'
 import { useFetch } from '../hooks/useFetch'
 
 function ConsultoriosPage() {
   const [busqueda, setBusqueda] = useState('')
-  const { datos, cargando, error } = useFetch(getConsultorios)
+  const { datos, setDatos, cargando, error, setError } = useFetch(getConsultorios)
   const consultorios = datos ?? []
 
   const consultoriosFiltrados = consultorios.filter((consultorio) =>
     consultorio.numero.toLowerCase().includes(busqueda.toLowerCase())
   )
+
+  const darDeBaja = async (id) => {
+    try {
+      await darDeBajaConsultorio(id)
+      setDatos((prev) => prev.filter((consultorio) => consultorio.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   return (
     <div className="container text-start py-4">
@@ -47,6 +56,7 @@ function ConsultoriosPage() {
               <span className="placeholder col-6"></span>
               <span className="placeholder col-4"></span>
               <span className="placeholder col-6"></span>
+              <span className="placeholder col-12"></span>
             </div>
           ))}
         </div>
@@ -55,7 +65,11 @@ function ConsultoriosPage() {
       ) : (
         <div className="ledger">
           {consultoriosFiltrados.map((consultorio) => (
-            <ConsultorioRow key={consultorio.id} consultorio={consultorio} />
+            <ConsultorioRow
+              key={consultorio.id}
+              consultorio={consultorio}
+              onDarDeBaja={darDeBaja}
+            />
           ))}
         </div>
       )}

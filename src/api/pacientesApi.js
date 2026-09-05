@@ -21,3 +21,7 @@ export function actualizarPaciente(id, paciente) {
     body: JSON.stringify(paciente),
   })
 }
+
+export function darDeBajaPaciente(id) {
+  return apiFetch(`/pacientes/${id}`, { method: 'DELETE' })
+}

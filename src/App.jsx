@@ -13,8 +13,10 @@ const EditarPacientePage = lazy(() => import('./pages/EditarPacientePage'))
 const HistoriaClinicaPage = lazy(() => import('./pages/HistoriaClinicaPage'))
 const MedicosPage = lazy(() => import('./pages/MedicosPage'))
 const NuevoMedicoPage = lazy(() => import('./pages/NuevoMedicoPage'))
+const EditarMedicoPage = lazy(() => import('./pages/EditarMedicoPage'))
 const ConsultoriosPage = lazy(() => import('./pages/ConsultoriosPage'))
 const NuevoConsultorioPage = lazy(() => import('./pages/NuevoConsultorioPage'))
+const EditarConsultorioPage = lazy(() => import('./pages/EditarConsultorioPage'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -41,8 +43,10 @@ function App() {
             <Route path="nuevo-paciente" element={<AltaPacientePage />} />
             <Route path="medicos" element={<MedicosPage />} />
             <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
+            <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
             <Route path="consultorios" element={<ConsultoriosPage />} />
             <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
+            <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MedicoRow from '../components/MedicoRow'
-import { getMedicos } from '../api/medicosApi'
+import { getMedicos, darDeBajaMedico } from '../api/medicosApi'
 import { useFetch } from '../hooks/useFetch'
 
 function MedicosPage() {
   const [busqueda, setBusqueda] = useState('')
-  const { datos, cargando, error } = useFetch(getMedicos)
+  const { datos, setDatos, cargando, error, setError } = useFetch(getMedicos)
   const medicos = datos ?? []
 
   const medicosFiltrados = medicos.filter(
@@ -14,6 +14,15 @@ function MedicosPage() {
       medico.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       medico.matricula.toLowerCase().includes(busqueda.toLowerCase())
   )
+
+  const darDeBaja = async (id) => {
+    try {
+      await darDeBajaMedico(id)
+      setDatos((prev) => prev.filter((medico) => medico.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   return (
     <div className="container text-start py-4">
@@ -52,6 +61,7 @@ function MedicosPage() {
               </span>
               <span className="placeholder col-6"></span>
               <span className="placeholder col-6"></span>
+              <span className="placeholder col-12"></span>
             </div>
           ))}
         </div>
@@ -60,7 +70,7 @@ function MedicosPage() {
       ) : (
         <div className="ledger">
           {medicosFiltrados.map((medico) => (
-            <MedicoRow key={medico.id} medico={medico} />
+            <MedicoRow key={medico.id} medico={medico} onDarDeBaja={darDeBaja} />
           ))}
         </div>
       )}

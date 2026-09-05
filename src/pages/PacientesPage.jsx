@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PacienteRow from '../components/PacienteRow'
-import { getPacientes } from '../api/pacientesApi'
+import { getPacientes, darDeBajaPaciente } from '../api/pacientesApi'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
 import { useFetch } from '../hooks/useFetch'
 
 function PacientesPage() {
   const [busqueda, setBusqueda] = useState('')
   const [obraSocial, setObraSocial] = useState('')
-  const { datos, cargando, error } = useFetch(() => getPacientes({ obraSocial }), [obraSocial])
+  const { datos, setDatos, cargando, error, setError } = useFetch(
+    () => getPacientes({ obraSocial }),
+    [obraSocial]
+  )
   const pacientes = datos ?? []
 
   const pacientesFiltrados = pacientes.filter(
@@ -16,6 +19,15 @@ function PacientesPage() {
       paciente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       paciente.dni.includes(busqueda)
   )
+
+  const darDeBaja = async (id) => {
+    try {
+      await darDeBajaPaciente(id)
+      setDatos((prev) => prev.filter((paciente) => paciente.id !== id))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   return (
     <div className="container text-start py-4">
@@ -81,7 +93,7 @@ function PacientesPage() {
       ) : (
         <div className="ledger">
           {pacientesFiltrados.map((paciente) => (
-            <PacienteRow key={paciente.id} paciente={paciente} />
+            <PacienteRow key={paciente.id} paciente={paciente} onDarDeBaja={darDeBaja} />
           ))}
         </div>
       )}

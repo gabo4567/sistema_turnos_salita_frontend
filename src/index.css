@@ -499,7 +499,7 @@ p {
 }
 
 .medico-row {
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
 }
 
 .medico-row .nombre {
@@ -525,7 +525,7 @@ p {
 }
 
 .consultorio-row {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr auto;
 }
 
 .consultorio-row .numero {

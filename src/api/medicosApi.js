@@ -10,3 +10,14 @@ export function crearMedico(medico) {
     body: JSON.stringify(medico),
   })
 }
+
+export function actualizarMedico(id, medico) {
+  return apiFetch(`/medicos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(medico),
+  })
+}
+
+export function darDeBajaMedico(id) {
+  return apiFetch(`/medicos/${id}`, { method: 'DELETE' })
+}
