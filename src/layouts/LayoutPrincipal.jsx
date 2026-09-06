@@ -70,7 +70,7 @@ function IconoSalir() {
 }
 
 const ENLACES = [
-  { to: '/', fin: true, etiqueta: 'Turnos del día', icono: <IconoTurnos /> },
+  { to: '/', fin: true, etiqueta: 'Turnos', icono: <IconoTurnos /> },
   { to: '/pacientes', etiqueta: 'Pacientes', icono: <IconoPacientes /> },
   { to: '/medicos', etiqueta: 'Médicos', icono: <IconoMedicos /> },
   { to: '/consultorios', etiqueta: 'Consultorios', icono: <IconoConsultorios /> },

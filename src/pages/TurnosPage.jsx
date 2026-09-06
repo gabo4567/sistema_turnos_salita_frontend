@@ -7,8 +7,19 @@ import { useFetch } from '../hooks/useFetch'
 const ordenarPorFecha = (turnos) =>
   [...turnos].sort((a, b) => new Date(a.fechaTurno) - new Date(b.fechaTurno))
 
+const esHoy = (fechaTurno) => {
+  const fecha = new Date(fechaTurno)
+  const hoy = new Date()
+  return (
+    fecha.getFullYear() === hoy.getFullYear() &&
+    fecha.getMonth() === hoy.getMonth() &&
+    fecha.getDate() === hoy.getDate()
+  )
+}
+
 function TurnosPage() {
   const [busqueda, setBusqueda] = useState('')
+  const [filtro, setFiltro] = useState('hoy')
   const { datos, setDatos, cargando, error, setError } = useFetch(() =>
     getTurnos().then(ordenarPorFecha)
   )
@@ -29,19 +40,20 @@ function TurnosPage() {
     }
   }
 
-  const turnosFiltrados = turnos.filter((turno) =>
+  const turnosHoy = turnos.filter((turno) => esHoy(turno.fechaTurno))
+  const enEsperaHoy = turnosHoy.filter((turno) => turno.estado !== 'atendido').length
+  const atendidosHoy = turnosHoy.filter((turno) => turno.estado === 'atendido').length
+
+  const turnosFiltrados = (filtro === 'hoy' ? turnosHoy : turnos).filter((turno) =>
     turno.paciente?.nombre?.toLowerCase().includes(busqueda.toLowerCase())
   )
-
-  const enEspera = turnos.filter((turno) => turno.estado !== 'atendido').length
-  const atendidos = turnos.filter((turno) => turno.estado === 'atendido').length
 
   return (
     <div className="container text-start py-4">
       <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
         <div>
-          <p className="section-label mb-1">Sala de espera</p>
-          <h1 className="mb-0">Turnos del Día</h1>
+          <p className="section-label mb-1">Agenda</p>
+          <h1 className="mb-0">Turnos</h1>
         </div>
         <Link to="/nuevo-turno" className="btn btn-primary">
           Nuevo turno
@@ -56,27 +68,48 @@ function TurnosPage() {
 
       <div className="stat-strip">
         <div className="stat-tile">
-          <span className="value">{cargando ? '–' : turnos.length}</span>
+          <span className="value">{cargando ? '–' : turnosHoy.length}</span>
           <span className="label">Turnos hoy</span>
         </div>
         <div className="stat-tile">
-          <span className="value">{cargando ? '–' : enEspera}</span>
+          <span className="value">{cargando ? '–' : enEsperaHoy}</span>
           <span className="label">En espera</span>
         </div>
         <div className="stat-tile">
-          <span className="value">{cargando ? '–' : atendidos}</span>
+          <span className="value">{cargando ? '–' : atendidosHoy}</span>
           <span className="label">Atendidos</span>
         </div>
       </div>
 
-      <input
-        type="text"
-        className="form-control mb-3"
-        placeholder="Buscar paciente..."
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        disabled={cargando}
-      />
+      <div className="d-flex flex-wrap gap-3 mb-3">
+        <div className="btn-group" role="group" aria-label="Filtrar por fecha">
+          <button
+            type="button"
+            className={`btn btn-sm ${filtro === 'hoy' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setFiltro('hoy')}
+            disabled={cargando}
+          >
+            Hoy
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${filtro === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setFiltro('todos')}
+            disabled={cargando}
+          >
+            Todos
+          </button>
+        </div>
+        <input
+          type="text"
+          className="form-control flex-grow-1"
+          style={{ minWidth: '200px' }}
+          placeholder="Buscar paciente..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          disabled={cargando}
+        />
+      </div>
 
       {cargando ? (
         <div className="ledger" aria-hidden="true">
@@ -93,7 +126,9 @@ function TurnosPage() {
           ))}
         </div>
       ) : turnosFiltrados.length === 0 ? (
-        <p className="text-body-secondary">No se encontraron turnos.</p>
+        <p className="text-body-secondary">
+          {filtro === 'hoy' ? 'No hay turnos para hoy.' : 'No se encontraron turnos.'}
+        </p>
       ) : (
         <div className="ledger">
           {turnosFiltrados.map((turno) => (

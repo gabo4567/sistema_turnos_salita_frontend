@@ -1,3 +1,15 @@
+const formatearDia = (fechaTurno) => {
+  const fecha = new Date(fechaTurno)
+  const hoy = new Date()
+  const manana = new Date()
+  manana.setDate(hoy.getDate() + 1)
+
+  if (fecha.toDateString() === hoy.toDateString()) return 'Hoy'
+  if (fecha.toDateString() === manana.toDateString()) return 'Mañana'
+
+  return fecha.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
 function TurnoCard({ turno, onLlamar, onCancelar }) {
   const atendido = turno.estado === 'atendido'
   const hora = new Date(turno.fechaTurno).toLocaleTimeString('es-AR', {
@@ -14,7 +26,10 @@ function TurnoCard({ turno, onLlamar, onCancelar }) {
 
   return (
     <div className="ledger-row turno-row">
-      <span className="hora">{hora}</span>
+      <span className="hora">
+        <span className="dia d-block">{formatearDia(turno.fechaTurno)}</span>
+        {hora}
+      </span>
       <span>
         <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
         <span className="obra-social">

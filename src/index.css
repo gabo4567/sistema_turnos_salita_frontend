@@ -433,13 +433,21 @@ p {
 }
 
 .turno-row {
-  grid-template-columns: 64px 1fr auto auto;
+  grid-template-columns: 84px 1fr auto auto;
 }
 
 .turno-row .hora {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   color: var(--color-ink);
+}
+
+.turno-row .dia {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+  color: var(--color-ink-soft);
 }
 
 .turno-row .paciente {
