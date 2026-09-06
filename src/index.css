@@ -473,7 +473,7 @@ p {
 }
 
 .historial-row {
-  grid-template-columns: 110px 1fr 160px;
+  grid-template-columns: 110px 1fr;
 }
 
 .historial-row .fecha {
@@ -487,15 +487,9 @@ p {
   color: var(--color-ink);
 }
 
-.historial-row .tratamiento {
+.historial-row .detalle {
   font-size: 13px;
   color: var(--color-ink-soft);
-}
-
-.historial-row .medico {
-  font-size: 13px;
-  color: var(--color-ink-soft);
-  text-align: right;
 }
 
 .medico-row {

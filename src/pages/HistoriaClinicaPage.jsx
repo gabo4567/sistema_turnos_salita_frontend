@@ -85,10 +85,14 @@ function HistoriaClinicaPage() {
 
       {!cargando && paciente && (
         <>
-          <p className="mb-4">
-            <strong>{paciente.nombre}</strong> — DNI {paciente.dni} —{' '}
-            {paciente.obraSocial?.nombre || 'Particular'}
-          </p>
+          <div className="d-flex align-items-center justify-content-between border rounded p-3 mb-4">
+            <span>
+              <strong>{paciente.nombre}</strong> — DNI {paciente.dni}
+            </span>
+            <span className="text-body-secondary">
+              {paciente.obraSocial?.nombre || 'Particular'}
+            </span>
+          </div>
 
           <h2 className="h5">Entradas registradas</h2>
           {paciente.historialMedico.length === 0 ? (
@@ -104,9 +108,11 @@ function HistoriaClinicaPage() {
                     </span>
                     <span>
                       <span className="diagnostico d-block">{entrada.diagnostico}</span>
-                      <span className="tratamiento">{entrada.tratamiento}</span>
+                      <span className="detalle">
+                        {entrada.tratamiento}
+                        {entrada.medico && ` · ${entrada.medico}`}
+                      </span>
                     </span>
-                    <span className="medico">{entrada.medico}</span>
                   </div>
                 ))}
             </div>
