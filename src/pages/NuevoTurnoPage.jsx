@@ -33,6 +33,15 @@ function NuevoTurnoPage() {
       .finally(() => setCargandoPacientes(false))
   }, [])
 
+  const medicosFiltrados = (medicos ?? []).filter(
+    (m) => !especialidad || m.especialidad === especialidad
+  )
+
+  const handleEspecialidadChange = (e) => {
+    setEspecialidad(e.target.value)
+    setMedico('')
+  }
+
   const coincidencias =
     busqueda.trim() === ''
       ? []
@@ -173,7 +182,7 @@ function NuevoTurnoPage() {
               id="especialidad"
               className="form-select"
               value={especialidad}
-              onChange={(e) => setEspecialidad(e.target.value)}
+              onChange={handleEspecialidadChange}
               required
             >
               <option value="" disabled>
@@ -195,18 +204,23 @@ function NuevoTurnoPage() {
               className="form-select"
               value={medico}
               onChange={(e) => setMedico(e.target.value)}
-              disabled={cargandoMedicos}
+              disabled={cargandoMedicos || !especialidad}
               required
             >
               <option value="" disabled>
-                Seleccioná una opción
+                {especialidad ? 'Seleccioná una opción' : 'Elegí primero una especialidad'}
               </option>
-              {(medicos ?? []).map((m) => (
+              {medicosFiltrados.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.nombre}
                 </option>
               ))}
             </select>
+            {especialidad && medicosFiltrados.length === 0 && (
+              <div className="form-text text-danger">
+                No hay médicos cargados para esta especialidad.
+              </div>
+            )}
           </div>
           <div className="col-12 col-md-4">
             <label className="form-label" htmlFor="consultorio">

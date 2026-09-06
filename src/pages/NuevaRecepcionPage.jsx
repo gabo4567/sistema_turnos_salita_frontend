@@ -37,6 +37,15 @@ function NuevaRecepcionPage() {
     setFormData((prev) => actualizarCampoAnidado(prev, name.split('.'), value))
   }
 
+  const handleEspecialidadChange = (e) => {
+    const especialidad = e.target.value
+    setFormData((prev) => ({ ...prev, especialidad, medico: '' }))
+  }
+
+  const medicosFiltrados = (medicos ?? []).filter(
+    (m) => !formData.especialidad || m.especialidad === formData.especialidad
+  )
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setErrores([])
@@ -105,7 +114,7 @@ function NuevaRecepcionPage() {
               name="especialidad"
               className="form-select"
               value={formData.especialidad}
-              onChange={handleChange}
+              onChange={handleEspecialidadChange}
               required
             >
               <option value="" disabled>
@@ -128,18 +137,23 @@ function NuevaRecepcionPage() {
               className="form-select"
               value={formData.medico}
               onChange={handleChange}
-              disabled={cargandoMedicos}
+              disabled={cargandoMedicos || !formData.especialidad}
               required
             >
               <option value="" disabled>
-                Seleccioná una opción
+                {formData.especialidad ? 'Seleccioná una opción' : 'Elegí primero una especialidad'}
               </option>
-              {(medicos ?? []).map((m) => (
+              {medicosFiltrados.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.nombre}
                 </option>
               ))}
             </select>
+            {formData.especialidad && medicosFiltrados.length === 0 && (
+              <div className="form-text text-danger">
+                No hay médicos cargados para esta especialidad.
+              </div>
+            )}
           </div>
           <div className="col-12 col-md-4">
             <label className="form-label" htmlFor="consultorio">
