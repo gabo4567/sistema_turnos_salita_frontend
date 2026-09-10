@@ -15,3 +15,10 @@ export function crearTurno(turno) {
 export function cancelarTurno(id) {
   return apiFetch(`/turnos/${id}`, { method: 'DELETE' })
 }
+
+export function actualizarTurno(id, datos) {
+  return apiFetch(`/turnos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  })
+}

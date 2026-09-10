@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TurnoCard from '../components/TurnoCard'
-import { getTurnos, cancelarTurno } from '../api/turnosApi'
+import { getTurnos, cancelarTurno, actualizarTurno } from '../api/turnosApi'
 import { useFetch } from '../hooks/useFetch'
 
 const ordenarPorFecha = (turnos) =>
@@ -25,10 +25,13 @@ function TurnosPage() {
   )
   const turnos = datos ?? []
 
-  const marcarAtendido = (id) => {
-    setDatos((prev) =>
-      prev.map((turno) => (turno.id === id ? { ...turno, estado: 'atendido' } : turno))
-    )
+  const marcarAtendido = async (id) => {
+    try {
+      const turnoActualizado = await actualizarTurno(id, { estado: 'atendido' })
+      setDatos((prev) => prev.map((turno) => (turno.id === id ? turnoActualizado : turno)))
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   const cancelar = async (id) => {
