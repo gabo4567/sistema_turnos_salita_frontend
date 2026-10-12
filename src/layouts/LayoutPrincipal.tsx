@@ -94,6 +94,8 @@ function LayoutPrincipal() {
   }
 
   const handleSalir = () => {
+    if (!window.confirm('¿Cerrar sesión?')) return
+
     localStorage.removeItem('token')
     localStorage.removeItem('nombreUsuario')
     navigate('/login')
