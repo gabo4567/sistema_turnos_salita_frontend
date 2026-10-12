@@ -609,3 +609,102 @@ p {
   color: var(--color-success);
   background: color-mix(in srgb, var(--color-success) 12%, white);
 }
+
+/* Celulares: el sidebar lateral pasa a ser una barra horizontal arriba */
+@media (max-width: 680px) {
+  .app-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .sidebar,
+  .sidebar.colapsado {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    border-right: none;
+    border-bottom: 3px solid var(--color-accent);
+  }
+
+  /* Fila 1: logo a la izquierda, usuario + cerrar sesión a la derecha */
+  .sidebar-header,
+  .sidebar.colapsado .sidebar-header {
+    order: 1;
+    flex: none;
+    padding: 8px 10px;
+  }
+
+  .sidebar-brand-texto,
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .sidebar-footer {
+    order: 2;
+    flex: none;
+    margin-left: auto;
+    border-top: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 10px;
+  }
+
+  .usuario-detalle,
+  .sidebar.colapsado .salir-etiqueta,
+  .salir-etiqueta {
+    display: none;
+  }
+
+  .usuario-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Fila 2: nav a todo el ancho, con los 5 íconos repartidos */
+  .sidebar-nav {
+    order: 3;
+    flex: 1 0 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    overflow-x: auto;
+    padding: 2px 4px 6px;
+    gap: 2px;
+  }
+
+  .enlace-sidebar,
+  .sidebar.colapsado .enlace-sidebar {
+    flex-direction: column;
+    flex: 1;
+    gap: 2px;
+    padding: 6px 4px;
+    font-size: 10.5px;
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .enlace-sidebar.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--color-accent);
+  }
+
+  .main-content {
+    height: auto;
+    flex: 1;
+  }
+
+  /* Listados: cada fila pasa de grilla horizontal a tarjeta apilada */
+  .ledger-row {
+    grid-template-columns: 1fr !important;
+    gap: 6px;
+    padding: 14px 4px;
+  }
+
+  .ledger-row .d-flex.gap-2 {
+    flex-wrap: wrap;
+  }
+}
