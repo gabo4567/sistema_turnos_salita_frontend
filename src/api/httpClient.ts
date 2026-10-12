@@ -40,7 +40,10 @@ export async function apiFetch<T>(path: string, { headers, ...options }: ApiFetc
       ...options,
       headers: { 'Content-Type': 'application/json', ...headers },
     })
-  } catch {
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiError('La operación tardó demasiado y se canceló. Probá de nuevo.')
+    }
     throw new ApiError(
       `No se pudo conectar con el servidor en ${BASE_URL}. Verificá que el backend esté corriendo (si la consola del navegador muestra un error de CORS, avisale a quien mantiene el backend).`
     )
