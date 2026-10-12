@@ -1,4 +1,5 @@
 import type { Turno } from '../types/Turno'
+import { useConfirm } from '../hooks/useConfirm'
 
 const formatearDia = (fechaTurno: string) => {
   const fecha = new Date(fechaTurno)
@@ -19,6 +20,7 @@ interface TurnoCardProps {
 }
 
 function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
+  const confirmar = useConfirm()
   const atendido = turno.estado === 'atendido'
   const hora = new Date(turno.fechaTurno).toLocaleTimeString('es-AR', {
     hour: '2-digit',
@@ -26,10 +28,12 @@ function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
     hour12: false,
   })
 
-  const handleCancelar = () => {
-    if (window.confirm('¿Cancelar este turno?')) {
-      onCancelar(turno.id)
-    }
+  const handleCancelar = async () => {
+    const ok = await confirmar('¿Cancelar este turno?', {
+      variante: 'peligro',
+      textoConfirmar: 'Cancelar turno',
+    })
+    if (ok) onCancelar(turno.id)
   }
 
   return (

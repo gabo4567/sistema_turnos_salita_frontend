@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Consultorio } from '../types/Consultorio'
+import { useConfirm } from '../hooks/useConfirm'
 
 interface ConsultorioRowProps {
   consultorio: Consultorio
@@ -8,12 +9,15 @@ interface ConsultorioRowProps {
 }
 
 function ConsultorioRow({ consultorio, onDarDeBaja }: ConsultorioRowProps) {
+  const confirmar = useConfirm()
   const especialidad = ESPECIALIDADES.find((e) => e.valor === consultorio.especialidad)?.etiqueta
 
-  const handleDarDeBaja = () => {
-    if (window.confirm(`¿Dar de baja el consultorio ${consultorio.numero}?`)) {
-      onDarDeBaja(consultorio.id)
-    }
+  const handleDarDeBaja = async () => {
+    const ok = await confirmar(`¿Dar de baja el consultorio ${consultorio.numero}?`, {
+      variante: 'peligro',
+      textoConfirmar: 'Dar de baja',
+    })
+    if (ok) onDarDeBaja(consultorio.id)
   }
 
   return (

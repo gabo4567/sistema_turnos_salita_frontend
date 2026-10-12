@@ -175,6 +175,45 @@ p {
   box-sizing: border-box;
 }
 
+/* Confirmación */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 16, 28, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.confirm-modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-surface);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 12px;
+  box-shadow: 0 24px 48px rgba(8, 16, 28, 0.28);
+  padding: 28px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.confirm-titulo {
+  margin: 0 0 8px;
+}
+
+.confirm-mensaje {
+  color: var(--color-ink);
+  margin: 0 0 24px;
+}
+
+.confirm-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 /* Layout general: sidebar + contenido */
 .app-shell {
   display: flex;

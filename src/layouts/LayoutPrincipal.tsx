@@ -1,6 +1,7 @@
 import { Suspense, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Cargando from '../components/Cargando'
+import { useConfirm } from '../hooks/useConfirm'
 
 function IconoTurnos() {
   return (
@@ -79,6 +80,7 @@ const ENLACES = [
 
 function LayoutPrincipal() {
   const navigate = useNavigate()
+  const confirmar = useConfirm()
   const [colapsado, setColapsado] = useState(
     () => localStorage.getItem('sidebarColapsado') === 'true'
   )
@@ -93,8 +95,9 @@ function LayoutPrincipal() {
     })
   }
 
-  const handleSalir = () => {
-    if (!window.confirm('¿Cerrar sesión?')) return
+  const handleSalir = async () => {
+    const ok = await confirmar('¿Cerrar sesión?', { textoConfirmar: 'Cerrar sesión' })
+    if (!ok) return
 
     localStorage.removeItem('token')
     localStorage.removeItem('nombreUsuario')

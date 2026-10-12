@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Paciente } from '../types/Paciente'
+import { useConfirm } from '../hooks/useConfirm'
 
 interface PacienteRowProps {
   paciente: Paciente
@@ -7,10 +8,14 @@ interface PacienteRowProps {
 }
 
 function PacienteRow({ paciente, onDarDeBaja }: PacienteRowProps) {
-  const handleDarDeBaja = () => {
-    if (window.confirm(`¿Dar de baja a ${paciente.nombre}?`)) {
-      onDarDeBaja(paciente.id)
-    }
+  const confirmar = useConfirm()
+
+  const handleDarDeBaja = async () => {
+    const ok = await confirmar(`¿Dar de baja a ${paciente.nombre}?`, {
+      variante: 'peligro',
+      textoConfirmar: 'Dar de baja',
+    })
+    if (ok) onDarDeBaja(paciente.id)
   }
 
   return (

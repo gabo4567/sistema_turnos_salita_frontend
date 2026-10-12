@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RutaProtegida from './components/RutaProtegida'
 import LayoutPrincipal from './layouts/LayoutPrincipal'
 import Cargando from './components/Cargando'
+import { ConfirmProvider } from './context/ConfirmProvider'
 
 const TurnosPage = lazy(() => import('./pages/TurnosPage'))
 const AltaPacientePage = lazy(() => import('./pages/AltaPacientePage'))
@@ -22,36 +23,38 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="login"
-          element={
-            <Suspense fallback={<Cargando />}>
-              <Login />
-            </Suspense>
-          }
-        />
-        <Route element={<RutaProtegida />}>
-          <Route element={<LayoutPrincipal />}>
-            <Route index element={<TurnosPage />} />
-            <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
-            <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
-            <Route path="pacientes" element={<PacientesPage />} />
-            <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
-            <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />
-            <Route path="nuevo-paciente" element={<AltaPacientePage />} />
-            <Route path="medicos" element={<MedicosPage />} />
-            <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
-            <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
-            <Route path="consultorios" element={<ConsultoriosPage />} />
-            <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
-            <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+    <ConfirmProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="login"
+            element={
+              <Suspense fallback={<Cargando />}>
+                <Login />
+              </Suspense>
+            }
+          />
+          <Route element={<RutaProtegida />}>
+            <Route element={<LayoutPrincipal />}>
+              <Route index element={<TurnosPage />} />
+              <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
+              <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
+              <Route path="pacientes" element={<PacientesPage />} />
+              <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
+              <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />
+              <Route path="nuevo-paciente" element={<AltaPacientePage />} />
+              <Route path="medicos" element={<MedicosPage />} />
+              <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
+              <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
+              <Route path="consultorios" element={<ConsultoriosPage />} />
+              <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
+              <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </ConfirmProvider>
   )
 }
 
