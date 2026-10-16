@@ -1,6 +1,7 @@
 import { Suspense, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Cargando from '../components/Cargando'
+import PerfilModal from '../components/PerfilModal'
 import { useConfirm } from '../hooks/useConfirm'
 
 function IconoTurnos() {
@@ -133,6 +134,7 @@ function LayoutPrincipal() {
   const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Administración'
   const rol = localStorage.getItem('rol')
   const enlaces = enlacesParaRol(rol)
+  const [mostrarPerfil, setMostrarPerfil] = useState(false)
 
   const alternarSidebar = () => {
     setColapsado((prev) => {
@@ -184,7 +186,12 @@ function LayoutPrincipal() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="usuario-info">
+          <button
+            type="button"
+            className="usuario-info"
+            onClick={() => setMostrarPerfil(true)}
+            aria-label="Ver mi cuenta"
+          >
             <span className="usuario-avatar" aria-hidden="true">
               {nombreUsuario.charAt(0).toUpperCase()}
             </span>
@@ -192,7 +199,7 @@ function LayoutPrincipal() {
               <span className="nombre d-block">{nombreUsuario}</span>
               <span className="rol">{(rol && ETIQUETA_ROL[rol]) || 'Administración'}</span>
             </span>
-          </div>
+          </button>
           <button type="button" className="boton-salir" onClick={handleSalir}>
             <IconoSalir />
             <span className="salir-etiqueta">Cerrar sesión</span>
@@ -205,6 +212,8 @@ function LayoutPrincipal() {
           <Outlet />
         </Suspense>
       </main>
+
+      {mostrarPerfil && <PerfilModal onCerrar={() => setMostrarPerfil(false)} />}
     </div>
   )
 }
