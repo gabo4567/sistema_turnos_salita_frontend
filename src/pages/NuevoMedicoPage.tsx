@@ -12,6 +12,7 @@ const valoresIniciales: MedicoFormValues = {
   especialidad: '' as MedicoFormValues['especialidad'],
   matricula: '',
   telefono: '',
+  cupoMaximo: 15,
 }
 
 function NuevoMedicoPage() {
@@ -112,6 +113,19 @@ function NuevoMedicoPage() {
               Teléfono
             </label>
             <input id="telefono" className="form-control" {...register('telefono')} />
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="cupoMaximo">
+              Cupo máximo de turnos por día
+            </label>
+            <input
+              id="cupoMaximo"
+              type="number"
+              min={1}
+              className={`form-control${errors.cupoMaximo ? ' is-invalid' : ''}`}
+              {...register('cupoMaximo', { valueAsNumber: true })}
+            />
+            {errors.cupoMaximo && <div className="invalid-feedback">{errors.cupoMaximo.message}</div>}
           </div>
         </div>
 
