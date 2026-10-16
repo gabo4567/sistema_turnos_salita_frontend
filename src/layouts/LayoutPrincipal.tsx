@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Cargando from '../components/Cargando'
 import { useConfirm } from '../hooks/useConfirm'
@@ -52,6 +52,25 @@ function IconoRecepcion() {
   )
 }
 
+function IconoPersonal() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+    </svg>
+  )
+}
+
+function IconoPedirTurno() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18" />
+      <path d="M12 14v6M9 17h6" />
+    </svg>
+  )
+}
+
 function IconoColapsar() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -70,13 +89,39 @@ function IconoSalir() {
   )
 }
 
-const ENLACES = [
+interface Enlace {
+  to: string
+  etiqueta: string
+  icono: ReactNode
+  fin?: boolean
+}
+
+const ENLACES_STAFF: Enlace[] = [
   { to: '/', fin: true, etiqueta: 'Turnos', icono: <IconoTurnos /> },
   { to: '/pacientes', etiqueta: 'Pacientes', icono: <IconoPacientes /> },
   { to: '/medicos', etiqueta: 'Médicos', icono: <IconoMedicos /> },
   { to: '/consultorios', etiqueta: 'Consultorios', icono: <IconoConsultorios /> },
   { to: '/nueva-recepcion', etiqueta: 'Nueva recepción', icono: <IconoRecepcion /> },
 ]
+
+const ENLACE_PERSONAL: Enlace = { to: '/personal', etiqueta: 'Personal', icono: <IconoPersonal /> }
+
+const ENLACES_PACIENTE: Enlace[] = [
+  { to: '/mis-turnos', fin: true, etiqueta: 'Mis Turnos', icono: <IconoTurnos /> },
+  { to: '/pedir-turno', etiqueta: 'Pedir Turno', icono: <IconoPedirTurno /> },
+]
+
+const ETIQUETA_ROL: Record<string, string> = {
+  admin: 'Administración',
+  recepcionista: 'Recepción',
+  paciente: 'Paciente',
+}
+
+function enlacesParaRol(rol: string | null): Enlace[] {
+  if (rol === 'paciente') return ENLACES_PACIENTE
+  if (rol === 'admin') return [...ENLACES_STAFF, ENLACE_PERSONAL]
+  return ENLACES_STAFF
+}
 
 function LayoutPrincipal() {
   const navigate = useNavigate()
@@ -86,6 +131,8 @@ function LayoutPrincipal() {
   )
 
   const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Administración'
+  const rol = localStorage.getItem('rol')
+  const enlaces = enlacesParaRol(rol)
 
   const alternarSidebar = () => {
     setColapsado((prev) => {
@@ -128,7 +175,7 @@ function LayoutPrincipal() {
         </div>
 
         <nav className="sidebar-nav" aria-label="Secciones">
-          {ENLACES.map((enlace) => (
+          {enlaces.map((enlace) => (
             <NavLink key={enlace.to} to={enlace.to} end={enlace.fin} className="enlace-sidebar">
               {enlace.icono}
               <span className="enlace-etiqueta">{enlace.etiqueta}</span>
@@ -143,7 +190,7 @@ function LayoutPrincipal() {
             </span>
             <span className="usuario-detalle text-start">
               <span className="nombre d-block">{nombreUsuario}</span>
-              <span className="rol">Administración</span>
+              <span className="rol">{(rol && ETIQUETA_ROL[rol]) || 'Administración'}</span>
             </span>
           </div>
           <button type="button" className="boton-salir" onClick={handleSalir}>

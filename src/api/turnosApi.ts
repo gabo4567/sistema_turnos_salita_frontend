@@ -6,6 +6,12 @@ export function getTurnos(): Promise<Turno[]> {
   return apiFetch('/turnos')
 }
 
+export function getMisTurnos(): Promise<Turno[]> {
+  return apiFetch('/turnos/mis-turnos', {
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+  })
+}
+
 export function crearTurno(turno: TurnoFormValues): Promise<Turno> {
   return apiFetch('/turnos', {
     method: 'POST',
