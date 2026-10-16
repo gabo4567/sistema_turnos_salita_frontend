@@ -15,20 +15,21 @@ function Login() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { usuario: '', password: '' },
   })
 
   const onSubmit = async (datos: LoginFormValues) => {
     setError('')
 
     try {
-      const data = await login(datos.email, datos.password)
+      const data = await login(datos.usuario, datos.password)
       if (data.ok && data.token) {
         localStorage.setItem('token', data.token)
         localStorage.setItem('nombreUsuario', data.nombre ?? 'Administración')
+        localStorage.setItem('rol', data.rol ?? '')
         navigate('/')
       } else {
-        setError('Email o contraseña incorrectos')
+        setError('Usuario o contraseña incorrectos')
       }
     } catch {
       setError('No se pudo conectar con el servidor')
@@ -57,17 +58,17 @@ function Login() {
           )}
 
           <div className="mb-3">
-            <label className="form-label" htmlFor="email">
-              Email
+            <label className="form-label" htmlFor="usuario">
+              Usuario
             </label>
             <input
-              id="email"
-              type="email"
-              className={`form-control${errors.email ? ' is-invalid' : ''}`}
+              id="usuario"
+              className={`form-control${errors.usuario ? ' is-invalid' : ''}`}
+              placeholder="Email (personal) o DNI (pacientes)"
               autoFocus
-              {...register('email')}
+              {...register('usuario')}
             />
-            {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
+            {errors.usuario && <div className="invalid-feedback">{errors.usuario.message}</div>}
           </div>
 
           <div className="mb-4">
@@ -78,6 +79,7 @@ function Login() {
               id="password"
               type="password"
               className={`form-control${errors.password ? ' is-invalid' : ''}`}
+              placeholder="Pacientes: tu número de teléfono"
               {...register('password')}
             />
             {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}

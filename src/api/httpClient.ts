@@ -35,10 +35,16 @@ export function extraerMensajesError(error: unknown): string[] {
 export async function apiFetch<T>(path: string, { headers, ...options }: ApiFetchOptions = {}): Promise<T> {
   let response: Response
 
+  const token = localStorage.getItem('token')
+
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       ...options,
-      headers: { 'Content-Type': 'application/json', ...headers },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
     })
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {

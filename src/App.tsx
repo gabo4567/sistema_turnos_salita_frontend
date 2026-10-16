@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RutaProtegida from './components/RutaProtegida'
+import RutaPorRol from './components/RutaPorRol'
 import LayoutPrincipal from './layouts/LayoutPrincipal'
 import Cargando from './components/Cargando'
 import { ConfirmProvider } from './context/ConfirmProvider'
@@ -18,6 +19,11 @@ const EditarMedicoPage = lazy(() => import('./pages/EditarMedicoPage'))
 const ConsultoriosPage = lazy(() => import('./pages/ConsultoriosPage'))
 const NuevoConsultorioPage = lazy(() => import('./pages/NuevoConsultorioPage'))
 const EditarConsultorioPage = lazy(() => import('./pages/EditarConsultorioPage'))
+const PersonalPage = lazy(() => import('./pages/PersonalPage'))
+const NuevoPersonalPage = lazy(() => import('./pages/NuevoPersonalPage'))
+const EditarPersonalPage = lazy(() => import('./pages/EditarPersonalPage'))
+const MisTurnosPage = lazy(() => import('./pages/MisTurnosPage'))
+const PedirTurnoPage = lazy(() => import('./pages/PedirTurnoPage'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -36,19 +42,33 @@ function App() {
           />
           <Route element={<RutaProtegida />}>
             <Route element={<LayoutPrincipal />}>
-              <Route index element={<TurnosPage />} />
-              <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
-              <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
-              <Route path="pacientes" element={<PacientesPage />} />
-              <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
-              <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />
-              <Route path="nuevo-paciente" element={<AltaPacientePage />} />
-              <Route path="medicos" element={<MedicosPage />} />
-              <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
-              <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
-              <Route path="consultorios" element={<ConsultoriosPage />} />
-              <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
-              <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
+              <Route element={<RutaPorRol rolesPermitidos={['admin', 'recepcionista']} redirigirA="/mis-turnos" />}>
+                <Route index element={<TurnosPage />} />
+                <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
+                <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
+                <Route path="pacientes" element={<PacientesPage />} />
+                <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
+                <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />
+                <Route path="nuevo-paciente" element={<AltaPacientePage />} />
+                <Route path="medicos" element={<MedicosPage />} />
+                <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
+                <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
+                <Route path="consultorios" element={<ConsultoriosPage />} />
+                <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
+                <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
+              </Route>
+
+              <Route element={<RutaPorRol rolesPermitidos={['admin']} redirigirA="/" />}>
+                <Route path="personal" element={<PersonalPage />} />
+                <Route path="nuevo-personal" element={<NuevoPersonalPage />} />
+                <Route path="personal/:id/editar" element={<EditarPersonalPage />} />
+              </Route>
+
+              <Route element={<RutaPorRol rolesPermitidos={['paciente']} redirigirA="/" />}>
+                <Route path="mis-turnos" element={<MisTurnosPage />} />
+                <Route path="pedir-turno" element={<PedirTurnoPage />} />
+              </Route>
+
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Route>

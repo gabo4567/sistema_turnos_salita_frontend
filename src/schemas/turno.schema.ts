@@ -21,3 +21,10 @@ export const TurnoSchema = z.object({
 })
 
 export type TurnoFormValues = z.infer<typeof TurnoSchema>
+
+// Para cuando el que pide el turno es el propio paciente logueado: no hay
+// selector de paciente (el backend fuerza paciente = quien está logueado,
+// ignora cualquier otro id que se mande).
+export const PedirTurnoSchema = TurnoSchema.omit({ paciente: true })
+
+export type PedirTurnoFormValues = z.infer<typeof PedirTurnoSchema>
