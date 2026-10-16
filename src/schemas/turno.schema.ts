@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Especialidad } from '../types/Turno'
+import { esHorarioEnMediaHora, MENSAJE_HORARIO_MEDIA_HORA } from './validadores'
 
 const especialidades = ESPECIALIDADES.map((e) => e.valor) as [Especialidad, ...Especialidad[]]
 
@@ -12,7 +13,10 @@ export const TurnoSchema = z.object({
   especialidad: z.enum(especialidades, { error: 'Especialidad no válida' }),
   medico: z.string({ error: 'El médico es obligatorio' }).min(1, 'El médico es obligatorio'),
   consultorio: z.string().optional(),
-  fechaTurno: z.string({ error: 'La fecha y hora son obligatorias' }).min(1, 'La fecha y hora son obligatorias'),
+  fechaTurno: z
+    .string({ error: 'La fecha y hora son obligatorias' })
+    .min(1, 'La fecha y hora son obligatorias')
+    .refine(esHorarioEnMediaHora, MENSAJE_HORARIO_MEDIA_HORA),
   observaciones: z.string().max(500, 'Las observaciones no pueden superar los 500 caracteres').optional(),
 })
 

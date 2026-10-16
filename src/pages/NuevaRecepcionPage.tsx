@@ -177,6 +177,7 @@ function NuevaRecepcionPage() {
             <input
               id="fechaTurno"
               type="datetime-local"
+              step={1800}
               className={`form-control${errors.fechaTurno ? ' is-invalid' : ''}`}
               {...register('fechaTurno')}
             />
