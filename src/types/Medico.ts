@@ -6,4 +6,5 @@ export interface Medico {
   especialidad: Especialidad
   matricula: string
   telefono?: string
+  cupoMaximo: number
 }
