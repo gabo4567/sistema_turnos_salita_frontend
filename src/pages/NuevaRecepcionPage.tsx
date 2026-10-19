@@ -9,6 +9,7 @@ import CamposPaciente from '../components/CamposPaciente'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
 import { RecepcionSchema, type RecepcionFormValues } from '../schemas/recepcion.schema'
+import { obtenerFechaHoraMinima } from '../utils/fecha'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
 import type { Turno } from '../types/Turno'
@@ -178,6 +179,7 @@ function NuevaRecepcionPage() {
               id="fechaTurno"
               type="datetime-local"
               step={1800}
+              min={obtenerFechaHoraMinima()}
               className={`form-control${errors.fechaTurno ? ' is-invalid' : ''}`}
               {...register('fechaTurno')}
             />
