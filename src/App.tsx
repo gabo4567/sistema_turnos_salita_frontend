@@ -24,6 +24,7 @@ const NuevoPersonalPage = lazy(() => import('./pages/NuevoPersonalPage'))
 const EditarPersonalPage = lazy(() => import('./pages/EditarPersonalPage'))
 const MisTurnosPage = lazy(() => import('./pages/MisTurnosPage'))
 const PedirTurnoPage = lazy(() => import('./pages/PedirTurnoPage'))
+const MisTurnosMedicoPage = lazy(() => import('./pages/MisTurnosMedicoPage'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -42,7 +43,7 @@ function App() {
           />
           <Route element={<RutaProtegida />}>
             <Route element={<LayoutPrincipal />}>
-              <Route element={<RutaPorRol rolesPermitidos={['admin', 'recepcionista']} redirigirA="/mis-turnos" />}>
+              <Route element={<RutaPorRol rolesPermitidos={['admin', 'recepcionista']} />}>
                 <Route index element={<TurnosPage />} />
                 <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
                 <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
@@ -58,15 +59,19 @@ function App() {
                 <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
               </Route>
 
-              <Route element={<RutaPorRol rolesPermitidos={['admin']} redirigirA="/" />}>
+              <Route element={<RutaPorRol rolesPermitidos={['admin']} />}>
                 <Route path="personal" element={<PersonalPage />} />
                 <Route path="nuevo-personal" element={<NuevoPersonalPage />} />
                 <Route path="personal/:id/editar" element={<EditarPersonalPage />} />
               </Route>
 
-              <Route element={<RutaPorRol rolesPermitidos={['paciente']} redirigirA="/" />}>
+              <Route element={<RutaPorRol rolesPermitidos={['paciente']} />}>
                 <Route path="mis-turnos" element={<MisTurnosPage />} />
                 <Route path="pedir-turno" element={<PedirTurnoPage />} />
+              </Route>
+
+              <Route element={<RutaPorRol rolesPermitidos={['medico']} />}>
+                <Route path="mis-turnos-medico" element={<MisTurnosMedicoPage />} />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />
