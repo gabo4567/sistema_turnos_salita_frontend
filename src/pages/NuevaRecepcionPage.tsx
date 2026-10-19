@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearRecepcion, type NuevaRecepcionPayload } from '../api/recepcionApi'
@@ -31,6 +32,7 @@ const valoresIniciales: RecepcionFormValues = {
 }
 
 function NuevaRecepcionPage() {
+  const navigate = useNavigate()
   const [errores, setErrores] = useState<string[]>([])
   const [turnoCreado, setTurnoCreado] = useState<Turno | null>(null)
 
@@ -200,9 +202,14 @@ function NuevaRecepcionPage() {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : 'Registrar recepción'}
-        </button>
+        <div className="d-flex gap-2 mt-4">
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : 'Registrar recepción'}
+          </button>
+          <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   )

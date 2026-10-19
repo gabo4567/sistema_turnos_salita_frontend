@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getMedicos } from '../api/medicosApi'
@@ -28,6 +29,7 @@ const valoresIniciales: PedirTurnoFormValues = {
 }
 
 function PedirTurnoPage() {
+  const navigate = useNavigate()
   const { datos: medicos, cargando: cargandoMedicos } = useFetch<Medico[]>(getMedicos)
   const { datos: consultorios, cargando: cargandoConsultorios } = useFetch<Consultorio[]>(getConsultorios)
 
@@ -199,9 +201,14 @@ function PedirTurnoPage() {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : 'Pedir turno'}
-        </button>
+        <div className="d-flex gap-2 mt-4">
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : 'Pedir turno'}
+          </button>
+          <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   )
