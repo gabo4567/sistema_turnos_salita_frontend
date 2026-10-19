@@ -10,11 +10,13 @@ interface MedicoRowProps {
 
 function MedicoRow({ medico, onDarDeBaja }: MedicoRowProps) {
   const confirmar = useConfirm()
-  const especialidad =
-    ESPECIALIDADES.find((e) => e.valor === medico.especialidad)?.etiqueta ?? medico.especialidad
+  const nombreCompleto = `${medico.nombre} ${medico.apellido}`
+  const especialidades = medico.especialidades
+    .map((valor) => ESPECIALIDADES.find((e) => e.valor === valor)?.etiqueta ?? valor)
+    .join(', ')
 
   const handleDarDeBaja = async () => {
-    const ok = await confirmar(`¿Dar de baja a ${medico.nombre}?`, {
+    const ok = await confirmar(`¿Dar de baja a ${nombreCompleto}?`, {
       variante: 'peligro',
       textoConfirmar: 'Dar de baja',
     })
@@ -24,10 +26,10 @@ function MedicoRow({ medico, onDarDeBaja }: MedicoRowProps) {
   return (
     <div className="ledger-row medico-row">
       <span>
-        <span className="nombre d-block">{medico.nombre}</span>
+        <span className="nombre d-block">{nombreCompleto}</span>
         <span className="matricula">Matrícula {medico.matricula}</span>
       </span>
-      <span className="especialidad">{especialidad}</span>
+      <span className="especialidad">{especialidades}</span>
       <span className="telefono">{medico.telefono || '—'}</span>
       <span className="d-flex gap-2">
         <Link to={`/medicos/${medico.matricula}/editar`} className="btn btn-outline-primary btn-sm">

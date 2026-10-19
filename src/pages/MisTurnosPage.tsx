@@ -55,7 +55,9 @@ function MisTurnosPage() {
                   {fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </span>
                 <span>
-                  <span className="paciente d-block">{turno.medico?.nombre ?? 'Médico a confirmar'}</span>
+                  <span className="paciente d-block">
+                    {turno.medico ? `${turno.medico.nombre} ${turno.medico.apellido}` : 'Médico a confirmar'}
+                  </span>
                   <span className="obra-social">
                     {ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}

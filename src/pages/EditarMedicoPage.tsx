@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { getMedicos, actualizarMedico } from '../api/medicosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { MedicoSchema, type MedicoFormValues } from '../schemas/medico.schema'
+import { ActualizarMedicoSchema, type ActualizarMedicoFormValues } from '../schemas/medico.schema'
 
 function EditarMedicoPage() {
   const { matricula } = useParams<{ matricula: string }>()
@@ -22,8 +22,8 @@ function EditarMedicoPage() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<MedicoFormValues>({
-    resolver: zodResolver(MedicoSchema),
+  } = useForm<ActualizarMedicoFormValues>({
+    resolver: zodResolver(ActualizarMedicoSchema),
   })
 
   useEffect(() => {
@@ -41,8 +41,9 @@ function EditarMedicoPage() {
         setMedicoId(medico.id)
         reset({
           nombre: medico.nombre,
+          apellido: medico.apellido,
           matricula: medico.matricula,
-          especialidad: medico.especialidad,
+          especialidades: medico.especialidades,
           telefono: medico.telefono || '',
           cupoMaximo: medico.cupoMaximo,
         })
@@ -59,7 +60,7 @@ function EditarMedicoPage() {
     }
   }, [matricula, reset])
 
-  const onSubmit = async (datos: MedicoFormValues) => {
+  const onSubmit = async (datos: ActualizarMedicoFormValues) => {
     setErrores([])
     setGuardadoOk(false)
 
@@ -120,7 +121,7 @@ function EditarMedicoPage() {
           <div className="row g-3">
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="nombre">
-                Nombre completo
+                Nombre
               </label>
               <input
                 id="nombre"
@@ -128,6 +129,17 @@ function EditarMedicoPage() {
                 {...register('nombre')}
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre.message}</div>}
+            </div>
+            <div className="col-12 col-md-6">
+              <label className="form-label" htmlFor="apellido">
+                Apellido
+              </label>
+              <input
+                id="apellido"
+                className={`form-control${errors.apellido ? ' is-invalid' : ''}`}
+                {...register('apellido')}
+              />
+              {errors.apellido && <div className="invalid-feedback">{errors.apellido.message}</div>}
             </div>
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="matricula">
@@ -141,27 +153,32 @@ function EditarMedicoPage() {
               {errors.matricula && <div className="invalid-feedback">{errors.matricula.message}</div>}
             </div>
             <div className="col-12 col-md-6">
-              <label className="form-label" htmlFor="especialidad">
-                Especialidad
-              </label>
-              <select
-                id="especialidad"
-                className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-                {...register('especialidad')}
-              >
-                {ESPECIALIDADES.map((esp) => (
-                  <option key={esp.valor} value={esp.valor}>
-                    {esp.etiqueta}
-                  </option>
-                ))}
-              </select>
-              {errors.especialidad && <div className="invalid-feedback">{errors.especialidad.message}</div>}
-            </div>
-            <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="telefono">
                 Teléfono
               </label>
               <input id="telefono" className="form-control" {...register('telefono')} />
+            </div>
+            <div className="col-12">
+              <label className="form-label d-block">Especialidades</label>
+              <div className="d-flex flex-wrap gap-3">
+                {ESPECIALIDADES.map((esp) => (
+                  <div className="form-check" key={esp.valor}>
+                    <input
+                      type="checkbox"
+                      id={`especialidad-${esp.valor}`}
+                      className="form-check-input"
+                      value={esp.valor}
+                      {...register('especialidades')}
+                    />
+                    <label className="form-check-label" htmlFor={`especialidad-${esp.valor}`}>
+                      {esp.etiqueta}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {errors.especialidades && (
+                <div className="text-danger small mt-1">{errors.especialidades.message}</div>
+              )}
             </div>
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="cupoMaximo">

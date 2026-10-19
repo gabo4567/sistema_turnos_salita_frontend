@@ -1,6 +1,6 @@
 import { apiFetch } from './httpClient'
 import type { Medico } from '../types/Medico'
-import type { MedicoFormValues } from '../schemas/medico.schema'
+import type { MedicoFormValues, ActualizarMedicoFormValues } from '../schemas/medico.schema'
 
 export function getMedicos(): Promise<Medico[]> {
   return apiFetch('/medicos')
@@ -13,9 +13,9 @@ export function crearMedico(medico: MedicoFormValues): Promise<Medico> {
   })
 }
 
-export function actualizarMedico(id: string, medico: Partial<MedicoFormValues>): Promise<Medico> {
+export function actualizarMedico(id: string, medico: Partial<ActualizarMedicoFormValues>): Promise<Medico> {
   return apiFetch(`/medicos/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     body: JSON.stringify(medico),
   })
 }
