@@ -10,6 +10,7 @@ const ETIQUETA_ROL: Record<string, string> = {
   admin: 'Administrador',
   recepcionista: 'Recepcionista',
   paciente: 'Paciente',
+  medico: 'Médico',
 }
 
 function camposDelPerfil(perfil: Perfil): Array<[string, string]> {

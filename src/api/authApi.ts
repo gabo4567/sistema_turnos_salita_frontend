@@ -2,7 +2,7 @@ import type { Direccion, Telefono, ObraSocialInfo } from '../types/Paciente'
 
 const AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth`
 
-export type Rol = 'admin' | 'recepcionista' | 'paciente'
+export type Rol = 'admin' | 'recepcionista' | 'paciente' | 'medico'
 
 export interface LoginResponse {
   ok: boolean
@@ -22,7 +22,7 @@ export async function login(usuario: string, password: string): Promise<LoginRes
 }
 
 export interface PerfilStaff {
-  rol: 'admin' | 'recepcionista'
+  rol: 'admin' | 'recepcionista' | 'medico'
   nombre: string
   email: string
 }

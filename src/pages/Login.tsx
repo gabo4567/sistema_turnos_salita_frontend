@@ -79,7 +79,6 @@ function Login() {
               id="password"
               type="password"
               className={`form-control${errors.password ? ' is-invalid' : ''}`}
-              placeholder="Pacientes: tu número de teléfono"
               {...register('password')}
             />
             {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
