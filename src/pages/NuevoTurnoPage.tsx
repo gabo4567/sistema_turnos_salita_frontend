@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getPacientes } from '../api/pacientesApi'
@@ -32,6 +33,7 @@ const valoresIniciales: TurnoFormValues = {
 }
 
 function NuevoTurnoPage() {
+  const navigate = useNavigate()
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [cargandoPacientes, setCargandoPacientes] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
@@ -290,13 +292,18 @@ function NuevoTurnoPage() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary mt-4"
-          disabled={isSubmitting || !pacienteSeleccionado}
-        >
-          {isSubmitting ? 'Guardando...' : 'Agendar turno'}
-        </button>
+        <div className="d-flex gap-2 mt-4">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting || !pacienteSeleccionado}
+          >
+            {isSubmitting ? 'Guardando...' : 'Agendar turno'}
+          </button>
+          <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   )
