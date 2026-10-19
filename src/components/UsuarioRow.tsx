@@ -10,6 +10,7 @@ interface UsuarioRowProps {
 const ETIQUETA_ROL: Record<string, string> = {
   admin: 'Administrador',
   recepcionista: 'Recepcionista',
+  medico: 'Médico',
 }
 
 function UsuarioRow({ usuario, onDarDeBaja }: UsuarioRowProps) {
