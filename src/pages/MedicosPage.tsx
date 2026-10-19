@@ -11,11 +11,14 @@ function MedicosPage() {
   const { datos, setDatos, cargando, error, setError } = useFetch<Medico[]>(getMedicos)
   const medicos = datos ?? []
 
-  const medicosFiltrados = medicos.filter(
-    (medico) =>
-      medico.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      medico.matricula.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  const medicosFiltrados = medicos.filter((medico) => {
+    const texto = busqueda.toLowerCase()
+    return (
+      medico.nombre.toLowerCase().includes(texto) ||
+      medico.apellido.toLowerCase().includes(texto) ||
+      medico.matricula.toLowerCase().includes(texto)
+    )
+  })
 
   const darDeBaja = async (id: string) => {
     try {

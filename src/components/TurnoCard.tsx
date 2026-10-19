@@ -46,7 +46,7 @@ function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
         <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
         <span className="obra-social">
           {turno.paciente?.obraSocial?.nombre || 'Particular'}
-          {turno.medico && ` · ${turno.medico.nombre}`}
+          {turno.medico && ` · ${turno.medico.nombre} ${turno.medico.apellido}`}
           {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
         </span>
       </span>

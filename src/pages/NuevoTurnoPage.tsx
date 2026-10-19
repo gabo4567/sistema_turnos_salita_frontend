@@ -66,7 +66,7 @@ function NuevoTurnoPage() {
   }, [])
 
   const medicosFiltrados = (medicos ?? []).filter(
-    (m) => !especialidad || m.especialidad === especialidad
+    (m) => !especialidad || m.especialidades.includes(especialidad)
   )
 
   const coincidencias =
@@ -132,7 +132,9 @@ function NuevoTurnoPage() {
       {turnoCreado && (
         <div className="alert alert-success" role="alert">
           Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> con{' '}
-          {turnoCreado.medico?.nombre ?? 'el médico asignado'}
+          {turnoCreado.medico
+            ? `${turnoCreado.medico.nombre} ${turnoCreado.medico.apellido}`
+            : 'el médico asignado'}
           {turnoCreado.consultorio && ` en el consultorio ${turnoCreado.consultorio.numero}`} (
           {ESPECIALIDADES.find((e) => e.valor === turnoCreado.especialidad)?.etiqueta} —{' '}
           {new Date(turnoCreado.fechaTurno).toLocaleString('es-AR')}).
@@ -229,7 +231,7 @@ function NuevoTurnoPage() {
               </option>
               {medicosFiltrados.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.nombre}
+                  {m.nombre} {m.apellido}
                 </option>
               ))}
             </select>

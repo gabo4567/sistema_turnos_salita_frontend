@@ -9,10 +9,13 @@ import type { Medico } from '../types/Medico'
 
 const valoresIniciales: MedicoFormValues = {
   nombre: '',
-  especialidad: '' as MedicoFormValues['especialidad'],
+  apellido: '',
+  especialidades: [],
   matricula: '',
   telefono: '',
   cupoMaximo: 15,
+  email: '',
+  password: '',
 }
 
 function NuevoMedicoPage() {
@@ -50,7 +53,7 @@ function NuevoMedicoPage() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {medicoCreado && (
           <div className="alert alert-success" role="alert">
-            Médico <strong>{medicoCreado.nombre}</strong> agregado exitosamente.
+            Médico <strong>{medicoCreado.nombre} {medicoCreado.apellido}</strong> agregado exitosamente.
           </div>
         )}
 
@@ -68,7 +71,7 @@ function NuevoMedicoPage() {
         <div className="row g-3">
           <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="nombre">
-              Nombre completo
+              Nombre
             </label>
             <input
               id="nombre"
@@ -76,6 +79,17 @@ function NuevoMedicoPage() {
               {...register('nombre')}
             />
             {errors.nombre && <div className="invalid-feedback">{errors.nombre.message}</div>}
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="apellido">
+              Apellido
+            </label>
+            <input
+              id="apellido"
+              className={`form-control${errors.apellido ? ' is-invalid' : ''}`}
+              {...register('apellido')}
+            />
+            {errors.apellido && <div className="invalid-feedback">{errors.apellido.message}</div>}
           </div>
           <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="matricula">
@@ -89,30 +103,32 @@ function NuevoMedicoPage() {
             {errors.matricula && <div className="invalid-feedback">{errors.matricula.message}</div>}
           </div>
           <div className="col-12 col-md-6">
-            <label className="form-label" htmlFor="especialidad">
-              Especialidad
-            </label>
-            <select
-              id="especialidad"
-              className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-              {...register('especialidad')}
-            >
-              <option value="" disabled>
-                Seleccioná una opción
-              </option>
-              {ESPECIALIDADES.map((esp) => (
-                <option key={esp.valor} value={esp.valor}>
-                  {esp.etiqueta}
-                </option>
-              ))}
-            </select>
-            {errors.especialidad && <div className="invalid-feedback">{errors.especialidad.message}</div>}
-          </div>
-          <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="telefono">
               Teléfono
             </label>
             <input id="telefono" className="form-control" {...register('telefono')} />
+          </div>
+          <div className="col-12">
+            <label className="form-label d-block">Especialidades</label>
+            <div className="d-flex flex-wrap gap-3">
+              {ESPECIALIDADES.map((esp) => (
+                <div className="form-check" key={esp.valor}>
+                  <input
+                    type="checkbox"
+                    id={`especialidad-${esp.valor}`}
+                    className="form-check-input"
+                    value={esp.valor}
+                    {...register('especialidades')}
+                  />
+                  <label className="form-check-label" htmlFor={`especialidad-${esp.valor}`}>
+                    {esp.etiqueta}
+                  </label>
+                </div>
+              ))}
+            </div>
+            {errors.especialidades && (
+              <div className="text-danger small mt-1">{errors.especialidades.message}</div>
+            )}
           </div>
           <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="cupoMaximo">
@@ -126,6 +142,35 @@ function NuevoMedicoPage() {
               {...register('cupoMaximo', { valueAsNumber: true })}
             />
             {errors.cupoMaximo && <div className="invalid-feedback">{errors.cupoMaximo.message}</div>}
+          </div>
+
+          <div className="col-12">
+            <hr />
+            <p className="text-body-secondary mb-2">Cuenta de acceso del médico</p>
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              className={`form-control${errors.email ? ' is-invalid' : ''}`}
+              {...register('email')}
+            />
+            {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label" htmlFor="password">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              type="password"
+              className={`form-control${errors.password ? ' is-invalid' : ''}`}
+              {...register('password')}
+            />
+            {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
           </div>
         </div>
 

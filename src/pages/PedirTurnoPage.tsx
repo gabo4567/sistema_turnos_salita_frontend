@@ -48,7 +48,7 @@ function PedirTurnoPage() {
   const especialidad = watch('especialidad')
 
   const medicosFiltrados = (medicos ?? []).filter(
-    (m) => !especialidad || m.especialidad === especialidad
+    (m) => !especialidad || m.especialidades.includes(especialidad)
   )
 
   const onSubmit = async (datos: PedirTurnoFormValues) => {
@@ -82,7 +82,10 @@ function PedirTurnoPage() {
 
       {turnoConfirmado && (
         <div className="alert alert-success" role="alert">
-          Turno agendado con {turnoConfirmado.medico?.nombre ?? 'el médico asignado'}
+          Turno agendado con{' '}
+          {turnoConfirmado.medico
+            ? `${turnoConfirmado.medico.nombre} ${turnoConfirmado.medico.apellido}`
+            : 'el médico asignado'}
           {turnoConfirmado.consultorio && ` en el consultorio ${turnoConfirmado.consultorio.numero}`} (
           {ESPECIALIDADES.find((e) => e.valor === turnoConfirmado.especialidad)?.etiqueta} —{' '}
           {new Date(turnoConfirmado.fechaTurno).toLocaleString('es-AR')}).
@@ -137,7 +140,7 @@ function PedirTurnoPage() {
               </option>
               {medicosFiltrados.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.nombre}
+                  {m.nombre} {m.apellido}
                 </option>
               ))}
             </select>
