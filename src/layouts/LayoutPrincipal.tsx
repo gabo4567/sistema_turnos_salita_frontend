@@ -112,14 +112,20 @@ const ENLACES_PACIENTE: Enlace[] = [
   { to: '/pedir-turno', etiqueta: 'Pedir Turno', icono: <IconoPedirTurno /> },
 ]
 
+const ENLACES_MEDICO: Enlace[] = [
+  { to: '/mis-turnos-medico', fin: true, etiqueta: 'Mis Turnos', icono: <IconoTurnos /> },
+]
+
 const ETIQUETA_ROL: Record<string, string> = {
   admin: 'Administración',
   recepcionista: 'Recepción',
   paciente: 'Paciente',
+  medico: 'Médico',
 }
 
 function enlacesParaRol(rol: string | null): Enlace[] {
   if (rol === 'paciente') return ENLACES_PACIENTE
+  if (rol === 'medico') return ENLACES_MEDICO
   if (rol === 'admin') return [...ENLACES_STAFF, ENLACE_PERSONAL]
   return ENLACES_STAFF
 }

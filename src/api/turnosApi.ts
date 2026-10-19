@@ -10,6 +10,10 @@ export function getMisTurnos(): Promise<Turno[]> {
   return apiFetch('/turnos/mis-turnos')
 }
 
+export function getMisTurnosMedico(): Promise<Turno[]> {
+  return apiFetch('/turnos/mis-turnos-medico')
+}
+
 export function crearTurno(turno: TurnoFormValues): Promise<Turno> {
   return apiFetch('/turnos', {
     method: 'POST',
