@@ -4,7 +4,7 @@ const roles = ['admin', 'recepcionista'] as const
 
 export const UsuarioSchema = z.object({
   nombre: z.string({ error: 'El nombre es obligatorio' }).min(1, 'El nombre es obligatorio'),
-  email: z.string({ error: 'El email es obligatorio' }).email('El email no es válido'),
+  email: z.email({ error: 'El email es obligatorio o no es válido' }),
   password: z.string({ error: 'La contraseña es obligatoria' }).min(4, 'La contraseña debe tener al menos 4 caracteres'),
   rol: z.enum(roles, { error: 'Rol no válido' }),
 })
