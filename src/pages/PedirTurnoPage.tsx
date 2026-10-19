@@ -8,6 +8,7 @@ import { extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
 import { PedirTurnoSchema, type PedirTurnoFormValues } from '../schemas/turno.schema'
+import { obtenerFechaHoraMinima } from '../utils/fecha'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
 
@@ -177,6 +178,7 @@ function PedirTurnoPage() {
               id="fechaTurno"
               type="datetime-local"
               step={1800}
+              min={obtenerFechaHoraMinima()}
               className={`form-control${errors.fechaTurno ? ' is-invalid' : ''}`}
               {...register('fechaTurno')}
             />
