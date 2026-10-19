@@ -1,4 +1,4 @@
-export type RolStaff = 'admin' | 'recepcionista'
+export type RolStaff = 'admin' | 'recepcionista' | 'medico'
 
 export interface Usuario {
   id: string

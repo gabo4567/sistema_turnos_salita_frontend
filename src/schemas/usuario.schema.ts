@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const roles = ['admin', 'recepcionista'] as const
+const roles = ['admin', 'recepcionista', 'medico'] as const
 
 export const UsuarioSchema = z.object({
   nombre: z.string({ error: 'El nombre es obligatorio' }).min(1, 'El nombre es obligatorio'),

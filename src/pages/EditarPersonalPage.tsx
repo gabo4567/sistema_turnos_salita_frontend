@@ -141,6 +141,7 @@ function EditarPersonalPage() {
               <select id="rol" className={`form-select${errors.rol ? ' is-invalid' : ''}`} {...register('rol')}>
                 <option value="admin">Administrador</option>
                 <option value="recepcionista">Recepcionista</option>
+                <option value="medico">Médico</option>
               </select>
               {errors.rol && <div className="invalid-feedback">{errors.rol.message}</div>}
             </div>
