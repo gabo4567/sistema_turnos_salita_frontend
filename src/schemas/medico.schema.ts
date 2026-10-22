@@ -28,5 +28,10 @@ export const MedicoSchema = z.object({
 // Edición (admin): no se toca la cuenta de acceso desde esta pantalla.
 export const ActualizarMedicoSchema = z.object(camposBase)
 
+export const ActualizarTelefonoMedicoSchema = z.object({
+  telefono: z.string(),
+})
+
 export type MedicoFormValues = z.infer<typeof MedicoSchema>
 export type ActualizarMedicoFormValues = z.infer<typeof ActualizarMedicoSchema>
+export type ActualizarTelefonoMedicoFormValues = z.infer<typeof ActualizarTelefonoMedicoSchema>

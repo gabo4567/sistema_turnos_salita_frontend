@@ -6,6 +6,10 @@ export function getMedicos(): Promise<Medico[]> {
   return apiFetch('/medicos')
 }
 
+export function getMiMedico(): Promise<Medico> {
+  return apiFetch('/medicos/me')
+}
+
 export function crearMedico(medico: MedicoFormValues): Promise<Medico> {
   return apiFetch('/medicos', {
     method: 'POST',
