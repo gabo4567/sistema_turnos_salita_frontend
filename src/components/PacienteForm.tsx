@@ -7,6 +7,10 @@ import CamposPaciente from './CamposPaciente'
 import { PacienteSchema, type PacienteFormValues } from '../schemas/paciente.schema'
 import type { Paciente } from '../types/Paciente'
 
+interface PacienteFormProps {
+  onCancel?: () => void
+}
+
 const valoresIniciales: PacienteFormValues = {
   nombre: '',
   dni: '',
@@ -16,7 +20,7 @@ const valoresIniciales: PacienteFormValues = {
   obraSocial: { nombre: '' as PacienteFormValues['obraSocial']['nombre'], numeroAfiliado: '' },
 }
 
-function PacienteForm() {
+function PacienteForm({ onCancel }: PacienteFormProps) {
   const [errores, setErrores] = useState<string[]>([])
   const [pacienteCreado, setPacienteCreado] = useState<Paciente | null>(null)
 
@@ -65,9 +69,16 @@ function PacienteForm() {
 
       <CamposPaciente register={register} errors={errors} />
 
-      <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-        {isSubmitting ? 'Guardando...' : 'Dar de alta paciente'}
-      </button>
+      <div className="d-flex gap-2 mt-4">
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? 'Guardando...' : 'Dar de alta paciente'}
+        </button>
+        {onCancel && (
+          <button type="button" className="btn btn-outline-danger" onClick={onCancel}>
+            Cancelar
+          </button>
+        )}
+      </div>
     </form>
   )
 }

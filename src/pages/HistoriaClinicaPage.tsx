@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getPacientes, actualizarPaciente } from '../api/pacientesApi'
@@ -19,6 +19,7 @@ const COLOR_GRAVEDAD: Record<AnalisisClinico['nivelGravedad'], string> = {
 
 function HistoriaClinicaPage() {
   const { dni } = useParams<{ dni: string }>()
+  const navigate = useNavigate()
 
   const [paciente, setPaciente] = useState<Paciente | null>(null)
   const [cargando, setCargando] = useState(true)
@@ -258,9 +259,14 @@ function HistoriaClinicaPage() {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-              {isSubmitting ? 'Guardando...' : 'Agregar al historial'}
-            </button>
+            <div className="d-flex gap-2 mt-4">
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? 'Guardando...' : 'Agregar al historial'}
+              </button>
+              <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
+                Cancelar
+              </button>
+            </div>
           </form>
         </>
       )}
