@@ -29,7 +29,7 @@ export const MedicoSchema = z.object({
 export const ActualizarMedicoSchema = z.object(camposBase)
 
 export const ActualizarTelefonoMedicoSchema = z.object({
-  telefono: z.string(),
+  telefono: z.string({ error: 'El teléfono es obligatorio' }).min(1, 'El teléfono es obligatorio'),
 })
 
 export type MedicoFormValues = z.infer<typeof MedicoSchema>
