@@ -114,6 +114,7 @@ const ENLACES_PACIENTE: Enlace[] = [
 
 const ENLACES_MEDICO: Enlace[] = [
   { to: '/mis-turnos-medico', fin: true, etiqueta: 'Mis Turnos', icono: <IconoTurnos /> },
+  { to: '/mi-perfil', etiqueta: 'Mi perfil', icono: <IconoPersonal /> },
 ]
 
 const ETIQUETA_ROL: Record<string, string> = {

@@ -25,6 +25,7 @@ const EditarPersonalPage = lazy(() => import('./pages/EditarPersonalPage'))
 const MisTurnosPage = lazy(() => import('./pages/MisTurnosPage'))
 const PedirTurnoPage = lazy(() => import('./pages/PedirTurnoPage'))
 const MisTurnosMedicoPage = lazy(() => import('./pages/MisTurnosMedicoPage'))
+const MiPerfilMedicoPage = lazy(() => import('./pages/MiPerfilMedicoPage'))
 const Login = lazy(() => import('./pages/Login'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -72,6 +73,7 @@ function App() {
 
               <Route element={<RutaPorRol rolesPermitidos={['medico']} />}>
                 <Route path="mis-turnos-medico" element={<MisTurnosMedicoPage />} />
+                <Route path="mi-perfil" element={<MiPerfilMedicoPage />} />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />
