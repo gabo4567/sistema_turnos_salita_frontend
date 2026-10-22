@@ -63,7 +63,9 @@ function MiPerfilMedicoPage() {
     <div className="container text-start py-4">
       <p className="section-label mb-1">Tu cuenta</p>
       <h1 className="mb-2">Mi perfil</h1>
-      <p className="text-body-secondary mb-4">Consultá tus datos y actualizá el teléfono de contacto.</p>
+      <p className="text-body-secondary mb-4">
+        Solo podés modificar tu teléfono. Para cambiar tu nombre o matrícula, pedíselo a un administrador.
+      </p>
 
       {cargando && <p className="text-body-secondary">Cargando datos del perfil...</p>}
 
@@ -95,20 +97,20 @@ function MiPerfilMedicoPage() {
           <div className="row g-3">
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="nombre">
-                Nombre y apellido
+                Nombre y apellido <span className="text-body-secondary">(no editable)</span>
               </label>
               <input
                 id="nombre"
                 className="form-control"
                 value={`${medico.nombre} ${medico.apellido}`}
-                readOnly
+                disabled
               />
             </div>
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="matricula">
-                Matrícula
+                Matrícula <span className="text-body-secondary">(no editable)</span>
               </label>
-              <input id="matricula" className="form-control" value={medico.matricula} readOnly />
+              <input id="matricula" className="form-control" value={medico.matricula} disabled />
             </div>
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="telefono">
