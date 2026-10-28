@@ -1,22 +1,19 @@
 import { z } from 'zod'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Especialidad } from '../types/Turno'
-import { esHorarioEnMediaHora, MENSAJE_HORARIO_MEDIA_HORA } from './validadores'
 
 const especialidades = ESPECIALIDADES.map((e) => e.valor) as [Especialidad, ...Especialidad[]]
 
-// fechaTurno acá valida el valor crudo del <input type="datetime-local"> (ej. "2026-10-15T10:00"),
-// que NO es un ISO datetime válido todavía — por eso no se espeja z.iso.datetime() del backend.
-// La conversión a ISO (new Date(...).toISOString()) se hace recién al armar el payload de la petición.
+// fecha y hora se eligen por separado (fecha: <input type="date">, hora:
+// un botón de la grilla de disponibilidad) y se combinan recién al armar
+// el payload de la petición, ya convertidos a un ISO datetime.
 export const TurnoSchema = z.object({
   paciente: z.string({ error: 'El paciente es obligatorio' }).min(1, 'El paciente es obligatorio'),
   especialidad: z.enum(especialidades, { error: 'Especialidad no válida' }),
   medico: z.string({ error: 'El médico es obligatorio' }).min(1, 'El médico es obligatorio'),
   consultorio: z.string().optional(),
-  fechaTurno: z
-    .string({ error: 'La fecha y hora son obligatorias' })
-    .min(1, 'La fecha y hora son obligatorias')
-    .refine(esHorarioEnMediaHora, MENSAJE_HORARIO_MEDIA_HORA),
+  fecha: z.string({ error: 'La fecha es obligatoria' }).min(1, 'La fecha es obligatoria'),
+  hora: z.string({ error: 'Elegí un horario' }).min(1, 'Elegí un horario'),
   observaciones: z.string().max(500, 'Las observaciones no pueden superar los 500 caracteres').optional(),
 })
 

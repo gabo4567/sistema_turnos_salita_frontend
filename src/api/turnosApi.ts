@@ -2,6 +2,14 @@ import { apiFetch } from './httpClient'
 import type { Turno } from '../types/Turno'
 import type { TurnoFormValues } from '../schemas/turno.schema'
 
+// Lo que efectivamente viaja al backend: fecha y hora (elegidas por
+// separado en el formulario) ya combinadas en un único ISO datetime.
+export type NuevoTurnoPayload = Omit<TurnoFormValues, 'fecha' | 'hora'> & { fechaTurno: string }
+
+interface DisponibilidadResponse {
+  ocupados: string[]
+}
+
 export function getTurnos(): Promise<Turno[]> {
   return apiFetch('/turnos')
 }
@@ -14,7 +22,11 @@ export function getMisTurnosMedico(): Promise<Turno[]> {
   return apiFetch('/turnos/mis-turnos-medico')
 }
 
-export function crearTurno(turno: TurnoFormValues): Promise<Turno> {
+export function getDisponibilidad(medicoId: string, fecha: string): Promise<DisponibilidadResponse> {
+  return apiFetch(`/turnos/disponibilidad?medico=${medicoId}&fecha=${fecha}`)
+}
+
+export function crearTurno(turno: NuevoTurnoPayload): Promise<Turno> {
   return apiFetch('/turnos', {
     method: 'POST',
     body: JSON.stringify(turno),
