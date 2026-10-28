@@ -1,15 +1,22 @@
 import { useState } from 'react'
-import { getMisTurnosMedico, type PeriodoFiltro } from '../api/turnosApi'
+import {
+  getMisTurnosMedico,
+  cancelarTurno,
+  marcarAusenciaMedico,
+  type PeriodoFiltro,
+  type FiltroEstado,
+} from '../api/turnosApi'
+import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
+import { useConfirm } from '../hooks/useConfirm'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { normalizarTexto } from '../utils/texto'
-import type { Turno, EstadoTurno } from '../types/Turno'
+import type { Turno } from '../types/Turno'
 
-type EstadoFiltro = EstadoTurno | 'todos'
-
-const OPCIONES_ESTADO: { valor: EstadoFiltro; etiqueta: string }[] = [
+const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'pendiente', etiqueta: 'Pendientes' },
   { valor: 'atendido', etiqueta: 'Atendidos' },
+  { valor: 'cancelado', etiqueta: 'Cancelados' },
   { valor: 'todos', etiqueta: 'Todos' },
 ]
 
@@ -22,11 +29,14 @@ const OPCIONES_PERIODO: { valor: PeriodoFiltro | 'todos'; etiqueta: string }[] =
 ]
 
 function MisTurnosMedicoPage() {
-  const [estado, setEstado] = useState<EstadoFiltro>('pendiente')
+  const [estado, setEstado] = useState<FiltroEstado>('pendiente')
   const [periodo, setPeriodo] = useState<PeriodoFiltro | 'todos'>('hoy')
   const [busqueda, setBusqueda] = useState('')
+  const [errorAccion, setErrorAccion] = useState<string | null>(null)
+  const [avisoAusencia, setAvisoAusencia] = useState<string | null>(null)
+  const confirmar = useConfirm()
 
-  const { datos, cargando, error } = useFetch<Turno[]>(
+  const { datos, setDatos, cargando, error } = useFetch<Turno[]>(
     () =>
       getMisTurnosMedico({
         estado: estado === 'todos' ? undefined : estado,
@@ -35,18 +45,78 @@ function MisTurnosMedicoPage() {
     [estado, periodo]
   )
 
+  const recargar = async () => {
+    setDatos(
+      await getMisTurnosMedico({
+        estado: estado === 'todos' ? undefined : estado,
+        periodo: periodo === 'todos' ? undefined : periodo,
+      })
+    )
+  }
+
   const turnos = (datos ?? []).filter((turno) =>
     turno.paciente?.nombre && normalizarTexto(turno.paciente.nombre).includes(normalizarTexto(busqueda))
   )
 
+  const handleNoPuedoAtender = async (id: string) => {
+    const ok = await confirmar('¿Marcar que no podés atender este turno?', {
+      variante: 'peligro',
+      textoConfirmar: 'No puedo atender',
+    })
+    if (!ok) return
+
+    setErrorAccion(null)
+    try {
+      await cancelarTurno(id)
+      await recargar()
+    } catch (err) {
+      setErrorAccion(extraerMensaje(err))
+    }
+  }
+
+  const handleAusenciaHoy = async () => {
+    const ok = await confirmar(
+      '¿Cancelar TODOS tus turnos pendientes de hoy? Esta acción no se puede deshacer.',
+      { variante: 'peligro', textoConfirmar: 'No puedo atender hoy' }
+    )
+    if (!ok) return
+
+    setErrorAccion(null)
+    setAvisoAusencia(null)
+    try {
+      const resultado = await marcarAusenciaMedico()
+      setAvisoAusencia(
+        resultado.cancelados > 0
+          ? `Se cancelaron ${resultado.cancelados} turno(s) de hoy.`
+          : 'No tenías turnos pendientes hoy.'
+      )
+      await recargar()
+    } catch (err) {
+      setErrorAccion(extraerMensaje(err))
+    }
+  }
+
   return (
     <div className="container text-start py-4">
-      <p className="section-label mb-1">Mi agenda</p>
-      <h1 className="mb-4">Mis Turnos</h1>
+      <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+        <div>
+          <p className="section-label mb-1">Mi agenda</p>
+          <h1 className="mb-0">Mis Turnos</h1>
+        </div>
+        <button type="button" className="btn btn-outline-danger" onClick={handleAusenciaHoy}>
+          No puedo atender hoy
+        </button>
+      </div>
 
-      {error && (
+      {avisoAusencia && (
+        <div className="alert alert-success" role="status">
+          {avisoAusencia}
+        </div>
+      )}
+
+      {(error || errorAccion) && (
         <div className="alert alert-danger" role="alert">
-          {error}
+          {error || errorAccion}
         </div>
       )}
 
@@ -97,6 +167,8 @@ function MisTurnosMedicoPage() {
         <div className="ledger">
           {turnos.map((turno) => {
             const atendido = turno.estado === 'atendido'
+            const cancelado = turno.estado === 'cancelado'
+            const pendiente = turno.estado === 'pendiente'
             const fecha = new Date(turno.fechaTurno)
 
             return (
@@ -110,12 +182,25 @@ function MisTurnosMedicoPage() {
                 <span>
                   <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
                   <span className="obra-social">
-                    {ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
+                    {cancelado && turno.observaciones
+                      ? turno.observaciones
+                      : ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
                 </span>
-                <span className={`badge-estado ${atendido ? 'atendido' : 'espera'}`}>
-                  {atendido ? 'Atendido' : 'Pendiente'}
+                <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
+                  {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'Pendiente'}
+                </span>
+                <span className="d-flex gap-2">
+                  {pendiente && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => handleNoPuedoAtender(turno.id)}
+                    >
+                      No puedo atender
+                    </button>
+                  )}
                 </span>
               </div>
             )

@@ -23,6 +23,7 @@ interface TurnoCardProps {
 function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
   const confirmar = useConfirm()
   const atendido = turno.estado === 'atendido'
+  const cancelado = turno.estado === 'cancelado'
   const hora = new Date(turno.fechaTurno).toLocaleTimeString('es-AR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -46,29 +47,35 @@ function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
       <span>
         <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
         <span className="obra-social">
-          {turno.paciente?.obraSocial?.nombre || 'Particular'}
+          {cancelado && turno.observaciones
+            ? turno.observaciones
+            : turno.paciente?.obraSocial?.nombre || 'Particular'}
           {turno.medico && ` · ${turno.medico.nombre} ${turno.medico.apellido}`}
           {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
         </span>
       </span>
-      <span className={`badge-estado ${atendido ? 'atendido' : 'espera'}`}>
-        {atendido ? 'Atendido' : 'En espera'}
+      <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
+        {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'En espera'}
       </span>
       <span className="d-flex gap-2">
-        <button
-          type="button"
-          className="btn btn-outline-primary btn-sm"
-          disabled={atendido}
-          onClick={() => onLlamar(turno.id)}
-        >
-          Llamar
-        </button>
-        <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
-          Editar
-        </Link>
-        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
-          Cancelar
-        </button>
+        {!cancelado && (
+          <>
+            <button
+              type="button"
+              className="btn btn-outline-primary btn-sm"
+              disabled={atendido}
+              onClick={() => onLlamar(turno.id)}
+            >
+              Llamar
+            </button>
+            <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
+              Editar
+            </Link>
+            <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
+              Cancelar
+            </button>
+          </>
+        )}
       </span>
     </div>
   )
