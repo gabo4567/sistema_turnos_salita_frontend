@@ -14,13 +14,6 @@ import SelectorHorario from '../components/SelectorHorario'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
 
-interface TurnoConfirmadoResumen {
-  especialidad: PedirTurnoFormValues['especialidad'] | ''
-  fechaTurno: string
-  medico?: Medico
-  consultorio?: Consultorio
-}
-
 const valoresIniciales: PedirTurnoFormValues = {
   especialidad: '' as PedirTurnoFormValues['especialidad'],
   medico: '',
@@ -36,14 +29,12 @@ function PedirTurnoPage() {
   const { datos: consultorios, cargando: cargandoConsultorios } = useFetch<Consultorio[]>(getConsultorios)
 
   const [errores, setErrores] = useState<string[]>([])
-  const [turnoConfirmado, setTurnoConfirmado] = useState<TurnoConfirmadoResumen | null>(null)
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<PedirTurnoFormValues>({
     resolver: zodResolver(PedirTurnoSchema),
@@ -61,7 +52,6 @@ function PedirTurnoPage() {
 
   const onSubmit = async (datos: PedirTurnoFormValues) => {
     setErrores([])
-    setTurnoConfirmado(null)
 
     try {
       const { fecha, hora, ...resto } = datos
@@ -74,13 +64,10 @@ function PedirTurnoPage() {
         paciente: 'paciente-logueado',
         fechaTurno,
       })
-      setTurnoConfirmado({
-        especialidad: datos.especialidad,
-        fechaTurno,
-        medico: medicos?.find((m) => m.id === datos.medico),
-        consultorio: consultorios?.find((c) => c.id === datos.consultorio),
-      })
-      reset(valoresIniciales)
+      // Se va a Mis Turnos en vez de quedarse acá: el paciente pide un solo
+      // turno por vez, y ver el turno ya en su lista confirma mejor que se
+      // guardó que un cartel que puede desaparecer si navega o refresca.
+      navigate('/mis-turnos', { state: { turnoAgendado: true } })
     } catch (error) {
       setErrores(extraerMensajesError(error))
     }
@@ -90,18 +77,6 @@ function PedirTurnoPage() {
     <div className="container text-start py-4">
       <p className="section-label mb-1">Mi cuenta</p>
       <h1 className="mb-4">Pedir Turno</h1>
-
-      {turnoConfirmado && (
-        <div className="alert alert-success" role="alert">
-          Turno agendado con{' '}
-          {turnoConfirmado.medico
-            ? `${turnoConfirmado.medico.nombre} ${turnoConfirmado.medico.apellido}`
-            : 'el médico asignado'}
-          {turnoConfirmado.consultorio && ` en el consultorio ${turnoConfirmado.consultorio.numero}`} (
-          {ESPECIALIDADES.find((e) => e.valor === turnoConfirmado.especialidad)?.etiqueta} —{' '}
-          {new Date(turnoConfirmado.fechaTurno).toLocaleString('es-AR')}).
-        </div>
-      )}
 
       {errores.length > 0 && (
         <div className="alert alert-danger" role="alert">
