@@ -77,6 +77,12 @@ function NuevoTurnoPage() {
     (m) => !especialidad || m.especialidades.includes(especialidad)
   )
 
+  useEffect(() => {
+    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+      setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
+    }
+  }, [medicoElegido, medicosFiltrados, setValue])
+
   const coincidencias =
     busqueda.trim() === ''
       ? []

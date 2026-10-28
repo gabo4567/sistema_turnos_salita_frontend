@@ -49,6 +49,12 @@ function EditarTurnoPage() {
   )
 
   useEffect(() => {
+    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+      setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
+    }
+  }, [medicoElegido, medicosFiltrados, setValue])
+
+  useEffect(() => {
     if (!id) return
     let cancelado = false
 
