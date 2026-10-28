@@ -624,6 +624,14 @@ p {
   color: var(--bs-secondary-color);
   background: color-mix(in srgb, var(--bs-secondary-color) 10%, white);
 }
+.badge-estado.llamado {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, white);
+}
+.badge-estado.no-asistio {
+  color: var(--color-critical);
+  background: color-mix(in srgb, var(--color-critical) 12%, white);
+}
 
 /* Selector de horario (grilla de turnos de 30') */
 .selector-horario-leyenda {

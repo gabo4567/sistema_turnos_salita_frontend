@@ -4,7 +4,7 @@ import type { Consultorio } from './Consultorio'
 
 export type Especialidad = 'cardiologia' | 'neurologia' | 'pediatria' | 'dermatologia'
 
-export type EstadoTurno = 'pendiente' | 'atendido' | 'cancelado'
+export type EstadoTurno = 'pendiente' | 'llamado' | 'atendido' | 'cancelado' | 'no_asistio'
 
 export interface Turno {
   id: string
