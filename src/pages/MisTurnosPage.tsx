@@ -1,13 +1,24 @@
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { getMisTurnos, cancelarTurno } from '../api/turnosApi'
+import { getMisTurnos, cancelarTurno, type FiltroEstado } from '../api/turnosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import { useConfirm } from '../hooks/useConfirm'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Turno } from '../types/Turno'
 
+const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
+  { valor: 'activos', etiqueta: 'Activos' },
+  { valor: 'cancelado', etiqueta: 'Cancelados' },
+  { valor: 'todos', etiqueta: 'Todos' },
+]
+
 function MisTurnosPage() {
-  const { datos, setDatos, cargando, error, setError } = useFetch<Turno[]>(getMisTurnos)
+  const [estado, setEstado] = useState<FiltroEstado>('activos')
+  const { datos, setDatos, cargando, error, setError } = useFetch<Turno[]>(
+    () => getMisTurnos(estado),
+    [estado]
+  )
   const confirmar = useConfirm()
   const location = useLocation()
   const turnoAgendado = Boolean((location.state as { turnoAgendado?: boolean } | null)?.turnoAgendado)
@@ -22,7 +33,9 @@ function MisTurnosPage() {
 
     try {
       await cancelarTurno(id)
-      setDatos((prev) => (prev ?? []).filter((turno) => turno.id !== id))
+      // Según el filtro elegido (ej. "Cancelados"/"Todos"), el turno
+      // cancelado tiene que seguir apareciendo, no desaparecer sin más.
+      setDatos(await getMisTurnos(estado))
     } catch (err) {
       setError(extraerMensaje(err))
     }
@@ -45,14 +58,29 @@ function MisTurnosPage() {
         </div>
       )}
 
+      <div className="btn-group mb-3" role="group" aria-label="Filtrar por estado">
+        {OPCIONES_ESTADO.map((opcion) => (
+          <button
+            key={opcion.valor}
+            type="button"
+            className={`btn btn-sm ${estado === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setEstado(opcion.valor)}
+            disabled={cargando}
+          >
+            {opcion.etiqueta}
+          </button>
+        ))}
+      </div>
+
       {cargando ? (
         <p className="text-body-secondary">Cargando...</p>
       ) : turnos.length === 0 ? (
-        <p className="text-body-secondary">Todavía no tenés turnos agendados.</p>
+        <p className="text-body-secondary">No se encontraron turnos para este filtro.</p>
       ) : (
         <div className="ledger">
           {turnos.map((turno) => {
             const atendido = turno.estado === 'atendido'
+            const cancelado = turno.estado === 'cancelado'
             const fecha = new Date(turno.fechaTurno)
 
             return (
@@ -68,15 +96,17 @@ function MisTurnosPage() {
                     {turno.medico ? `${turno.medico.nombre} ${turno.medico.apellido}` : 'Médico a confirmar'}
                   </span>
                   <span className="obra-social">
-                    {ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
+                    {cancelado && turno.observaciones
+                      ? turno.observaciones
+                      : ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
                 </span>
-                <span className={`badge-estado ${atendido ? 'atendido' : 'espera'}`}>
-                  {atendido ? 'Atendido' : 'Pendiente'}
+                <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
+                  {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'Pendiente'}
                 </span>
                 <span className="d-flex gap-2">
-                  {!atendido && (
+                  {!atendido && !cancelado && (
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"

@@ -22,22 +22,27 @@ interface DisponibilidadResponse {
   ocupados: string[]
 }
 
-export function getTurnos(): Promise<Turno[]> {
-  return apiFetch('/turnos')
+// Filtro de estado compartido por los 3 listados: 'activos' (todo menos
+// cancelados, el comportamiento de siempre) y 'todos' (sin restricción,
+// incluye cancelados) se suman a los estados puntuales.
+export type FiltroEstado = EstadoTurno | 'activos' | 'todos'
+
+export function getTurnos(estado?: FiltroEstado): Promise<Turno[]> {
+  return apiFetch(`/turnos${estado ? `?estado=${estado}` : ''}`)
 }
 
 export function getTurnoPorId(id: string): Promise<Turno> {
   return apiFetch(`/turnos/${id}`)
 }
 
-export function getMisTurnos(): Promise<Turno[]> {
-  return apiFetch('/turnos/mis-turnos')
+export function getMisTurnos(estado?: FiltroEstado): Promise<Turno[]> {
+  return apiFetch(`/turnos/mis-turnos${estado ? `?estado=${estado}` : ''}`)
 }
 
 export type PeriodoFiltro = 'hoy' | 'semana' | 'mes' | '6meses'
 
 export interface FiltrosMisTurnosMedico {
-  estado?: EstadoTurno
+  estado?: FiltroEstado
   periodo?: PeriodoFiltro
 }
 
@@ -63,6 +68,10 @@ export function crearTurno(turno: NuevoTurnoPayload): Promise<Turno> {
 
 export function cancelarTurno(id: string): Promise<Turno> {
   return apiFetch(`/turnos/${id}`, { method: 'DELETE' })
+}
+
+export function marcarAusenciaMedico(): Promise<{ cancelados: number }> {
+  return apiFetch('/turnos/ausencia-medico', { method: 'PATCH' })
 }
 
 export function actualizarTurno(id: string, datos: ActualizarTurnoPayload): Promise<Turno> {

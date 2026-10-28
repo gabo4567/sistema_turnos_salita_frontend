@@ -620,6 +620,10 @@ p {
   color: var(--color-success);
   background: color-mix(in srgb, var(--color-success) 12%, white);
 }
+.badge-estado.cancelado {
+  color: var(--bs-secondary-color);
+  background: color-mix(in srgb, var(--bs-secondary-color) 10%, white);
+}
 
 /* Selector de horario (grilla de turnos de 30') */
 .selector-horario-leyenda {
