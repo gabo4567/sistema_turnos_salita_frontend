@@ -621,6 +621,44 @@ p {
   background: color-mix(in srgb, var(--color-success) 12%, white);
 }
 
+/* Selector de horario (grilla de turnos de 30') */
+.selector-horario-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--bs-secondary-color);
+}
+
+.leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.leyenda-punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.leyenda-libre {
+  background: var(--color-success);
+}
+.leyenda-ocupado {
+  background: var(--color-critical);
+}
+.leyenda-pasado {
+  background: var(--bs-secondary-color);
+}
+
+.selector-horario-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+
 /* Celulares: el sidebar lateral pasa a ser una barra horizontal arriba */
 @media (max-width: 680px) {
   .app-shell {

@@ -10,7 +10,8 @@ import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
 import { TurnoSchema, type TurnoFormValues } from '../schemas/turno.schema'
-import { obtenerFechaHoraMinima } from '../utils/fecha'
+import { obtenerFechaMinima } from '../utils/fecha'
+import SelectorHorario from '../components/SelectorHorario'
 import type { Paciente } from '../types/Paciente'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
@@ -28,7 +29,8 @@ const valoresIniciales: TurnoFormValues = {
   especialidad: '' as TurnoFormValues['especialidad'],
   medico: '',
   consultorio: '',
-  fechaTurno: '',
+  fecha: '',
+  hora: '',
   observaciones: '',
 }
 
@@ -60,6 +62,9 @@ function NuevoTurnoPage() {
   })
 
   const especialidad = watch('especialidad')
+  const medicoElegido = watch('medico')
+  const fechaElegida = watch('fecha')
+  const horaElegida = watch('hora')
 
   useEffect(() => {
     getPacientes()
@@ -100,14 +105,14 @@ function NuevoTurnoPage() {
     try {
       if (!pacienteSeleccionado) return
 
-      await crearTurno({
-        ...datos,
-        fechaTurno: new Date(datos.fechaTurno).toISOString(),
-      })
+      const { fecha, hora, ...resto } = datos
+      const fechaTurno = new Date(`${fecha}T${hora}:00`).toISOString()
+
+      await crearTurno({ ...resto, fechaTurno })
       setTurnoCreado({
         paciente: pacienteSeleccionado,
         especialidad: datos.especialidad,
-        fechaTurno: datos.fechaTurno,
+        fechaTurno,
         medico: medicos?.find((m) => m.id === datos.medico),
         consultorio: consultorios?.find((c) => c.id === datos.consultorio),
       })
@@ -227,7 +232,7 @@ function NuevoTurnoPage() {
               id="medico"
               className={`form-select${errors.medico ? ' is-invalid' : ''}`}
               disabled={cargandoMedicos || !especialidad}
-              {...register('medico')}
+              {...register('medico', { onChange: () => setValue('hora', '') })}
             >
               <option value="" disabled>
                 {especialidad ? 'Seleccioná una opción' : 'Elegí primero una especialidad'}
@@ -264,18 +269,28 @@ function NuevoTurnoPage() {
             </select>
           </div>
           <div className="col-12 col-md-4">
-            <label className="form-label" htmlFor="fechaTurno">
-              Fecha y hora
+            <label className="form-label" htmlFor="fecha">
+              Fecha
             </label>
             <input
-              id="fechaTurno"
-              type="datetime-local"
-              step={1800}
-              min={obtenerFechaHoraMinima()}
-              className={`form-control${errors.fechaTurno ? ' is-invalid' : ''}`}
-              {...register('fechaTurno')}
+              id="fecha"
+              type="date"
+              min={obtenerFechaMinima()}
+              className={`form-control${errors.fecha ? ' is-invalid' : ''}`}
+              {...register('fecha', { onChange: () => setValue('hora', '') })}
             />
-            {errors.fechaTurno && <div className="invalid-feedback">{errors.fechaTurno.message}</div>}
+            {errors.fecha && <div className="invalid-feedback">{errors.fecha.message}</div>}
+          </div>
+          <div className="col-12">
+            <label className="form-label d-block">Horario</label>
+            <input type="hidden" {...register('hora')} />
+            <SelectorHorario
+              medicoId={medicoElegido}
+              fecha={fechaElegida}
+              horaSeleccionada={horaElegida}
+              onSeleccionar={(hora) => setValue('hora', hora, { shouldValidate: true })}
+              error={errors.hora?.message}
+            />
           </div>
           <div className="col-12">
             <label className="form-label" htmlFor="observaciones">
