@@ -10,6 +10,7 @@ const TurnosPage = lazy(() => import('./pages/TurnosPage'))
 const AltaPacientePage = lazy(() => import('./pages/AltaPacientePage'))
 const NuevaRecepcionPage = lazy(() => import('./pages/NuevaRecepcionPage'))
 const NuevoTurnoPage = lazy(() => import('./pages/NuevoTurnoPage'))
+const EditarTurnoPage = lazy(() => import('./pages/EditarTurnoPage'))
 const PacientesPage = lazy(() => import('./pages/PacientesPage'))
 const EditarPacientePage = lazy(() => import('./pages/EditarPacientePage'))
 const HistoriaClinicaPage = lazy(() => import('./pages/HistoriaClinicaPage'))
@@ -48,6 +49,7 @@ function App() {
                 <Route index element={<TurnosPage />} />
                 <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
                 <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
+                <Route path="turnos/:id/editar" element={<EditarTurnoPage />} />
                 <Route path="pacientes" element={<PacientesPage />} />
                 <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
                 <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />

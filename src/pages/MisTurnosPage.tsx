@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { getMisTurnos, cancelarTurno } from '../api/turnosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
@@ -8,6 +9,8 @@ import type { Turno } from '../types/Turno'
 function MisTurnosPage() {
   const { datos, setDatos, cargando, error, setError } = useFetch<Turno[]>(getMisTurnos)
   const confirmar = useConfirm()
+  const location = useLocation()
+  const turnoAgendado = Boolean((location.state as { turnoAgendado?: boolean } | null)?.turnoAgendado)
   const turnos = datos ?? []
 
   const handleCancelar = async (id: string) => {
@@ -29,6 +32,12 @@ function MisTurnosPage() {
     <div className="container text-start py-4">
       <p className="section-label mb-1">Mi cuenta</p>
       <h1 className="mb-4">Mis Turnos</h1>
+
+      {turnoAgendado && (
+        <div className="alert alert-success" role="status">
+          Turno agendado correctamente.
+        </div>
+      )}
 
       {error && (
         <div className="alert alert-danger" role="alert">

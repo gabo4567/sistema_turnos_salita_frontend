@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Turno } from '../types/Turno'
 import { useConfirm } from '../hooks/useConfirm'
 
@@ -62,6 +63,9 @@ function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
         >
           Llamar
         </button>
+        <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
+          Editar
+        </Link>
         <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
           Cancelar
         </button>

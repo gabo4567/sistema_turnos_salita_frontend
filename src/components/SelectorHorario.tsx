@@ -9,11 +9,13 @@ interface SelectorHorarioProps {
   horaSeleccionada: string
   onSeleccionar: (hora: string) => void
   error?: string
+  // Al editar un turno existente: no cuenta su propio horario como ocupado.
+  excluirTurnoId?: string
 }
 
 const horarios = generarHorariosDelDia()
 
-function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, error }: SelectorHorarioProps) {
+function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, error, excluirTurnoId }: SelectorHorarioProps) {
   const [ocupados, setOcupados] = useState<string[]>([])
   const [cargando, setCargando] = useState(false)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
@@ -28,7 +30,7 @@ function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, err
     setCargando(true)
     setErrorCarga(null)
 
-    getDisponibilidad(medicoId, fecha)
+    getDisponibilidad(medicoId, fecha, excluirTurnoId)
       .then((respuesta) => {
         if (!cancelado) setOcupados(respuesta.ocupados)
       })
@@ -42,7 +44,7 @@ function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, err
     return () => {
       cancelado = true
     }
-  }, [medicoId, fecha])
+  }, [medicoId, fecha, excluirTurnoId])
 
   if (!medicoId || !fecha) {
     return <p className="text-body-secondary mb-0">Elegí médico y fecha para ver los horarios disponibles.</p>
