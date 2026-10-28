@@ -10,8 +10,25 @@ import type { Turno } from '../types/Turno'
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'activos', etiqueta: 'Activos' },
   { valor: 'cancelado', etiqueta: 'Cancelados' },
+  { valor: 'no_asistio', etiqueta: 'No asistió' },
   { valor: 'todos', etiqueta: 'Todos' },
 ]
+
+const ETIQUETAS_ESTADO: Record<string, string> = {
+  pendiente: 'Pendiente',
+  llamado: 'Te están llamando',
+  atendido: 'Atendido',
+  cancelado: 'Cancelado',
+  no_asistio: 'No asistió',
+}
+
+const CLASES_ESTADO: Record<string, string> = {
+  pendiente: 'espera',
+  llamado: 'llamado',
+  atendido: 'atendido',
+  cancelado: 'cancelado',
+  no_asistio: 'no-asistio',
+}
 
 function MisTurnosPage() {
   const [estado, setEstado] = useState<FiltroEstado>('activos')
@@ -79,8 +96,9 @@ function MisTurnosPage() {
       ) : (
         <div className="ledger">
           {turnos.map((turno) => {
-            const atendido = turno.estado === 'atendido'
-            const cancelado = turno.estado === 'cancelado'
+            const estado = turno.estado ?? 'pendiente'
+            const pendiente = estado === 'pendiente'
+            const cancelado = estado === 'cancelado'
             const fecha = new Date(turno.fechaTurno)
 
             return (
@@ -102,11 +120,11 @@ function MisTurnosPage() {
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
                 </span>
-                <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
-                  {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'Pendiente'}
+                <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
+                  {ETIQUETAS_ESTADO[estado] ?? estado}
                 </span>
                 <span className="d-flex gap-2">
-                  {!atendido && !cancelado && (
+                  {pendiente && (
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"

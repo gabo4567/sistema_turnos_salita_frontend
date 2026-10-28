@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TurnoCard from '../components/TurnoCard'
-import { getTurnos, cancelarTurno, actualizarTurno, type FiltroEstado } from '../api/turnosApi'
+import { getTurnos, cancelarTurno, marcarLlamado, marcarFinalizado, type FiltroEstado } from '../api/turnosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import type { Turno } from '../types/Turno'
@@ -22,6 +22,7 @@ const esHoy = (fechaTurno: string) => {
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'activos', etiqueta: 'Activos' },
   { valor: 'cancelado', etiqueta: 'Cancelados' },
+  { valor: 'no_asistio', etiqueta: 'No asistió' },
   { valor: 'todos', etiqueta: 'Todos' },
 ]
 
@@ -41,9 +42,18 @@ function TurnosPage() {
   const { datos: datosStats } = useFetch<Turno[]>(() => getTurnos('activos'))
   const turnosStats = datosStats ?? []
 
-  const marcarAtendido = async (id: string) => {
+  const llamar = async (id: string) => {
     try {
-      const turnoActualizado = await actualizarTurno(id, { estado: 'atendido' })
+      const turnoActualizado = await marcarLlamado(id)
+      setDatos((prev) => (prev ?? []).map((turno) => (turno.id === id ? turnoActualizado : turno)))
+    } catch (err) {
+      setError(extraerMensaje(err))
+    }
+  }
+
+  const finalizar = async (id: string) => {
+    try {
+      const turnoActualizado = await marcarFinalizado(id)
       setDatos((prev) => (prev ?? []).map((turno) => (turno.id === id ? turnoActualizado : turno)))
     } catch (err) {
       setError(extraerMensaje(err))
@@ -65,7 +75,7 @@ function TurnosPage() {
   // Para la tira de estadísticas, siempre sobre "activos" (turnosStats),
   // sin importar qué estado haya elegido el usuario para la tabla.
   const statsHoy = turnosStats.filter((turno) => esHoy(turno.fechaTurno))
-  const enEsperaHoy = statsHoy.filter((turno) => turno.estado !== 'atendido').length
+  const enEsperaHoy = statsHoy.filter((turno) => turno.estado === 'pendiente' || turno.estado === 'llamado').length
   const atendidosHoy = statsHoy.filter((turno) => turno.estado === 'atendido').length
 
   // Para la tabla, sobre el listado filtrado por el estado elegido.
@@ -170,7 +180,7 @@ function TurnosPage() {
       ) : (
         <div className="ledger">
           {turnosFiltrados.map((turno) => (
-            <TurnoCard key={turno.id} turno={turno} onLlamar={marcarAtendido} onCancelar={cancelar} />
+            <TurnoCard key={turno.id} turno={turno} onLlamar={llamar} onFinalizar={finalizar} onCancelar={cancelar} />
           ))}
         </div>
       )}

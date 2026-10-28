@@ -3,6 +3,8 @@ import {
   getMisTurnosMedico,
   cancelarTurno,
   marcarAusenciaMedico,
+  marcarLlamado,
+  marcarFinalizado,
   type PeriodoFiltro,
   type FiltroEstado,
 } from '../api/turnosApi'
@@ -15,10 +17,28 @@ import type { Turno } from '../types/Turno'
 
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'pendiente', etiqueta: 'Pendientes' },
+  { valor: 'llamado', etiqueta: 'Llamados' },
   { valor: 'atendido', etiqueta: 'Atendidos' },
   { valor: 'cancelado', etiqueta: 'Cancelados' },
+  { valor: 'no_asistio', etiqueta: 'No asistió' },
   { valor: 'todos', etiqueta: 'Todos' },
 ]
+
+const ETIQUETAS_ESTADO: Record<string, string> = {
+  pendiente: 'Pendiente',
+  llamado: 'Llamado',
+  atendido: 'Atendido',
+  cancelado: 'Cancelado',
+  no_asistio: 'No asistió',
+}
+
+const CLASES_ESTADO: Record<string, string> = {
+  pendiente: 'espera',
+  llamado: 'llamado',
+  atendido: 'atendido',
+  cancelado: 'cancelado',
+  no_asistio: 'no-asistio',
+}
 
 const OPCIONES_PERIODO: { valor: PeriodoFiltro | 'todos'; etiqueta: string }[] = [
   { valor: 'hoy', etiqueta: 'Hoy' },
@@ -57,6 +77,26 @@ function MisTurnosMedicoPage() {
   const turnos = (datos ?? []).filter((turno) =>
     turno.paciente?.nombre && normalizarTexto(turno.paciente.nombre).includes(normalizarTexto(busqueda))
   )
+
+  const handleLlamar = async (id: string) => {
+    setErrorAccion(null)
+    try {
+      await marcarLlamado(id)
+      await recargar()
+    } catch (err) {
+      setErrorAccion(extraerMensaje(err))
+    }
+  }
+
+  const handleFinalizar = async (id: string) => {
+    setErrorAccion(null)
+    try {
+      await marcarFinalizado(id)
+      await recargar()
+    } catch (err) {
+      setErrorAccion(extraerMensaje(err))
+    }
+  }
 
   const handleNoPuedoAtender = async (id: string) => {
     const ok = await confirmar('¿Marcar que no podés atender este turno?', {
@@ -166,9 +206,9 @@ function MisTurnosMedicoPage() {
       ) : (
         <div className="ledger">
           {turnos.map((turno) => {
-            const atendido = turno.estado === 'atendido'
-            const cancelado = turno.estado === 'cancelado'
-            const pendiente = turno.estado === 'pendiente'
+            const estado = turno.estado ?? 'pendiente'
+            const pendiente = estado === 'pendiente'
+            const llamado = estado === 'llamado'
             const fecha = new Date(turno.fechaTurno)
 
             return (
@@ -182,17 +222,35 @@ function MisTurnosMedicoPage() {
                 <span>
                   <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
                   <span className="obra-social">
-                    {cancelado && turno.observaciones
+                    {estado === 'cancelado' && turno.observaciones
                       ? turno.observaciones
                       : ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
                 </span>
-                <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
-                  {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'Pendiente'}
+                <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
+                  {ETIQUETAS_ESTADO[estado] ?? estado}
                 </span>
                 <span className="d-flex gap-2">
                   {pendiente && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => handleLlamar(turno.id)}
+                    >
+                      Llamar
+                    </button>
+                  )}
+                  {llamado && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-success btn-sm"
+                      onClick={() => handleFinalizar(turno.id)}
+                    >
+                      Finalizar consulta
+                    </button>
+                  )}
+                  {(pendiente || llamado) && (
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"

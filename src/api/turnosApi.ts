@@ -74,6 +74,14 @@ export function marcarAusenciaMedico(): Promise<{ cancelados: number }> {
   return apiFetch('/turnos/ausencia-medico', { method: 'PATCH' })
 }
 
+export function marcarLlamado(id: string): Promise<Turno> {
+  return apiFetch(`/turnos/${id}/llamar`, { method: 'PATCH' })
+}
+
+export function marcarFinalizado(id: string): Promise<Turno> {
+  return apiFetch(`/turnos/${id}/finalizar`, { method: 'PATCH' })
+}
+
 export function actualizarTurno(id: string, datos: ActualizarTurnoPayload): Promise<Turno> {
   return apiFetch(`/turnos/${id}`, {
     method: 'PUT',

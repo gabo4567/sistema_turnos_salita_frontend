@@ -17,13 +17,35 @@ const formatearDia = (fechaTurno: string) => {
 interface TurnoCardProps {
   turno: Turno
   onLlamar: (id: string) => void
+  onFinalizar: (id: string) => void
   onCancelar: (id: string) => void
 }
 
-function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
+const ETIQUETAS_ESTADO: Record<string, string> = {
+  pendiente: 'En espera',
+  llamado: 'Llamado',
+  atendido: 'Atendido',
+  cancelado: 'Cancelado',
+  no_asistio: 'No asistió',
+}
+
+const CLASES_ESTADO: Record<string, string> = {
+  pendiente: 'espera',
+  llamado: 'llamado',
+  atendido: 'atendido',
+  cancelado: 'cancelado',
+  no_asistio: 'no-asistio',
+}
+
+function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps) {
   const confirmar = useConfirm()
-  const atendido = turno.estado === 'atendido'
-  const cancelado = turno.estado === 'cancelado'
+  const estado = turno.estado ?? 'pendiente'
+  const pendiente = estado === 'pendiente'
+  const llamado = estado === 'llamado'
+  const atendido = estado === 'atendido'
+  const cancelado = estado === 'cancelado'
+  const noAsistio = estado === 'no_asistio'
+  const finalizado = atendido || cancelado || noAsistio
   const hora = new Date(turno.fechaTurno).toLocaleTimeString('es-AR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -54,26 +76,28 @@ function TurnoCard({ turno, onLlamar, onCancelar }: TurnoCardProps) {
           {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
         </span>
       </span>
-      <span className={`badge-estado ${cancelado ? 'cancelado' : atendido ? 'atendido' : 'espera'}`}>
-        {cancelado ? 'Cancelado' : atendido ? 'Atendido' : 'En espera'}
-      </span>
+      <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>{ETIQUETAS_ESTADO[estado] ?? estado}</span>
       <span className="d-flex gap-2">
-        {!cancelado && (
+        {!cancelado && !noAsistio && (
           <>
-            <button
-              type="button"
-              className="btn btn-outline-primary btn-sm"
-              disabled={atendido}
-              onClick={() => onLlamar(turno.id)}
-            >
-              Llamar
-            </button>
+            {pendiente && (
+              <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => onLlamar(turno.id)}>
+                Llamar
+              </button>
+            )}
+            {llamado && (
+              <button type="button" className="btn btn-outline-success btn-sm" onClick={() => onFinalizar(turno.id)}>
+                Finalizar consulta
+              </button>
+            )}
             <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
               Editar
             </Link>
-            <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
-              Cancelar
-            </button>
+            {!finalizado && (
+              <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
+                Cancelar
+              </button>
+            )}
           </>
         )}
       </span>
