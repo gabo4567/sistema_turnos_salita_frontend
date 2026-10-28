@@ -204,7 +204,7 @@ function NuevaRecepcionPage() {
           </div>
           <div className="col-12">
             <label className="form-label" htmlFor="observaciones">
-              Observaciones
+              Motivo (opcional)
             </label>
             <textarea
               id="observaciones"

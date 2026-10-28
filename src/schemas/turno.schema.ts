@@ -14,7 +14,7 @@ export const TurnoSchema = z.object({
   consultorio: z.string().optional(),
   fecha: z.string({ error: 'La fecha es obligatoria' }).min(1, 'La fecha es obligatoria'),
   hora: z.string({ error: 'Elegí un horario' }).min(1, 'Elegí un horario'),
-  observaciones: z.string().max(500, 'Las observaciones no pueden superar los 500 caracteres').optional(),
+  observaciones: z.string().max(500, 'El motivo no puede superar los 500 caracteres').optional(),
 })
 
 export type TurnoFormValues = z.infer<typeof TurnoSchema>
