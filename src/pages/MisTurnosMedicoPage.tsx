@@ -1,11 +1,43 @@
-import { getMisTurnosMedico } from '../api/turnosApi'
+import { useState } from 'react'
+import { getMisTurnosMedico, type PeriodoFiltro } from '../api/turnosApi'
 import { useFetch } from '../hooks/useFetch'
 import { ESPECIALIDADES } from '../constants/turnos'
-import type { Turno } from '../types/Turno'
+import { normalizarTexto } from '../utils/texto'
+import type { Turno, EstadoTurno } from '../types/Turno'
+
+type EstadoFiltro = EstadoTurno | 'todos'
+
+const OPCIONES_ESTADO: { valor: EstadoFiltro; etiqueta: string }[] = [
+  { valor: 'pendiente', etiqueta: 'Pendientes' },
+  { valor: 'atendido', etiqueta: 'Atendidos' },
+  { valor: 'todos', etiqueta: 'Todos' },
+]
+
+const OPCIONES_PERIODO: { valor: PeriodoFiltro | 'todos'; etiqueta: string }[] = [
+  { valor: 'hoy', etiqueta: 'Hoy' },
+  { valor: 'semana', etiqueta: 'Esta semana' },
+  { valor: 'mes', etiqueta: 'Este mes' },
+  { valor: '6meses', etiqueta: 'Últimos 6 meses' },
+  { valor: 'todos', etiqueta: 'Todos' },
+]
 
 function MisTurnosMedicoPage() {
-  const { datos, cargando, error } = useFetch<Turno[]>(getMisTurnosMedico)
-  const turnos = datos ?? []
+  const [estado, setEstado] = useState<EstadoFiltro>('pendiente')
+  const [periodo, setPeriodo] = useState<PeriodoFiltro | 'todos'>('hoy')
+  const [busqueda, setBusqueda] = useState('')
+
+  const { datos, cargando, error } = useFetch<Turno[]>(
+    () =>
+      getMisTurnosMedico({
+        estado: estado === 'todos' ? undefined : estado,
+        periodo: periodo === 'todos' ? undefined : periodo,
+      }),
+    [estado, periodo]
+  )
+
+  const turnos = (datos ?? []).filter((turno) =>
+    turno.paciente?.nombre && normalizarTexto(turno.paciente.nombre).includes(normalizarTexto(busqueda))
+  )
 
   return (
     <div className="container text-start py-4">
@@ -18,10 +50,49 @@ function MisTurnosMedicoPage() {
         </div>
       )}
 
+      <div className="d-flex flex-wrap gap-2 mb-3">
+        <div className="btn-group" role="group" aria-label="Filtrar por estado">
+          {OPCIONES_ESTADO.map((opcion) => (
+            <button
+              key={opcion.valor}
+              type="button"
+              className={`btn btn-sm ${estado === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => setEstado(opcion.valor)}
+              disabled={cargando}
+            >
+              {opcion.etiqueta}
+            </button>
+          ))}
+        </div>
+        <div className="btn-group" role="group" aria-label="Filtrar por período">
+          {OPCIONES_PERIODO.map((opcion) => (
+            <button
+              key={opcion.valor}
+              type="button"
+              className={`btn btn-sm ${periodo === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => setPeriodo(opcion.valor)}
+              disabled={cargando}
+            >
+              {opcion.etiqueta}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <input
+        type="text"
+        className="form-control mb-3"
+        style={{ maxWidth: '320px' }}
+        placeholder="Buscar paciente..."
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        disabled={cargando}
+      />
+
       {cargando ? (
         <p className="text-body-secondary">Cargando...</p>
       ) : turnos.length === 0 ? (
-        <p className="text-body-secondary">No tenés turnos asignados.</p>
+        <p className="text-body-secondary">No se encontraron turnos para este filtro.</p>
       ) : (
         <div className="ledger">
           {turnos.map((turno) => {
