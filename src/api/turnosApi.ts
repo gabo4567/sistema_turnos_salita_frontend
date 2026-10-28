@@ -34,8 +34,19 @@ export function getMisTurnos(): Promise<Turno[]> {
   return apiFetch('/turnos/mis-turnos')
 }
 
-export function getMisTurnosMedico(): Promise<Turno[]> {
-  return apiFetch('/turnos/mis-turnos-medico')
+export type PeriodoFiltro = 'hoy' | 'semana' | 'mes' | '6meses'
+
+export interface FiltrosMisTurnosMedico {
+  estado?: EstadoTurno
+  periodo?: PeriodoFiltro
+}
+
+export function getMisTurnosMedico(filtros: FiltrosMisTurnosMedico = {}): Promise<Turno[]> {
+  const parametros = new URLSearchParams()
+  if (filtros.estado) parametros.set('estado', filtros.estado)
+  if (filtros.periodo) parametros.set('periodo', filtros.periodo)
+  const query = parametros.toString()
+  return apiFetch(`/turnos/mis-turnos-medico${query ? `?${query}` : ''}`)
 }
 
 export function getDisponibilidad(medicoId: string, fecha: string, excluirTurnoId?: string): Promise<DisponibilidadResponse> {
