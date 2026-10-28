@@ -25,3 +25,9 @@ export type TurnoFormValues = z.infer<typeof TurnoSchema>
 export const PedirTurnoSchema = TurnoSchema.omit({ paciente: true })
 
 export type PedirTurnoFormValues = z.infer<typeof PedirTurnoSchema>
+
+// Para editar un turno existente: el paciente no se puede cambiar (si está
+// mal, se cancela y se crea uno nuevo), así que no se valida ni se manda.
+export const EditarTurnoSchema = TurnoSchema.omit({ paciente: true })
+
+export type EditarTurnoFormValues = z.infer<typeof EditarTurnoSchema>
