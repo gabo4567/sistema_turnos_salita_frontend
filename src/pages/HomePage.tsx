@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import heroSalita from '../assets/hero-salita.svg'
 import fotoPacientes from '../assets/cards/pacientes.jpg'
+import fotoTurnos from '../assets/cards/turnos.jpg'
+import fotoMedicos from '../assets/cards/medicos.jpg'
 
 function IconoCalendarioMas() {
   return (
@@ -86,12 +88,12 @@ const ACCESOS_MEDICO: AccesoHome[] = [
 
 const ACCESOS_RECEPCION: AccesoHome[] = [
   { to: '/pacientes', titulo: 'Pacientes', descripcion: 'Buscá, registrá y editá pacientes.', icono: <IconoPacientesHome />, imagen: fotoPacientes },
-  { to: '/', titulo: 'Turnos', descripcion: 'Agenda del día: llamá, finalizá o cancelá turnos.', icono: <IconoCalendarioCheck /> },
+  { to: '/', titulo: 'Turnos', descripcion: 'Agenda del día: llamá, finalizá o cancelá turnos.', icono: <IconoCalendarioCheck />, imagen: fotoTurnos },
 ]
 
 const ACCESOS_ADMIN: AccesoHome[] = [
   ...ACCESOS_RECEPCION,
-  { to: '/medicos', titulo: 'Médicos', descripcion: 'Gestioná el cuerpo médico y sus especialidades.', icono: <IconoMedicosHome /> },
+  { to: '/medicos', titulo: 'Médicos', descripcion: 'Gestioná el cuerpo médico y sus especialidades.', icono: <IconoMedicosHome />, imagen: fotoMedicos },
   { to: '/consultorios', titulo: 'Consultorios', descripcion: 'Administrá los consultorios disponibles.', icono: <IconoConsultoriosHome /> },
   { to: '/personal', titulo: 'Personal', descripcion: 'Alta y gestión del personal administrativo y médico.', icono: <IconoPersonalHome /> },
 ]
