@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -59,6 +59,12 @@ function NuevaRecepcionPage() {
   const horaElegida = watch('hora')
 
   const medicosFiltrados = (medicos ?? []).filter((m) => !especialidad || m.especialidades.includes(especialidad))
+
+  useEffect(() => {
+    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+      setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
+    }
+  }, [medicoElegido, medicosFiltrados, setValue])
 
   const onSubmit = async (datos: RecepcionFormValues) => {
     setErrores([])

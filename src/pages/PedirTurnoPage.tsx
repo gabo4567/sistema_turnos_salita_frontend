@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getMedicos } from '../api/medicosApi'
-import { getConsultorios } from '../api/consultoriosApi'
 import { crearTurno } from '../api/turnosApi'
 import { extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
@@ -12,12 +11,10 @@ import { PedirTurnoSchema, type PedirTurnoFormValues } from '../schemas/turno.sc
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
 import type { Medico } from '../types/Medico'
-import type { Consultorio } from '../types/Consultorio'
 
 const valoresIniciales: PedirTurnoFormValues = {
   especialidad: '' as PedirTurnoFormValues['especialidad'],
   medico: '',
-  consultorio: '',
   fecha: '',
   hora: '',
   observaciones: '',
@@ -26,7 +23,6 @@ const valoresIniciales: PedirTurnoFormValues = {
 function PedirTurnoPage() {
   const navigate = useNavigate()
   const { datos: medicos, cargando: cargandoMedicos } = useFetch<Medico[]>(getMedicos)
-  const { datos: consultorios, cargando: cargandoConsultorios } = useFetch<Consultorio[]>(getConsultorios)
 
   const [errores, setErrores] = useState<string[]>([])
 
@@ -49,6 +45,12 @@ function PedirTurnoPage() {
   const medicosFiltrados = (medicos ?? []).filter(
     (m) => !especialidad || m.especialidades.includes(especialidad)
   )
+
+  useEffect(() => {
+    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+      setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
+    }
+  }, [medicoElegido, medicosFiltrados, setValue])
 
   const onSubmit = async (datos: PedirTurnoFormValues) => {
     setErrores([])
@@ -90,8 +92,8 @@ function PedirTurnoPage() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="row g-3">
-          <div className="col-12 col-md-4">
+          <div className="row g-3">
+            <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="especialidad">
               Especialidad
             </label>
@@ -111,7 +113,7 @@ function PedirTurnoPage() {
             </select>
             {errors.especialidad && <div className="invalid-feedback">{errors.especialidad.message}</div>}
           </div>
-          <div className="col-12 col-md-4">
+          <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="medico">
               Médico
             </label>
@@ -136,24 +138,6 @@ function PedirTurnoPage() {
                 No hay médicos cargados para esta especialidad.
               </div>
             )}
-          </div>
-          <div className="col-12 col-md-4">
-            <label className="form-label" htmlFor="consultorio">
-              Consultorio
-            </label>
-            <select
-              id="consultorio"
-              className="form-select"
-              disabled={cargandoConsultorios}
-              {...register('consultorio')}
-            >
-              <option value="">Sin asignar</option>
-              {(consultorios ?? []).map((c) => (
-                <option key={c.id} value={c.id}>
-                  Consultorio {c.numero}
-                </option>
-              ))}
-            </select>
           </div>
           <div className="col-12 col-md-4">
             <label className="form-label" htmlFor="fecha">
