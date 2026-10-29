@@ -48,7 +48,7 @@ function Login() {
         localStorage.setItem('token', data.token)
         localStorage.setItem('nombreUsuario', data.nombre ?? 'Administración')
         localStorage.setItem('rol', data.rol ?? '')
-        navigate('/')
+        navigate('/home')
       } else {
         setError('Usuario o contraseña incorrectos')
       }

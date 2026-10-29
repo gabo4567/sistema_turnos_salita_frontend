@@ -6,6 +6,7 @@ import { getMedicos } from '../api/medicosApi'
 import { crearTurno } from '../api/turnosApi'
 import { extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
+import { IconoEspecialidad } from '../constants/especialidadIconos'
 import { useFetch } from '../hooks/useFetch'
 import { PedirTurnoSchema, type PedirTurnoFormValues } from '../schemas/turno.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
@@ -95,30 +96,29 @@ function PedirTurnoPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="row g-3">
-            <div className="col-12 col-md-6">
-            <label className="form-label" htmlFor="especialidad">
-              Especialidad
-            </label>
-            <select
-              id="especialidad"
-              className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-              {...register('especialidad', {
-                onChange: () => {
-                  setValue('medico', '')
-                  setValue('hora', '')
-                },
-              })}
-            >
-              <option value="" disabled>
-                Seleccioná una opción
-              </option>
+            <div className="col-12">
+            <label className="form-label d-block">Especialidad</label>
+            <input type="hidden" {...register('especialidad')} />
+            <div className="especialidad-grid">
               {ESPECIALIDADES.map((esp) => (
-                <option key={esp.valor} value={esp.valor}>
-                  {esp.etiqueta}
-                </option>
+                <button
+                  key={esp.valor}
+                  type="button"
+                  className={`especialidad-card${especialidad === esp.valor ? ' activa' : ''}`}
+                  onClick={() => {
+                    setValue('especialidad', esp.valor, { shouldValidate: true })
+                    setValue('medico', '')
+                    setValue('hora', '')
+                  }}
+                >
+                  <span className="especialidad-icono" aria-hidden="true">
+                    <IconoEspecialidad especialidad={esp.valor} />
+                  </span>
+                  <span>{esp.etiqueta}</span>
+                </button>
               ))}
-            </select>
-            {errors.especialidad && <div className="invalid-feedback">{errors.especialidad.message}</div>}
+            </div>
+            {errors.especialidad && <div className="text-danger small mt-2">{errors.especialidad.message}</div>}
           </div>
           <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="medico">
@@ -146,7 +146,7 @@ function PedirTurnoPage() {
               </div>
             )}
           </div>
-          <div className="col-12 col-md-4">
+          <div className="col-12 col-md-6">
             <label className="form-label" htmlFor="fecha">
               Fecha
             </label>
