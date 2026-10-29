@@ -55,16 +55,32 @@ function NuevaRecepcionPage() {
 
   const especialidad = watch('especialidad')
   const medicoElegido = watch('medico')
+  const consultorioElegido = watch('consultorio')
   const fechaElegida = watch('fecha')
   const horaElegida = watch('hora')
 
-  const medicosFiltrados = (medicos ?? []).filter((m) => !especialidad || m.especialidades.includes(especialidad))
+  // Ordenados alfabéticamente por apellido: al elegir especialidad, siempre
+  // se auto-selecciona el primero de la lista (no solo cuando hay uno solo),
+  // para que recepción no tenga que elegir médico y consultorio a mano.
+  const medicosFiltrados = (medicos ?? [])
+    .filter((m) => !especialidad || m.especialidades.includes(especialidad))
+    .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
+
+  const consultoriosFiltrados = (consultorios ?? [])
+    .filter((c) => !especialidad || c.especialidad === especialidad)
+    .sort((a, b) => a.numero.localeCompare(b.numero))
 
   useEffect(() => {
-    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+    if (especialidad && !medicoElegido && medicosFiltrados.length > 0) {
       setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
     }
-  }, [medicoElegido, medicosFiltrados, setValue])
+  }, [especialidad, medicoElegido, medicosFiltrados, setValue])
+
+  useEffect(() => {
+    if (especialidad && !consultorioElegido && consultoriosFiltrados.length > 0) {
+      setValue('consultorio', consultoriosFiltrados[0].id, { shouldValidate: true })
+    }
+  }, [especialidad, consultorioElegido, consultoriosFiltrados, setValue])
 
   const onSubmit = async (datos: RecepcionFormValues) => {
     setErrores([])
@@ -127,7 +143,13 @@ function NuevaRecepcionPage() {
             <select
               id="especialidad"
               className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-              {...register('especialidad', { onChange: () => setValue('medico', '') })}
+              {...register('especialidad', {
+                onChange: () => {
+                  setValue('medico', '')
+                  setValue('consultorio', '')
+                  setValue('hora', '')
+                },
+              })}
             >
               <option value="" disabled>
                 Seleccioná una opción
