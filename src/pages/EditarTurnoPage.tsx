@@ -8,6 +8,7 @@ import { getConsultorios } from '../api/consultoriosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { EditarTurnoSchema, type EditarTurnoFormValues } from '../schemas/turno.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
@@ -24,6 +25,7 @@ function EditarTurnoPage() {
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
   const [guardadoOk, setGuardadoOk] = useState(false)
+  useAutoDismiss(guardadoOk, () => setGuardadoOk(false))
 
   const { datos: medicos, cargando: cargandoMedicos } = useFetch<Medico[]>(getMedicos)
   const { datos: consultorios, cargando: cargandoConsultorios } = useFetch<Consultorio[]>(getConsultorios)

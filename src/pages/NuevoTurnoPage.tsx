@@ -9,6 +9,7 @@ import { crearTurno } from '../api/turnosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { TurnoSchema, type TurnoFormValues } from '../schemas/turno.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
@@ -48,6 +49,7 @@ function NuevoTurnoPage() {
 
   const [errores, setErrores] = useState<string[]>([])
   const [turnoCreado, setTurnoCreado] = useState<TurnoCreadoResumen | null>(null)
+  useAutoDismiss(turnoCreado, () => setTurnoCreado(null))
 
   const {
     register,

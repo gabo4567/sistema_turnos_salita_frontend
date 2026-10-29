@@ -9,6 +9,7 @@ import { extraerMensajesError } from '../api/httpClient'
 import CamposPaciente from '../components/CamposPaciente'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { useFetch } from '../hooks/useFetch'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { RecepcionSchema, type RecepcionFormValues } from '../schemas/recepcion.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
@@ -37,6 +38,7 @@ function NuevaRecepcionPage() {
   const navigate = useNavigate()
   const [errores, setErrores] = useState<string[]>([])
   const [turnoCreado, setTurnoCreado] = useState<Turno | null>(null)
+  useAutoDismiss(turnoCreado, () => setTurnoCreado(null))
 
   const { datos: medicos, cargando: cargandoMedicos } = useFetch<Medico[]>(getMedicos)
   const { datos: consultorios, cargando: cargandoConsultorios } = useFetch<Consultorio[]>(getConsultorios)

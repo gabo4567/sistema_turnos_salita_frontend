@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getConsultorios, actualizarConsultorio } from '../api/consultoriosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { ConsultorioSchema, type ConsultorioFormValues } from '../schemas/consultorio.schema'
 
@@ -16,6 +17,7 @@ function EditarConsultorioPage() {
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
   const [guardadoOk, setGuardadoOk] = useState(false)
+  useAutoDismiss(guardadoOk, () => setGuardadoOk(false))
 
   const {
     register,

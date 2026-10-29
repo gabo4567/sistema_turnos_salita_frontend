@@ -4,6 +4,7 @@ import { getMisTurnos, cancelarTurno, type FiltroEstado } from '../api/turnosApi
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import { useConfirm } from '../hooks/useConfirm'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Turno } from '../types/Turno'
 
@@ -38,7 +39,10 @@ function MisTurnosPage() {
   )
   const confirmar = useConfirm()
   const location = useLocation()
-  const turnoAgendado = Boolean((location.state as { turnoAgendado?: boolean } | null)?.turnoAgendado)
+  const [turnoAgendado, setTurnoAgendado] = useState(
+    Boolean((location.state as { turnoAgendado?: boolean } | null)?.turnoAgendado)
+  )
+  useAutoDismiss(turnoAgendado, () => setTurnoAgendado(false))
   const turnos = datos ?? []
 
   const handleCancelar = async (id: string) => {

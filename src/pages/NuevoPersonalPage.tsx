@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearUsuario } from '../api/usuariosApi'
 import { extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { UsuarioSchema, type UsuarioFormValues } from '../schemas/usuario.schema'
 import type { Usuario } from '../types/Usuario'
 
@@ -16,6 +17,7 @@ const valoresIniciales: UsuarioFormValues = {
 function NuevoPersonalPage() {
   const [errores, setErrores] = useState<string[]>([])
   const [usuarioCreado, setUsuarioCreado] = useState<Usuario | null>(null)
+  useAutoDismiss(usuarioCreado, () => setUsuarioCreado(null))
 
   const {
     register,
