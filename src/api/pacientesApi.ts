@@ -12,6 +12,7 @@ export function crearPaciente(paciente: PacienteFormValues): Promise<Paciente> {
 export interface FiltrosPacientes {
   obraSocial?: string
   dni?: string
+  estado?: 'activos' | 'inactivos' | 'todos'
 }
 
 export function getPacientes(filtros: FiltrosPacientes = {}): Promise<Paciente[]> {

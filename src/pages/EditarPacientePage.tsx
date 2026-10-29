@@ -30,7 +30,7 @@ function EditarPacientePage() {
     if (!dni) return
     let cancelado = false
 
-    getPacientes({ dni })
+    getPacientes({ dni, estado: 'todos' })
       .then((datos) => {
         if (cancelado) return
         const paciente = datos[0]

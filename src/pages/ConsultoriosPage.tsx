@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ConsultorioRow from '../components/ConsultorioRow'
-import { getConsultorios, darDeBajaConsultorio } from '../api/consultoriosApi'
+import { getConsultorios, darDeBajaConsultorio, type FiltrosConsultorios } from '../api/consultoriosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import type { Consultorio } from '../types/Consultorio'
 
 function ConsultoriosPage() {
+  const esAdmin = localStorage.getItem('rol') === 'admin'
   const [busqueda, setBusqueda] = useState('')
-  const { datos, setDatos, cargando, error, setError } = useFetch<Consultorio[]>(getConsultorios)
+  const [estado, setEstado] = useState<FiltrosConsultorios['estado']>('activos')
+  const { datos, setDatos, cargando, error, setError } = useFetch<Consultorio[]>(
+    () => getConsultorios({ estado }),
+    [estado]
+  )
   const consultorios = datos ?? []
 
   const consultoriosFiltrados = consultorios.filter((consultorio) =>
@@ -42,14 +47,37 @@ function ConsultoriosPage() {
         </div>
       )}
 
-      <input
-        type="text"
-        className="form-control mb-3"
-        placeholder="Buscar por número..."
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        disabled={cargando}
-      />
+      <div className="d-flex flex-wrap gap-3 mb-3">
+        <input
+          type="text"
+          className="form-control flex-grow-1"
+          style={{ minWidth: '200px' }}
+          placeholder="Buscar por número..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          disabled={cargando}
+        />
+        {esAdmin && (
+          <div className="btn-group" role="group" aria-label="Filtrar por estado">
+            <button
+              type="button"
+              className={`btn btn-sm ${estado === 'activos' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => setEstado('activos')}
+              disabled={cargando}
+            >
+              Activos
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${estado === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => setEstado('todos')}
+              disabled={cargando}
+            >
+              Ver inactivos
+            </button>
+          </div>
+        )}
+      </div>
 
       {cargando ? (
         <div className="ledger" aria-hidden="true">

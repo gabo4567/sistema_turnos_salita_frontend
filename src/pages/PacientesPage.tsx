@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PacienteRow from '../components/PacienteRow'
-import { getPacientes, darDeBajaPaciente } from '../api/pacientesApi'
+import { getPacientes, darDeBajaPaciente, type FiltrosPacientes } from '../api/pacientesApi'
 import { extraerMensaje } from '../api/httpClient'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
 import { useFetch } from '../hooks/useFetch'
 import type { Paciente } from '../types/Paciente'
 
 function PacientesPage() {
+  const esAdmin = localStorage.getItem('rol') === 'admin'
   const [busqueda, setBusqueda] = useState('')
   const [obraSocial, setObraSocial] = useState('')
+  const [estado, setEstado] = useState<FiltrosPacientes['estado']>('activos')
   const { datos, setDatos, cargando, error, setError } = useFetch<Paciente[]>(
-    () => getPacientes({ obraSocial }),
-    [obraSocial]
+    () => getPacientes({ obraSocial, estado }),
+    [obraSocial, estado]
   )
   const pacientes = datos ?? []
 
@@ -75,6 +77,28 @@ function PacientesPage() {
             ))}
           </select>
         </div>
+        {esAdmin && (
+          <div className="col-12">
+            <div className="btn-group" role="group" aria-label="Filtrar por estado">
+              <button
+                type="button"
+                className={`btn btn-sm ${estado === 'activos' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setEstado('activos')}
+                disabled={cargando}
+              >
+                Activos
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${estado === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setEstado('todos')}
+                disabled={cargando}
+              >
+                Ver inactivos
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {cargando ? (

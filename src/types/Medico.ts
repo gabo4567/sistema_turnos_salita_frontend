@@ -8,4 +8,5 @@ export interface Medico {
   matricula: string
   telefono?: string
   cupoMaximo: number
+  activo?: boolean
 }

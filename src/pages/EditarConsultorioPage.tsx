@@ -30,7 +30,7 @@ function EditarConsultorioPage() {
     if (!numero) return
     let cancelado = false
 
-    getConsultorios()
+    getConsultorios({ estado: 'todos' })
       .then((datos) => {
         if (cancelado) return
         const consultorio = datos.find((c) => c.numero === numero)
