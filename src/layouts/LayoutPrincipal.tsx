@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Cargando from '../components/Cargando'
 import PerfilModal from '../components/PerfilModal'
 import { useConfirm } from '../hooks/useConfirm'
+import logoSalita from '../assets/logo.svg'
 
 function IconoTurnos() {
   return (
@@ -165,9 +166,7 @@ function LayoutPrincipal() {
       <aside className={`sidebar${colapsado ? ' colapsado' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-brand">
-            <span className="masthead-seal" aria-hidden="true">
-              SM
-            </span>
+            <img src={logoSalita} alt="Logo de la Salita Municipal N.º 12" className="sidebar-logo" />
             <div className="sidebar-brand-texto text-start">
               <p className="masthead-title mb-0">Salita Municipal N.º 12</p>
               <p className="masthead-subtitle mb-0">Barrio Belgrano</p>

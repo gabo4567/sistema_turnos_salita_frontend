@@ -6,6 +6,7 @@ import LayoutPrincipal from './layouts/LayoutPrincipal'
 import Cargando from './components/Cargando'
 import { ConfirmProvider } from './context/ConfirmProvider'
 
+const HomePage = lazy(() => import('./pages/HomePage'))
 const TurnosPage = lazy(() => import('./pages/TurnosPage'))
 const NuevaRecepcionPage = lazy(() => import('./pages/NuevaRecepcionPage'))
 const NuevoTurnoPage = lazy(() => import('./pages/NuevoTurnoPage'))
@@ -43,6 +44,9 @@ function App() {
           />
           <Route element={<RutaProtegida />}>
             <Route element={<LayoutPrincipal />}>
+              {/* Accesible para cualquier rol logueado: no va dentro de ningún RutaPorRol */}
+              <Route path="home" element={<HomePage />} />
+
               <Route element={<RutaPorRol rolesPermitidos={['admin', 'recepcionista']} />}>
                 <Route index element={<TurnosPage />} />
                 <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
