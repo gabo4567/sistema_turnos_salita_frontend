@@ -47,7 +47,7 @@ function MedicosPage() {
       </div>
 
       {error && (
-        <div className="alert alert-danger" role="alert">
+        <div className={`alert ${error.startsWith('No se puede dar de baja:') ? 'alert-warning' : 'alert-danger'}`} role="alert">
           {error}
         </div>
       )}
