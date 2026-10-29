@@ -42,15 +42,17 @@ function PedirTurnoPage() {
   const fechaElegida = watch('fecha')
   const horaElegida = watch('hora')
 
-  const medicosFiltrados = (medicos ?? []).filter(
-    (m) => !especialidad || m.especialidades.includes(especialidad)
-  )
+  // Ordenados alfabéticamente por apellido: al elegir especialidad, siempre
+  // se auto-selecciona el primero de la lista (no solo cuando hay uno solo).
+  const medicosFiltrados = (medicos ?? [])
+    .filter((m) => !especialidad || m.especialidades.includes(especialidad))
+    .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
 
   useEffect(() => {
-    if (medicosFiltrados.length === 1 && medicoElegido !== medicosFiltrados[0].id) {
+    if (especialidad && !medicoElegido && medicosFiltrados.length > 0) {
       setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
     }
-  }, [medicoElegido, medicosFiltrados, setValue])
+  }, [especialidad, medicoElegido, medicosFiltrados, setValue])
 
   const onSubmit = async (datos: PedirTurnoFormValues) => {
     setErrores([])
@@ -100,7 +102,12 @@ function PedirTurnoPage() {
             <select
               id="especialidad"
               className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-              {...register('especialidad', { onChange: () => setValue('medico', '') })}
+              {...register('especialidad', {
+                onChange: () => {
+                  setValue('medico', '')
+                  setValue('hora', '')
+                },
+              })}
             >
               <option value="" disabled>
                 Seleccioná una opción
