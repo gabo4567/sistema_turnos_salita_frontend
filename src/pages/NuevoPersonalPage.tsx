@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { crearUsuario } from '../api/usuariosApi'
 import { crearMedico } from '../api/medicosApi'
 import { extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { NuevoPersonalSchema, type NuevoPersonalFormValues } from '../schemas/personal.schema'
 
@@ -22,6 +23,7 @@ const valoresIniciales: NuevoPersonalFormValues = {
 function NuevoPersonalPage() {
   const [errores, setErrores] = useState<string[]>([])
   const [mensajeExito, setMensajeExito] = useState<string | null>(null)
+  useAutoDismiss(mensajeExito, () => setMensajeExito(null))
 
   const {
     register,

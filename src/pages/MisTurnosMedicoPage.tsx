@@ -11,6 +11,7 @@ import {
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import { useConfirm } from '../hooks/useConfirm'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { normalizarTexto } from '../utils/texto'
 import type { Turno } from '../types/Turno'
@@ -54,6 +55,7 @@ function MisTurnosMedicoPage() {
   const [busqueda, setBusqueda] = useState('')
   const [errorAccion, setErrorAccion] = useState<string | null>(null)
   const [avisoAusencia, setAvisoAusencia] = useState<string | null>(null)
+  useAutoDismiss(avisoAusencia, () => setAvisoAusencia(null))
   const confirmar = useConfirm()
 
   const { datos, setDatos, cargando, error } = useFetch<Turno[]>(

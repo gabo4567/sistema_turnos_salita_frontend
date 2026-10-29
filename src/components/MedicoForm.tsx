@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearMedico } from '../api/medicosApi'
 import { extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { MedicoSchema, type MedicoFormValues } from '../schemas/medico.schema'
 import type { Medico } from '../types/Medico'
@@ -25,6 +26,7 @@ const valoresIniciales: MedicoFormValues = {
 function MedicoForm({ onCreated }: MedicoFormProps) {
   const [errores, setErrores] = useState<string[]>([])
   const [medicoCreado, setMedicoCreado] = useState<Medico | null>(null)
+  useAutoDismiss(medicoCreado, () => setMedicoCreado(null))
 
   const {
     register,

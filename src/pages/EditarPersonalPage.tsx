@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getUsuarios, actualizarUsuario } from '../api/usuariosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { EditarUsuarioSchema, type EditarUsuarioFormValues } from '../schemas/usuario.schema'
 
 function EditarPersonalPage() {
@@ -14,6 +15,7 @@ function EditarPersonalPage() {
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
   const [guardadoOk, setGuardadoOk] = useState(false)
+  useAutoDismiss(guardadoOk, () => setGuardadoOk(false))
 
   const {
     register,

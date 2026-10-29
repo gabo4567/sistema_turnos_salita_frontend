@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearConsultorio } from '../api/consultoriosApi'
 import { extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { ConsultorioSchema, type ConsultorioFormValues } from '../schemas/consultorio.schema'
 import type { Consultorio } from '../types/Consultorio'
@@ -16,6 +17,7 @@ const valoresIniciales: ConsultorioFormValues = { numero: '', piso: '', especial
 function ConsultorioForm({ onCreated }: ConsultorioFormProps) {
   const [errores, setErrores] = useState<string[]>([])
   const [consultorioCreado, setConsultorioCreado] = useState<Consultorio | null>(null)
+  useAutoDismiss(consultorioCreado, () => setConsultorioCreado(null))
 
   const {
     register,
