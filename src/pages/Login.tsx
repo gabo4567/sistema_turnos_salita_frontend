@@ -5,8 +5,29 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { login } from '../api/authApi'
 import { LoginSchema, type LoginFormValues } from '../schemas/auth.schema'
 
+function IconoOjo() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
+function IconoOjoTachado() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2" />
+      <path d="M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <line x1="2" y1="2" x2="22" y2="22" />
+    </svg>
+  )
+}
+
 function Login() {
   const [error, setError] = useState('')
+  const [mostrarPassword, setMostrarPassword] = useState(false)
   const navigate = useNavigate()
 
   const {
@@ -75,13 +96,24 @@ function Login() {
             <label className="form-label" htmlFor="password">
               Contraseña
             </label>
-            <input
-              id="password"
-              type="password"
-              className={`form-control${errors.password ? ' is-invalid' : ''}`}
-              {...register('password')}
-            />
-            {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+            <div className="input-group has-validation">
+              <input
+                id="password"
+                type={mostrarPassword ? 'text' : 'password'}
+                className={`form-control${errors.password ? ' is-invalid' : ''}`}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setMostrarPassword((m) => !m)}
+                aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                {mostrarPassword ? <IconoOjoTachado /> : <IconoOjo />}
+              </button>
+              {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
