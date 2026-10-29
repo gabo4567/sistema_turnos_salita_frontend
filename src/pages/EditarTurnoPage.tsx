@@ -54,9 +54,17 @@ function EditarTurnoPage() {
     .filter((m) => !especialidad || m.especialidades.includes(especialidad))
     .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
 
+  // Los consultorios "General" (sin especialidad propia) quedan como respaldo:
+  // matchean cualquier especialidad, pero se ordenan después de los que son
+  // específicamente de esa especialidad, para que el auto-select prefiera
+  // siempre un consultorio específico antes que uno general.
   const consultoriosFiltrados = (consultorios ?? [])
-    .filter((c) => !especialidad || c.especialidad === especialidad)
-    .sort((a, b) => a.numero.localeCompare(b.numero))
+    .filter((c) => !especialidad || c.especialidad === especialidad || !c.especialidad)
+    .sort((a, b) => {
+      const prioridadA = a.especialidad === especialidad ? 0 : 1
+      const prioridadB = b.especialidad === especialidad ? 0 : 1
+      return prioridadA - prioridadB || a.numero.localeCompare(b.numero)
+    })
 
   useEffect(() => {
     if (especialidad && !medicoElegido && medicosFiltrados.length > 0) {

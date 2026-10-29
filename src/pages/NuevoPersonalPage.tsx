@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearUsuario } from '../api/usuariosApi'
@@ -21,6 +22,7 @@ const valoresIniciales: NuevoPersonalFormValues = {
 }
 
 function NuevoPersonalPage() {
+  const navigate = useNavigate()
   const [errores, setErrores] = useState<string[]>([])
   const [mensajeExito, setMensajeExito] = useState<string | null>(null)
   useAutoDismiss(mensajeExito, () => setMensajeExito(null))
@@ -203,9 +205,14 @@ function NuevoPersonalPage() {
           </>
         )}
 
-        <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : rol === 'medico' ? 'Crear médico' : 'Crear usuario'}
-        </button>
+        <div className="d-flex gap-2 mt-4">
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : rol === 'medico' ? 'Crear médico' : 'Crear usuario'}
+          </button>
+          <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   )
