@@ -5,6 +5,15 @@ import PerfilModal from '../components/PerfilModal'
 import { useConfirm } from '../hooks/useConfirm'
 import logoSalita from '../assets/logo.svg'
 
+function IconoInicio() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
+    </svg>
+  )
+}
+
 function IconoTurnos() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -98,6 +107,8 @@ interface Enlace {
   fin?: boolean
 }
 
+const ENLACE_INICIO: Enlace = { to: '/home', fin: true, etiqueta: 'Inicio', icono: <IconoInicio /> }
+
 const ENLACES_STAFF: Enlace[] = [
   { to: '/', fin: true, etiqueta: 'Turnos', icono: <IconoTurnos /> },
   { to: '/pacientes', etiqueta: 'Pacientes', icono: <IconoPacientes /> },
@@ -126,10 +137,10 @@ const ETIQUETA_ROL: Record<string, string> = {
 }
 
 function enlacesParaRol(rol: string | null): Enlace[] {
-  if (rol === 'paciente') return ENLACES_PACIENTE
-  if (rol === 'medico') return ENLACES_MEDICO
-  if (rol === 'admin') return [...ENLACES_STAFF, ENLACE_PERSONAL]
-  return ENLACES_STAFF
+  if (rol === 'paciente') return [ENLACE_INICIO, ...ENLACES_PACIENTE]
+  if (rol === 'medico') return [ENLACE_INICIO, ...ENLACES_MEDICO]
+  if (rol === 'admin') return [ENLACE_INICIO, ...ENLACES_STAFF, ENLACE_PERSONAL]
+  return [ENLACE_INICIO, ...ENLACES_STAFF]
 }
 
 function LayoutPrincipal() {
