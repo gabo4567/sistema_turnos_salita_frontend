@@ -7,18 +7,16 @@ import Cargando from './components/Cargando'
 import { ConfirmProvider } from './context/ConfirmProvider'
 
 const TurnosPage = lazy(() => import('./pages/TurnosPage'))
-const AltaPacientePage = lazy(() => import('./pages/AltaPacientePage'))
 const NuevaRecepcionPage = lazy(() => import('./pages/NuevaRecepcionPage'))
 const NuevoTurnoPage = lazy(() => import('./pages/NuevoTurnoPage'))
 const EditarTurnoPage = lazy(() => import('./pages/EditarTurnoPage'))
+const DetalleTurnoPage = lazy(() => import('./pages/DetalleTurnoPage'))
 const PacientesPage = lazy(() => import('./pages/PacientesPage'))
 const EditarPacientePage = lazy(() => import('./pages/EditarPacientePage'))
 const HistoriaClinicaPage = lazy(() => import('./pages/HistoriaClinicaPage'))
 const MedicosPage = lazy(() => import('./pages/MedicosPage'))
-const NuevoMedicoPage = lazy(() => import('./pages/NuevoMedicoPage'))
 const EditarMedicoPage = lazy(() => import('./pages/EditarMedicoPage'))
 const ConsultoriosPage = lazy(() => import('./pages/ConsultoriosPage'))
-const NuevoConsultorioPage = lazy(() => import('./pages/NuevoConsultorioPage'))
 const EditarConsultorioPage = lazy(() => import('./pages/EditarConsultorioPage'))
 const PersonalPage = lazy(() => import('./pages/PersonalPage'))
 const NuevoPersonalPage = lazy(() => import('./pages/NuevoPersonalPage'))
@@ -50,15 +48,13 @@ function App() {
                 <Route path="nueva-recepcion" element={<NuevaRecepcionPage />} />
                 <Route path="nuevo-turno" element={<NuevoTurnoPage />} />
                 <Route path="turnos/:id/editar" element={<EditarTurnoPage />} />
+                <Route path="turnos/:id" element={<DetalleTurnoPage />} />
                 <Route path="pacientes" element={<PacientesPage />} />
                 <Route path="pacientes/:dni/editar" element={<EditarPacientePage />} />
                 <Route path="pacientes/:dni/historia" element={<HistoriaClinicaPage />} />
-                <Route path="nuevo-paciente" element={<AltaPacientePage />} />
                 <Route path="medicos" element={<MedicosPage />} />
-                <Route path="nuevo-medico" element={<NuevoMedicoPage />} />
                 <Route path="medicos/:matricula/editar" element={<EditarMedicoPage />} />
                 <Route path="consultorios" element={<ConsultoriosPage />} />
-                <Route path="nuevo-consultorio" element={<NuevoConsultorioPage />} />
                 <Route path="consultorios/:numero/editar" element={<EditarConsultorioPage />} />
               </Route>
 

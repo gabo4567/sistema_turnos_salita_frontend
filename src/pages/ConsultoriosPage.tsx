@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useState } from 'react'
 import ConsultorioRow from '../components/ConsultorioRow'
+import ConsultorioForm from '../components/ConsultorioForm'
+import FormularioModal from '../components/FormularioModal'
 import { getConsultorios, darDeBajaConsultorio, type FiltrosConsultorios } from '../api/consultoriosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
@@ -8,6 +9,8 @@ import type { Consultorio } from '../types/Consultorio'
 
 function ConsultoriosPage() {
   const esAdmin = localStorage.getItem('rol') === 'admin'
+  const [mostrarAlta, setMostrarAlta] = useState(false)
+  const cerrarAlta = useCallback(() => setMostrarAlta(false), [])
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState<FiltrosConsultorios['estado']>('activos')
   const { datos, setDatos, cargando, error, setError } = useFetch<Consultorio[]>(
@@ -29,6 +32,10 @@ function ConsultoriosPage() {
     }
   }
 
+  const agregarConsultorio = (consultorio: Consultorio) => {
+    setDatos((prev) => [consultorio, ...(prev ?? []).filter((actual) => actual.id !== consultorio.id)])
+  }
+
   return (
     <div className="container text-start py-4">
       <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
@@ -36,9 +43,9 @@ function ConsultoriosPage() {
           <p className="section-label mb-1">Infraestructura</p>
           <h1 className="mb-0">Consultorios</h1>
         </div>
-        <Link to="/nuevo-consultorio" className="btn btn-primary">
+        <button type="button" className="btn btn-primary" onClick={() => setMostrarAlta(true)}>
           Nuevo consultorio
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -102,6 +109,12 @@ function ConsultoriosPage() {
             />
           ))}
         </div>
+      )}
+
+      {mostrarAlta && (
+        <FormularioModal titulo="Nuevo consultorio" onClose={cerrarAlta}>
+          <ConsultorioForm onCreated={agregarConsultorio} />
+        </FormularioModal>
       )}
     </div>
   )

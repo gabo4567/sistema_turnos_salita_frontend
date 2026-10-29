@@ -3,19 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getPacientes, actualizarPaciente } from '../api/pacientesApi'
-import { analizarHistorial } from '../api/iaApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { HistorialMedicoSchema, type HistorialMedicoFormValues } from '../schemas/historialMedico.schema'
 import type { Paciente } from '../types/Paciente'
-import type { AnalisisClinico } from '../types/AnalisisClinico'
 
 const entradaVacia: HistorialMedicoFormValues = { fecha: '', diagnostico: '', tratamiento: '', medico: '' }
-
-const COLOR_GRAVEDAD: Record<AnalisisClinico['nivelGravedad'], string> = {
-  bajo: 'text-bg-success',
-  medio: 'text-bg-warning',
-  alto: 'text-bg-danger',
-}
 
 function HistoriaClinicaPage() {
   const { dni } = useParams<{ dni: string }>()
@@ -25,10 +17,6 @@ function HistoriaClinicaPage() {
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
-
-  const [analizando, setAnalizando] = useState(false)
-  const [errorAnalisis, setErrorAnalisis] = useState<string | null>(null)
-  const [analisis, setAnalisis] = useState<AnalisisClinico | null>(null)
 
   const {
     register,
@@ -64,23 +52,6 @@ function HistoriaClinicaPage() {
       cancelado = true
     }
   }, [dni])
-
-  const handleAnalizar = async () => {
-    if (!paciente || paciente.historialMedico.length === 0) return
-
-    setAnalizando(true)
-    setErrorAnalisis(null)
-    setAnalisis(null)
-
-    try {
-      const resultado = await analizarHistorial(paciente.historialMedico)
-      setAnalisis(resultado)
-    } catch (error) {
-      setErrorAnalisis(extraerMensaje(error))
-    } finally {
-      setAnalizando(false)
-    }
-  }
 
   const onSubmit = async (datos: HistorialMedicoFormValues) => {
     setErrores([])
@@ -150,50 +121,6 @@ function HistoriaClinicaPage() {
                     </span>
                   </div>
                 ))}
-            </div>
-          )}
-
-          <div className="d-flex align-items-center gap-3 mb-4">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={handleAnalizar}
-              disabled={analizando || paciente.historialMedico.length === 0}
-            >
-              {analizando ? 'Analizando con IA...' : 'Analizar con IA'}
-            </button>
-            {analizando && (
-              <span className="text-body-secondary small">
-                Puede tardar unos segundos, la IA está leyendo el historial completo.
-              </span>
-            )}
-          </div>
-
-          {errorAnalisis && (
-            <div className="alert alert-danger" role="alert">
-              {errorAnalisis}
-            </div>
-          )}
-
-          {analisis && (
-            <div className="border rounded p-3 mb-4">
-              <div className="d-flex align-items-center justify-content-between mb-2">
-                <h3 className="h6 mb-0">Análisis de IA</h3>
-                <span className={`badge ${COLOR_GRAVEDAD[analisis.nivelGravedad]}`}>
-                  Gravedad: {analisis.nivelGravedad}
-                </span>
-              </div>
-              <p className="mb-2">{analisis.resumenClinico}</p>
-              {analisis.medicamentosDetectados.length > 0 && (
-                <>
-                  <p className="fw-semibold mb-1 small">Medicamentos/tratamientos detectados:</p>
-                  <ul className="mb-0 ps-3">
-                    {analisis.medicamentosDetectados.map((medicamento, index) => (
-                      <li key={index}>{medicamento}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
             </div>
           )}
 
