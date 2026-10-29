@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useState } from 'react'
 import PacienteRow from '../components/PacienteRow'
+import PacienteForm from '../components/PacienteForm'
+import FormularioModal from '../components/FormularioModal'
 import { getPacientes, darDeBajaPaciente, type FiltrosPacientes } from '../api/pacientesApi'
 import { extraerMensaje } from '../api/httpClient'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
@@ -9,6 +10,8 @@ import type { Paciente } from '../types/Paciente'
 
 function PacientesPage() {
   const esAdmin = localStorage.getItem('rol') === 'admin'
+  const [mostrarAlta, setMostrarAlta] = useState(false)
+  const cerrarAlta = useCallback(() => setMostrarAlta(false), [])
   const [busqueda, setBusqueda] = useState('')
   const [obraSocial, setObraSocial] = useState('')
   const [estado, setEstado] = useState<FiltrosPacientes['estado']>('activos')
@@ -33,6 +36,10 @@ function PacientesPage() {
     }
   }
 
+  const agregarPaciente = (paciente: Paciente) => {
+    setDatos((prev) => [paciente, ...(prev ?? []).filter((actual) => actual.id !== paciente.id)])
+  }
+
   return (
     <div className="container text-start py-4">
       <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
@@ -40,9 +47,9 @@ function PacientesPage() {
           <p className="section-label mb-1">Padrón</p>
           <h1 className="mb-0">Pacientes</h1>
         </div>
-        <Link to="/nuevo-paciente" className="btn btn-primary">
+        <button type="button" className="btn btn-primary" onClick={() => setMostrarAlta(true)}>
           Nuevo paciente
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -122,6 +129,12 @@ function PacientesPage() {
             <PacienteRow key={paciente.id} paciente={paciente} onDarDeBaja={darDeBaja} />
           ))}
         </div>
+      )}
+
+      {mostrarAlta && (
+        <FormularioModal titulo="Nuevo paciente" onClose={cerrarAlta}>
+          <PacienteForm onCreated={agregarPaciente} />
+        </FormularioModal>
       )}
     </div>
   )

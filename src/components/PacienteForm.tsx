@@ -9,6 +9,7 @@ import type { Paciente } from '../types/Paciente'
 
 interface PacienteFormProps {
   onCancel?: () => void
+  onCreated?: (paciente: Paciente) => void
 }
 
 const valoresIniciales: PacienteFormValues = {
@@ -20,7 +21,7 @@ const valoresIniciales: PacienteFormValues = {
   obraSocial: { nombre: '' as PacienteFormValues['obraSocial']['nombre'], numeroAfiliado: '' },
 }
 
-function PacienteForm({ onCancel }: PacienteFormProps) {
+function PacienteForm({ onCancel, onCreated }: PacienteFormProps) {
   const [errores, setErrores] = useState<string[]>([])
   const [pacienteCreado, setPacienteCreado] = useState<Paciente | null>(null)
 
@@ -41,6 +42,7 @@ function PacienteForm({ onCancel }: PacienteFormProps) {
     try {
       const paciente = await crearPaciente(datos)
       setPacienteCreado(paciente)
+      onCreated?.(paciente)
       reset(valoresIniciales)
     } catch (error) {
       setErrores(extraerMensajesError(error))

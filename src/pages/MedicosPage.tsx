@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useState } from 'react'
 import MedicoRow from '../components/MedicoRow'
+import MedicoForm from '../components/MedicoForm'
+import FormularioModal from '../components/FormularioModal'
 import { getMedicos, darDeBajaMedico, type FiltrosMedicos } from '../api/medicosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
@@ -8,6 +9,8 @@ import type { Medico } from '../types/Medico'
 
 function MedicosPage() {
   const esAdmin = localStorage.getItem('rol') === 'admin'
+  const [mostrarAlta, setMostrarAlta] = useState(false)
+  const cerrarAlta = useCallback(() => setMostrarAlta(false), [])
   const [busqueda, setBusqueda] = useState('')
   const [estado, setEstado] = useState<FiltrosMedicos['estado']>('activos')
   const { datos, setDatos, cargando, error, setError } = useFetch<Medico[]>(
@@ -34,6 +37,10 @@ function MedicosPage() {
     }
   }
 
+  const agregarMedico = (medico: Medico) => {
+    setDatos((prev) => [medico, ...(prev ?? []).filter((actual) => actual.id !== medico.id)])
+  }
+
   return (
     <div className="container text-start py-4">
       <div className="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
@@ -41,9 +48,9 @@ function MedicosPage() {
           <p className="section-label mb-1">Cuerpo médico</p>
           <h1 className="mb-0">Médicos</h1>
         </div>
-        <Link to="/nuevo-medico" className="btn btn-primary">
+        <button type="button" className="btn btn-primary" onClick={() => setMostrarAlta(true)}>
           Nuevo médico
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -106,6 +113,12 @@ function MedicosPage() {
             <MedicoRow key={medico.id} medico={medico} onDarDeBaja={darDeBaja} />
           ))}
         </div>
+      )}
+
+      {mostrarAlta && (
+        <FormularioModal titulo="Nuevo médico" onClose={cerrarAlta}>
+          <MedicoForm onCreated={agregarMedico} />
+        </FormularioModal>
       )}
     </div>
   )

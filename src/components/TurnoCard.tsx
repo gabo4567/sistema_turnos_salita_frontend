@@ -78,6 +78,9 @@ function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps)
       </span>
       <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>{ETIQUETAS_ESTADO[estado] ?? estado}</span>
       <span className="d-flex gap-2">
+        <Link to={`/turnos/${turno.id}`} className="btn btn-outline-secondary btn-sm">
+          Detalle
+        </Link>
         {!cancelado && !noAsistio && (
           <>
             {pendiente && (
