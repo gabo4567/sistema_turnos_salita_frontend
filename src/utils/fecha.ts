@@ -11,6 +11,15 @@ export function esFechaDeHoy(fecha: string): boolean {
   return fecha === obtenerFechaMinima()
 }
 
+// "fecha" es un string "YYYY-MM-DD" (el valor crudo de <input type="date">,
+// sin hora). new Date(fecha) lo parsea como medianoche UTC -- hay que leer
+// el día con getUTCDay(), no getDay(), porque en UTC-3 (Argentina) la
+// versión local daría el día de la fecha anterior.
+export function esFinDeSemana(fecha: string): boolean {
+  const dia = new Date(fecha).getUTCDay()
+  return dia === 0 || dia === 6
+}
+
 // Hora actual en formato "HH:mm", redondeada hacia arriba al próximo :00 o
 // :30 — para tachar en la grilla de horarios los bloques que ya pasaron
 // cuando la fecha elegida es hoy.
