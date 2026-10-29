@@ -147,7 +147,13 @@ function EditarTurnoPage() {
         </div>
       )}
 
-      {!cargando && !errorCarga && turno && (
+      {!cargando && !errorCarga && turno && (turno.estado === 'llamado' || turno.estado === 'atendido') && (
+        <div className="alert alert-warning" role="alert">
+          No se puede editar un turno que ya fue llamado o atendido.
+        </div>
+      )}
+
+      {!cargando && !errorCarga && turno && turno.estado !== 'llamado' && turno.estado !== 'atendido' && (
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           {guardadoOk && (
             <div className="alert alert-success" role="status">

@@ -93,9 +93,11 @@ function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps)
                 Finalizar consulta
               </button>
             )}
-            <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
-              Editar
-            </Link>
+            {!llamado && !atendido && (
+              <Link to={`/turnos/${turno.id}/editar`} className="btn btn-outline-primary btn-sm">
+                Editar
+              </Link>
+            )}
             {!finalizado && (
               <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleCancelar}>
                 Cancelar
