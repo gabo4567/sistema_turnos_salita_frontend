@@ -4,6 +4,8 @@ import heroSalita from '../assets/hero-salita.svg'
 import fotoPacientes from '../assets/cards/pacientes.jpg'
 import fotoTurnos from '../assets/cards/turnos.jpg'
 import fotoMedicos from '../assets/cards/medicos.jpg'
+import fotoConsultorios from '../assets/cards/consultorios.jpg'
+import fotoPersonal from '../assets/cards/personal.jpg'
 
 function IconoCalendarioMas() {
   return (
@@ -94,8 +96,8 @@ const ACCESOS_RECEPCION: AccesoHome[] = [
 const ACCESOS_ADMIN: AccesoHome[] = [
   ...ACCESOS_RECEPCION,
   { to: '/medicos', titulo: 'Médicos', descripcion: 'Gestioná el cuerpo médico y sus especialidades.', icono: <IconoMedicosHome />, imagen: fotoMedicos },
-  { to: '/consultorios', titulo: 'Consultorios', descripcion: 'Administrá los consultorios disponibles.', icono: <IconoConsultoriosHome /> },
-  { to: '/personal', titulo: 'Personal', descripcion: 'Alta y gestión del personal administrativo y médico.', icono: <IconoPersonalHome /> },
+  { to: '/consultorios', titulo: 'Consultorios', descripcion: 'Administrá los consultorios disponibles.', icono: <IconoConsultoriosHome />, imagen: fotoConsultorios },
+  { to: '/personal', titulo: 'Personal', descripcion: 'Alta y gestión del personal administrativo y médico.', icono: <IconoPersonalHome />, imagen: fotoPersonal },
 ]
 
 function accesosParaRol(rol: string | null): AccesoHome[] {
