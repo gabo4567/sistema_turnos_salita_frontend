@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import heroSalita from '../assets/hero-salita.svg'
+import fotoPacientes from '../assets/cards/pacientes.jpg'
 
 function IconoCalendarioMas() {
   return (
@@ -67,6 +68,9 @@ interface AccesoHome {
   titulo: string
   descripcion: string
   icono: ReactNode
+  // Las tarjetas sin foto todavía (se van sumando de a una, generadas con
+  // IA) caen en el estilo plano de ícono + fondo blanco.
+  imagen?: string
 }
 
 // Accesos directos por rol: solo rutas que ya existen en la app (App.tsx),
@@ -81,7 +85,7 @@ const ACCESOS_MEDICO: AccesoHome[] = [
 ]
 
 const ACCESOS_RECEPCION: AccesoHome[] = [
-  { to: '/pacientes', titulo: 'Pacientes', descripcion: 'Buscá, registrá y editá pacientes.', icono: <IconoPacientesHome /> },
+  { to: '/pacientes', titulo: 'Pacientes', descripcion: 'Buscá, registrá y editá pacientes.', icono: <IconoPacientesHome />, imagen: fotoPacientes },
   { to: '/', titulo: 'Turnos', descripcion: 'Agenda del día: llamá, finalizá o cancelá turnos.', icono: <IconoCalendarioCheck /> },
 ]
 
@@ -125,15 +129,33 @@ function HomePage() {
 
       <p className="section-label mb-2">Accesos rápidos</p>
       <div className="home-accesos">
-        {accesos.map((acceso) => (
-          <Link key={acceso.to} to={acceso.to} className="home-tarjeta">
-            <span className="home-tarjeta-icono" aria-hidden="true">
-              {acceso.icono}
-            </span>
-            <span className="home-tarjeta-titulo">{acceso.titulo}</span>
-            <span className="home-tarjeta-desc">{acceso.descripcion}</span>
-          </Link>
-        ))}
+        {accesos.map((acceso) =>
+          acceso.imagen ? (
+            <Link
+              key={acceso.to}
+              to={acceso.to}
+              className="home-tarjeta home-tarjeta-foto"
+              style={{ backgroundImage: `url(${acceso.imagen})` }}
+            >
+              <span className="home-tarjeta-foto-overlay" aria-hidden="true" />
+              <span className="home-tarjeta-foto-contenido">
+                <span className="home-tarjeta-icono" aria-hidden="true">
+                  {acceso.icono}
+                </span>
+                <span className="home-tarjeta-titulo">{acceso.titulo}</span>
+                <span className="home-tarjeta-desc">{acceso.descripcion}</span>
+              </span>
+            </Link>
+          ) : (
+            <Link key={acceso.to} to={acceso.to} className="home-tarjeta">
+              <span className="home-tarjeta-icono" aria-hidden="true">
+                {acceso.icono}
+              </span>
+              <span className="home-tarjeta-titulo">{acceso.titulo}</span>
+              <span className="home-tarjeta-desc">{acceso.descripcion}</span>
+            </Link>
+          )
+        )}
       </div>
     </div>
   )
