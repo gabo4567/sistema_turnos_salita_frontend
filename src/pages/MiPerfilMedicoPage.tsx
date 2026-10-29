@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { actualizarMedico, getMiMedico } from '../api/medicosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ActualizarTelefonoMedicoSchema, type ActualizarTelefonoMedicoFormValues } from '../schemas/medico.schema'
 import type { Medico } from '../types/Medico'
 
@@ -12,6 +13,7 @@ function MiPerfilMedicoPage() {
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
   const [guardadoOk, setGuardadoOk] = useState(false)
+  useAutoDismiss(guardadoOk, () => setGuardadoOk(false))
 
   const {
     register,

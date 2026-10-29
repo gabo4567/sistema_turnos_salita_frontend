@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { crearPaciente } from '../api/pacientesApi'
 import { extraerMensajesError } from '../api/httpClient'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import CamposPaciente from './CamposPaciente'
 import { PacienteSchema, type PacienteFormValues } from '../schemas/paciente.schema'
 import type { Paciente } from '../types/Paciente'
@@ -23,6 +24,7 @@ const valoresIniciales: PacienteFormValues = {
 function PacienteForm({ onCancel }: PacienteFormProps) {
   const [errores, setErrores] = useState<string[]>([])
   const [pacienteCreado, setPacienteCreado] = useState<Paciente | null>(null)
+  useAutoDismiss(pacienteCreado, () => setPacienteCreado(null))
 
   const {
     register,
