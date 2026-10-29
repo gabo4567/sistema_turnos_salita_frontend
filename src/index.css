@@ -812,7 +812,9 @@ p {
 .home-tarjeta-foto-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(8, 16, 28, 0.82) 0%, rgba(8, 16, 28, 0.15) 55%, rgba(8, 16, 28, 0) 100%);
+  /* Degradé claro (no oscuro): el texto de abajo es negro, así que la capa
+     tiene que ser clara para que siga siendo legible sobre la foto. */
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.55) 55%, rgba(255, 255, 255, 0) 100%);
 }
 
 .home-tarjeta-foto-contenido {
@@ -833,8 +835,8 @@ p {
 }
 
 .home-tarjeta-foto .home-tarjeta-icono {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-primary);
   backdrop-filter: blur(2px);
 }
 
