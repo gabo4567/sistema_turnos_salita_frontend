@@ -22,7 +22,10 @@ function ConsultorioRow({ consultorio, onDarDeBaja }: ConsultorioRowProps) {
 
   return (
     <div className="ledger-row consultorio-row">
-      <span className="numero">Consultorio {consultorio.numero}</span>
+      <span className="numero">
+        Consultorio {consultorio.numero}
+        {consultorio.activo === false && <span className="badge-estado cancelado ms-2">Inactivo</span>}
+      </span>
       <span className="piso">{consultorio.piso ? `Piso ${consultorio.piso}` : '—'}</span>
       <span className="especialidad">{especialidad ?? 'General'}</span>
       <span className="d-flex gap-2">
@@ -32,9 +35,11 @@ function ConsultorioRow({ consultorio, onDarDeBaja }: ConsultorioRowProps) {
         >
           Editar
         </Link>
-        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
-          Dar de baja
-        </button>
+        {consultorio.activo !== false && (
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
+            Dar de baja
+          </button>
+        )}
       </span>
     </div>
   )

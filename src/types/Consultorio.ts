@@ -5,4 +5,5 @@ export interface Consultorio {
   numero: string
   piso?: string
   especialidad?: Especialidad | ''
+  activo?: boolean
 }

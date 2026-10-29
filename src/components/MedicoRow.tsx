@@ -30,14 +30,19 @@ function MedicoRow({ medico, onDarDeBaja }: MedicoRowProps) {
         <span className="matricula">Matrícula {medico.matricula}</span>
       </span>
       <span className="especialidad">{especialidades}</span>
-      <span className="telefono">{medico.telefono || '—'}</span>
+      <span className="telefono">
+        {medico.telefono || '—'}
+        {medico.activo === false && <span className="badge-estado cancelado ms-2">Inactivo</span>}
+      </span>
       <span className="d-flex gap-2">
         <Link to={`/medicos/${medico.matricula}/editar`} className="btn btn-outline-primary btn-sm">
           Editar
         </Link>
-        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
-          Dar de baja
-        </button>
+        {medico.activo !== false && (
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
+            Dar de baja
+          </button>
+        )}
       </span>
     </div>
   )

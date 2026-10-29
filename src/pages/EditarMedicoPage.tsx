@@ -30,7 +30,7 @@ function EditarMedicoPage() {
     if (!matricula) return
     let cancelado = false
 
-    getMedicos()
+    getMedicos({ estado: 'todos' })
       .then((datos) => {
         if (cancelado) return
         const medico = datos.find((m) => m.matricula === matricula)

@@ -24,7 +24,10 @@ function PacienteRow({ paciente, onDarDeBaja }: PacienteRowProps) {
         <span className="nombre d-block">{paciente.nombre}</span>
         <span className="dni">DNI {paciente.dni}</span>
       </span>
-      <span className="obra-social">{paciente.obraSocial?.nombre || 'Particular'}</span>
+      <span className="obra-social">
+        {paciente.obraSocial?.nombre || 'Particular'}
+        {paciente.activo === false && <span className="badge-estado cancelado ms-2">Inactivo</span>}
+      </span>
       <span className="d-flex gap-2">
         <Link to={`/pacientes/${paciente.dni}/historia`} className="btn btn-link btn-sm">
           Historia
@@ -32,9 +35,11 @@ function PacienteRow({ paciente, onDarDeBaja }: PacienteRowProps) {
         <Link to={`/pacientes/${paciente.dni}/editar`} className="btn btn-outline-primary btn-sm">
           Editar
         </Link>
-        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
-          Dar de baja
-        </button>
+        {paciente.activo !== false && (
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
+            Dar de baja
+          </button>
+        )}
       </span>
     </div>
   )

@@ -2,8 +2,16 @@ import { apiFetch } from './httpClient'
 import type { Consultorio } from '../types/Consultorio'
 import type { ConsultorioFormValues } from '../schemas/consultorio.schema'
 
-export function getConsultorios(): Promise<Consultorio[]> {
-  return apiFetch('/consultorios')
+export interface FiltrosConsultorios {
+  estado?: 'activos' | 'inactivos' | 'todos'
+}
+
+export function getConsultorios(filtros: FiltrosConsultorios = {}): Promise<Consultorio[]> {
+  const query = new URLSearchParams(
+    Object.fromEntries(Object.entries(filtros).filter(([, valor]) => valor)) as Record<string, string>
+  ).toString()
+
+  return apiFetch(`/consultorios${query ? `?${query}` : ''}`)
 }
 
 export function crearConsultorio(consultorio: ConsultorioFormValues): Promise<Consultorio> {

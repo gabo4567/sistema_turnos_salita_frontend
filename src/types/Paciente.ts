@@ -50,4 +50,5 @@ export interface Paciente {
   telefono: Telefono
   obraSocial: ObraSocialInfo
   historialMedico: HistorialMedicoEntry[]
+  activo?: boolean
 }
