@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { login } from '../api/authApi'
@@ -114,6 +114,12 @@ function Login() {
               </button>
               {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
             </div>
+          </div>
+
+          <div className="text-center mb-4">
+            <Link to="/olvide-password" className="small">
+              ¿Olvidaste tu contraseña?
+            </Link>
           </div>
 
           <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
