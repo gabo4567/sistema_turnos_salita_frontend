@@ -6,6 +6,7 @@ import { getPacientes, actualizarPaciente } from '../api/pacientesApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { HistorialMedicoSchema, type HistorialMedicoFormValues } from '../schemas/historialMedico.schema'
 import type { Paciente } from '../types/Paciente'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 const entradaVacia: HistorialMedicoFormValues = { fecha: '', diagnostico: '', tratamiento: '', medico: '' }
 
@@ -77,7 +78,10 @@ function HistoriaClinicaPage() {
       {paciente && (
         <div className="d-flex gap-3 mb-4">
           <Link to={`/pacientes/${dni}/editar`}>Editar datos</Link>
-          <Link to="/pacientes">Volver a Pacientes</Link>
+          <Link to="/pacientes" className="d-inline-flex align-items-center gap-1">
+            <IconoFlechaAtras />
+            Volver a Pacientes
+          </Link>
         </div>
       )}
 
