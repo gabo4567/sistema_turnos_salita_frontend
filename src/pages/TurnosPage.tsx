@@ -210,7 +210,7 @@ function TurnosPage() {
           type="text"
           className="form-control flex-grow-1"
           style={{ minWidth: '200px' }}
-          placeholder="Buscar paciente..."
+          placeholder="Buscar por paciente..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           disabled={cargando}
