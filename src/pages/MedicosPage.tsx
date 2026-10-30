@@ -81,8 +81,8 @@ function MedicosPage() {
             </button>
             <button
               type="button"
-              className={`btn btn-sm ${estado === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setEstado('todos')}
+              className={`btn btn-sm ${estado === 'inactivos' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => setEstado('inactivos')}
               disabled={cargando}
             >
               Ver inactivos
