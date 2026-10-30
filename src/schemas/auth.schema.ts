@@ -8,3 +8,21 @@ export const LoginSchema = z.object({
 })
 
 export type LoginFormValues = z.infer<typeof LoginSchema>
+
+export const OlvidePasswordSchema = z.object({
+  email: z.email({ error: 'Ingresá un email válido' }),
+})
+
+export type OlvidePasswordFormValues = z.infer<typeof OlvidePasswordSchema>
+
+export const RestablecerPasswordSchema = z
+  .object({
+    password: z.string({ error: 'La contraseña es obligatoria' }).min(4, 'La contraseña debe tener al menos 4 caracteres'),
+    confirmarPassword: z.string({ error: 'Confirmá la contraseña' }).min(1, 'Confirmá la contraseña'),
+  })
+  .refine((datos) => datos.password === datos.confirmarPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmarPassword'],
+  })
+
+export type RestablecerPasswordFormValues = z.infer<typeof RestablecerPasswordSchema>

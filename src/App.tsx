@@ -27,6 +27,8 @@ const PedirTurnoPage = lazy(() => import('./pages/PedirTurnoPage'))
 const MisTurnosMedicoPage = lazy(() => import('./pages/MisTurnosMedicoPage'))
 const MiPerfilMedicoPage = lazy(() => import('./pages/MiPerfilMedicoPage'))
 const Login = lazy(() => import('./pages/Login'))
+const OlvidePasswordPage = lazy(() => import('./pages/OlvidePasswordPage'))
+const RestablecerPasswordPage = lazy(() => import('./pages/RestablecerPasswordPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function App() {
@@ -39,6 +41,22 @@ function App() {
             element={
               <Suspense fallback={<Cargando />}>
                 <Login />
+              </Suspense>
+            }
+          />
+          <Route
+            path="olvide-password"
+            element={
+              <Suspense fallback={<Cargando />}>
+                <OlvidePasswordPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="restablecer-password"
+            element={
+              <Suspense fallback={<Cargando />}>
+                <RestablecerPasswordPage />
               </Suspense>
             }
           />
