@@ -26,10 +26,18 @@ const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'todos', etiqueta: 'Todos' },
 ]
 
+const aISO = (fecha: Date) => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}`
+}
+
 function TurnosPage() {
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState<'hoy' | 'todos'>('hoy')
   const [estado, setEstado] = useState<FiltroEstado>('activos')
+  const [fechaDesde, setFechaDesde] = useState('')
+  const [fechaHasta, setFechaHasta] = useState('')
+  const hayFiltroFecha = Boolean(fechaDesde || fechaHasta)
   const { datos, setDatos, cargando, error, setError } = useFetch<Turno[]>(
     () => getTurnos(estado).then(ordenarPorFecha),
     [estado]
@@ -78,10 +86,23 @@ function TurnosPage() {
   const enEsperaHoy = statsHoy.filter((turno) => turno.estado === 'pendiente' || turno.estado === 'llamado').length
   const atendidosHoy = statsHoy.filter((turno) => turno.estado === 'atendido').length
 
-  // Para la tabla, sobre el listado filtrado por el estado elegido.
-  const turnosFiltrados = (filtro === 'hoy' ? turnos.filter((turno) => esHoy(turno.fechaTurno)) : turnos).filter(
-    (turno) => turno.paciente?.nombre?.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  // Para la tabla, sobre el listado filtrado por el estado elegido. Si hay
+  // un rango de fechas cargado, tiene prioridad sobre el toggle Hoy/Todos
+  // (son dos formas de filtrar por fecha, no tiene sentido combinarlas).
+  const porRangoFecha = (turno: Turno) => {
+    const fechaTurnoISO = aISO(new Date(turno.fechaTurno))
+    if (fechaDesde && fechaTurnoISO < fechaDesde) return false
+    if (fechaHasta && fechaTurnoISO > fechaHasta) return false
+    return true
+  }
+
+  const turnosFiltrados = (
+    hayFiltroFecha
+      ? turnos.filter(porRangoFecha)
+      : filtro === 'hoy'
+        ? turnos.filter((turno) => esHoy(turno.fechaTurno))
+        : turnos
+  ).filter((turno) => turno.paciente?.nombre?.toLowerCase().includes(busqueda.toLowerCase()))
 
   return (
     <div className="container text-start py-4">
@@ -116,13 +137,13 @@ function TurnosPage() {
         </div>
       </div>
 
-      <div className="d-flex flex-wrap gap-3 mb-3">
+      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
         <div className="btn-group" role="group" aria-label="Filtrar por fecha">
           <button
             type="button"
             className={`btn btn-sm ${filtro === 'hoy' ? 'btn-primary' : 'btn-outline-primary'}`}
             onClick={() => setFiltro('hoy')}
-            disabled={cargando}
+            disabled={cargando || hayFiltroFecha}
           >
             Hoy
           </button>
@@ -130,10 +151,47 @@ function TurnosPage() {
             type="button"
             className={`btn btn-sm ${filtro === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
             onClick={() => setFiltro('todos')}
-            disabled={cargando}
+            disabled={cargando || hayFiltroFecha}
           >
             Todos
           </button>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <label htmlFor="fechaDesde" className="form-label mb-0 small text-body-secondary">
+            Desde
+          </label>
+          <input
+            id="fechaDesde"
+            type="date"
+            className="form-control form-control-sm"
+            value={fechaDesde}
+            onChange={(e) => setFechaDesde(e.target.value)}
+            disabled={cargando}
+          />
+          <label htmlFor="fechaHasta" className="form-label mb-0 small text-body-secondary">
+            Hasta
+          </label>
+          <input
+            id="fechaHasta"
+            type="date"
+            className="form-control form-control-sm"
+            value={fechaHasta}
+            onChange={(e) => setFechaHasta(e.target.value)}
+            disabled={cargando}
+          />
+          {hayFiltroFecha && (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                setFechaDesde('')
+                setFechaHasta('')
+              }}
+              disabled={cargando}
+            >
+              Limpiar
+            </button>
+          )}
         </div>
         <div className="btn-group" role="group" aria-label="Filtrar por estado">
           {OPCIONES_ESTADO.map((opcion) => (
@@ -175,7 +233,11 @@ function TurnosPage() {
         </div>
       ) : turnosFiltrados.length === 0 ? (
         <p className="text-body-secondary">
-          {filtro === 'hoy' ? 'No hay turnos para hoy.' : 'No se encontraron turnos.'}
+          {hayFiltroFecha
+            ? 'No se encontraron turnos en ese rango de fechas.'
+            : filtro === 'hoy'
+              ? 'No hay turnos para hoy.'
+              : 'No se encontraron turnos.'}
         </p>
       ) : (
         <div className="ledger">
