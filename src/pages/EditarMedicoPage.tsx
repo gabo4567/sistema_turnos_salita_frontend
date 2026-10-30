@@ -7,6 +7,7 @@ import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { ActualizarMedicoSchema, type ActualizarMedicoFormValues } from '../schemas/medico.schema'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 function EditarMedicoPage() {
   const { matricula } = useParams<{ matricula: string }>()
@@ -82,7 +83,10 @@ function EditarMedicoPage() {
 
       {!cargando && !errorCarga && (
         <div className="d-flex gap-3 mb-4">
-          <Link to="/medicos">Volver a Médicos</Link>
+          <Link to="/medicos" className="d-inline-flex align-items-center gap-1">
+            <IconoFlechaAtras />
+            Volver a Médicos
+          </Link>
         </div>
       )}
 
@@ -197,9 +201,14 @@ function EditarMedicoPage() {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div className="d-flex gap-2 mt-4">
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+            <button type="button" className="btn btn-outline-danger" onClick={() => navigate('/medicos')}>
+              Cancelar
+            </button>
+          </div>
         </form>
       )}
     </div>

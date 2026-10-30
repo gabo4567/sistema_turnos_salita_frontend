@@ -7,6 +7,7 @@ import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { ConsultorioSchema, type ConsultorioFormValues } from '../schemas/consultorio.schema'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 function EditarConsultorioPage() {
   const { numero } = useParams<{ numero: string }>()
@@ -79,7 +80,10 @@ function EditarConsultorioPage() {
 
       {!cargando && !errorCarga && (
         <div className="d-flex gap-3 mb-4">
-          <Link to="/consultorios">Volver a Consultorios</Link>
+          <Link to="/consultorios" className="d-inline-flex align-items-center gap-1">
+            <IconoFlechaAtras />
+            Volver a Consultorios
+          </Link>
         </div>
       )}
 
@@ -150,9 +154,14 @@ function EditarConsultorioPage() {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div className="d-flex gap-2 mt-4">
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+            <button type="button" className="btn btn-outline-danger" onClick={() => navigate('/consultorios')}>
+              Cancelar
+            </button>
+          </div>
         </form>
       )}
     </div>

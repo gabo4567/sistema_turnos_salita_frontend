@@ -6,6 +6,7 @@ import { getUsuarios, actualizarUsuario } from '../api/usuariosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { EditarUsuarioSchema, type EditarUsuarioFormValues } from '../schemas/usuario.schema'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 function EditarPersonalPage() {
   const { id } = useParams<{ id: string }>()
@@ -74,7 +75,10 @@ function EditarPersonalPage() {
 
       {!cargando && !errorCarga && (
         <div className="d-flex gap-3 mb-4">
-          <Link to="/personal">Volver a Personal</Link>
+          <Link to="/personal" className="d-inline-flex align-items-center gap-1">
+            <IconoFlechaAtras />
+            Volver a Personal
+          </Link>
         </div>
       )}
 
@@ -162,9 +166,14 @@ function EditarPersonalPage() {
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary mt-4" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div className="d-flex gap-2 mt-4">
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+            <button type="button" className="btn btn-outline-danger" onClick={() => navigate('/personal')}>
+              Cancelar
+            </button>
+          </div>
         </form>
       )}
     </div>
