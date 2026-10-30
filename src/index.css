@@ -543,6 +543,18 @@ p {
   color: var(--color-ink);
 }
 
+.turno-row .medico-turno {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.turno-row .etiqueta-dato {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-ink-soft);
+}
+
 .turno-row .obra-social {
   font-size: 13px;
   color: var(--color-ink-soft);
