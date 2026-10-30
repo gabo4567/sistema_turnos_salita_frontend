@@ -15,6 +15,7 @@ import SelectorHorario from '../components/SelectorHorario'
 import type { Turno } from '../types/Turno'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 function EditarTurnoPage() {
   const { id } = useParams<{ id: string }>()
@@ -132,7 +133,10 @@ function EditarTurnoPage() {
 
       {!cargando && !errorCarga && (
         <div className="d-flex gap-3 mb-4">
-          <Link to="/">Volver a Turnos</Link>
+          <Link to="/" className="d-inline-flex align-items-center gap-1">
+            <IconoFlechaAtras />
+            Volver a Turnos
+          </Link>
         </div>
       )}
 

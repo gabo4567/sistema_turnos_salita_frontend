@@ -6,6 +6,7 @@ import { analizarHistorial } from '../api/iaApi'
 import { extraerMensaje } from '../api/httpClient'
 import type { Turno } from '../types/Turno'
 import type { AnalisisClinico } from '../types/AnalisisClinico'
+import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 const COLOR_GRAVEDAD: Record<AnalisisClinico['nivelGravedad'], string> = {
   bajo: 'text-bg-success',
@@ -84,7 +85,10 @@ function DetalleTurnoPage() {
           <p className="section-label mb-1">Agenda</p>
           <h1 className="mb-0">Detalle del turno</h1>
         </div>
-        <Link to="/" className="btn btn-outline-secondary">Volver a turnos</Link>
+        <Link to="/" className="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+          <IconoFlechaAtras />
+          Volver a turnos
+        </Link>
       </div>
 
       {cargando && (
