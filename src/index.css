@@ -550,7 +550,6 @@ p {
 }
 
 .turno-row .etiqueta-dato {
-  font-size: 13px;
   font-weight: 400;
   color: var(--color-ink-soft);
 }
