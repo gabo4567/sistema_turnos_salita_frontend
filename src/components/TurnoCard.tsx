@@ -67,14 +67,26 @@ function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps)
         {hora}
       </span>
       <span>
-        <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
-        <span className="obra-social">
-          {cancelado && turno.observaciones
-            ? turno.observaciones
-            : turno.paciente?.obraSocial?.nombre || 'Particular'}
-          {turno.medico && ` · ${turno.medico.nombre} ${turno.medico.apellido}`}
-          {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
+        <span className="paciente d-block">
+          <span className="etiqueta-dato">Paciente: </span>
+          {turno.paciente?.nombre ?? 'Paciente sin datos'}
         </span>
+        {turno.medico && (
+          <span className="medico-turno d-block">
+            <span className="etiqueta-dato">Médico: </span>
+            {turno.medico.nombre} {turno.medico.apellido}
+          </span>
+        )}
+        {(cancelado && turno.observaciones) || turno.consultorio ? (
+          <span className="obra-social">
+            {[
+              cancelado && turno.observaciones ? turno.observaciones : null,
+              turno.consultorio ? `Consultorio ${turno.consultorio.numero}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+        ) : null}
       </span>
       <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>{ETIQUETAS_ESTADO[estado] ?? estado}</span>
       <span className="d-flex gap-2">
