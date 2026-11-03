@@ -32,7 +32,7 @@ export function extraerMensajesError(error: unknown): string[] {
   return ['Ocurrió un error inesperado']
 }
 
-export async function apiFetch<T>(path: string, { headers, ...options }: ApiFetchOptions = {}): Promise<T> {
+async function fetchConEnvoltorio<T>(path: string, { headers, ...options }: ApiFetchOptions = {}): Promise<RespuestaEstandar<T>> {
   let response: Response
 
   const token = localStorage.getItem('token')
@@ -66,5 +66,40 @@ export async function apiFetch<T>(path: string, { headers, ...options }: ApiFetc
     throw new ApiError(body?.message ?? 'Error al comunicarse con el servidor', mensajes)
   }
 
-  return body?.data as T
+  return (body ?? { success: true, timestamp: '', message: '', total: 0 }) as RespuestaEstandar<T>
+}
+
+export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
+  const body = await fetchConEnvoltorio<T>(path, options)
+  return body.data as T
+}
+
+export interface PaginaDeResultados<T> {
+  items: T[]
+  pagina: number
+  limite: number
+  totalRegistros: number
+  totalPaginas: number
+}
+
+// Para listados que se piden paginados (mandan `pagina` en el path): a
+// diferencia de apiFetch, no descarta el resto del sobre — necesita
+// pagina/limite/totalRegistros/totalPaginas que viajan como hermanos de
+// `data`, no dentro de ella.
+export async function apiFetchPaginado<T>(path: string, options: ApiFetchOptions = {}): Promise<PaginaDeResultados<T>> {
+  const body = await fetchConEnvoltorio<T[]>(path, options)
+  const sobre = body as RespuestaEstandar<T[]> & {
+    pagina?: number
+    limite?: number
+    totalRegistros?: number
+    totalPaginas?: number
+  }
+
+  return {
+    items: sobre.data ?? [],
+    pagina: sobre.pagina ?? 1,
+    limite: sobre.limite ?? sobre.data?.length ?? 0,
+    totalRegistros: sobre.totalRegistros ?? sobre.data?.length ?? 0,
+    totalPaginas: sobre.totalPaginas ?? 1,
+  }
 }

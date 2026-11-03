@@ -30,14 +30,19 @@ function UsuarioRow({ usuario, onDarDeBaja }: UsuarioRowProps) {
         <span className="nombre d-block">{usuario.nombre}</span>
         <span className="dni">{usuario.email}</span>
       </span>
-      <span className="obra-social">{ETIQUETA_ROL[usuario.rol] ?? usuario.rol}</span>
+      <span className="obra-social">
+        {ETIQUETA_ROL[usuario.rol] ?? usuario.rol}
+        {usuario.activo === false && <span className="badge-estado cancelado ms-2">Inactivo</span>}
+      </span>
       <span className="d-flex gap-2">
         <Link to={`/personal/${usuario.id}/editar`} className="btn btn-outline-primary btn-sm">
           Editar
         </Link>
-        <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
-          Dar de baja
-        </button>
+        {usuario.activo !== false && (
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleDarDeBaja}>
+            Dar de baja
+          </button>
+        )}
       </span>
     </div>
   )

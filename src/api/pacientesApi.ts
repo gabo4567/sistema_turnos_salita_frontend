@@ -1,4 +1,4 @@
-import { apiFetch } from './httpClient'
+import { apiFetch, apiFetchPaginado, type PaginaDeResultados } from './httpClient'
 import type { Paciente } from '../types/Paciente'
 import type { PacienteFormValues } from '../schemas/paciente.schema'
 
@@ -9,18 +9,35 @@ export function crearPaciente(paciente: PacienteFormValues): Promise<Paciente> {
   })
 }
 
+export type OrdenPacientes = 'apellido_asc' | 'apellido_desc' | 'reciente' | 'antiguo'
+
 export interface FiltrosPacientes {
   obraSocial?: string
   dni?: string
   estado?: 'activos' | 'inactivos' | 'todos'
+  busqueda?: string
+  orden?: OrdenPacientes
+  pagina?: number
+  limite?: number
+}
+
+function queryPacientes(filtros: FiltrosPacientes): string {
+  const entradas = Object.entries(filtros)
+    .filter(([, valor]) => valor !== undefined && valor !== '')
+    .map(([clave, valor]) => [clave, String(valor)])
+  const query = new URLSearchParams(entradas).toString()
+  return query ? `?${query}` : ''
 }
 
 export function getPacientes(filtros: FiltrosPacientes = {}): Promise<Paciente[]> {
-  const query = new URLSearchParams(
-    Object.fromEntries(Object.entries(filtros).filter(([, valor]) => valor)) as Record<string, string>
-  ).toString()
+  return apiFetch(`/pacientes${queryPacientes(filtros)}`)
+}
 
-  return apiFetch(`/pacientes${query ? `?${query}` : ''}`)
+// Variante paginada: para usar cuando se manda `pagina` (PacientesPage). El
+// resto de las pantallas sigue usando getPacientes() sin ese parámetro, que
+// trae el listado completo como siempre.
+export function listarPacientesPaginado(filtros: FiltrosPacientes = {}): Promise<PaginaDeResultados<Paciente>> {
+  return apiFetchPaginado(`/pacientes${queryPacientes(filtros)}`)
 }
 
 export function actualizarPaciente(id: string, paciente: Partial<Paciente>): Promise<Paciente> {
