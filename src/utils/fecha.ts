@@ -11,6 +11,14 @@ export function esFechaDeHoy(fecha: string): boolean {
   return fecha === obtenerFechaMinima()
 }
 
+// Fecha y hora actual en formato "YYYY-MM-DDTHH:mm" (hora local), para el
+// max de un <input type="datetime-local"> que no debe aceptar fechas
+// futuras (ej. entradas de historia clínica).
+export function obtenerFechaHoraActual(): string {
+  const ahora = new Date()
+  return `${obtenerFechaMinima()}T${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`
+}
+
 // "fecha" es un string "YYYY-MM-DD" (el valor crudo de <input type="date">,
 // sin hora). new Date(fecha) lo parsea como medianoche UTC -- hay que leer
 // el día con getUTCDay(), no getDay(), porque en UTC-3 (Argentina) la

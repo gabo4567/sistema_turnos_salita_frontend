@@ -18,7 +18,7 @@ export const NuevoPersonalSchema = z
     apellido: z.string(),
     matricula: z.string(),
     especialidades: z.array(z.enum(especialidades)),
-    telefono: z.string(),
+    telefono: z.object({ codigoArea: z.string(), numero: z.string() }),
     cupoMaximo: z.number(),
   })
   .superRefine((datos, contexto) => {

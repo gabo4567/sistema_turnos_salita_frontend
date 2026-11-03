@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Paciente } from '../types/Paciente'
 import { useConfirm } from '../hooks/useConfirm'
+import { nombreCompleto } from '../utils/texto'
 
 interface PacienteRowProps {
   paciente: Paciente
@@ -11,7 +12,7 @@ function PacienteRow({ paciente, onDarDeBaja }: PacienteRowProps) {
   const confirmar = useConfirm()
 
   const handleDarDeBaja = async () => {
-    const ok = await confirmar(`¿Dar de baja a ${paciente.nombre}?`, {
+    const ok = await confirmar(`¿Dar de baja a ${nombreCompleto(paciente)}?`, {
       variante: 'peligro',
       textoConfirmar: 'Dar de baja',
     })
@@ -21,7 +22,7 @@ function PacienteRow({ paciente, onDarDeBaja }: PacienteRowProps) {
   return (
     <div className="ledger-row paciente-row">
       <span>
-        <span className="nombre d-block">{paciente.nombre}</span>
+        <span className="nombre d-block">{nombreCompleto(paciente)}</span>
         <span className="dni">DNI {paciente.dni}</span>
       </span>
       <span className="obra-social">

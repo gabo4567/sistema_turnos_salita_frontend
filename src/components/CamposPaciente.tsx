@@ -25,9 +25,9 @@ function CamposPaciente<T extends FieldValues>({ register, errors, prefix = '' }
     <>
       <h2 className="h5 mt-4">Datos personales</h2>
       <div className="row g-3">
-        <div className="col-12 col-md-6">
+        <div className="col-12 col-md-4">
           <label className="form-label" htmlFor={`${prefix}nombre`}>
-            Nombre completo
+            Nombre
           </label>
           <input
             id={`${prefix}nombre`}
@@ -36,7 +36,18 @@ function CamposPaciente<T extends FieldValues>({ register, errors, prefix = '' }
           />
           {errorDe('nombre') && <div className="invalid-feedback">{errorDe('nombre')}</div>}
         </div>
-        <div className="col-12 col-md-6">
+        <div className="col-12 col-md-4">
+          <label className="form-label" htmlFor={`${prefix}apellido`}>
+            Apellido
+          </label>
+          <input
+            id={`${prefix}apellido`}
+            className={`form-control${invalida('apellido')}`}
+            {...register(campo('apellido'))}
+          />
+          {errorDe('apellido') && <div className="invalid-feedback">{errorDe('apellido')}</div>}
+        </div>
+        <div className="col-12 col-md-4">
           <label className="form-label" htmlFor={`${prefix}dni`}>
             DNI
           </label>

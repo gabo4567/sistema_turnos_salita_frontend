@@ -22,7 +22,7 @@ function MiPerfilMedicoPage() {
     formState: { errors, isSubmitting },
   } = useForm<ActualizarTelefonoMedicoFormValues>({
     resolver: zodResolver(ActualizarTelefonoMedicoSchema),
-    defaultValues: { telefono: '' },
+    defaultValues: { telefono: { codigoArea: '', numero: '' } },
   })
 
   useEffect(() => {
@@ -32,7 +32,7 @@ function MiPerfilMedicoPage() {
       .then((datos) => {
         if (cancelado) return
         setMedico(datos)
-        reset({ telefono: datos.telefono ?? '' })
+        reset({ telefono: datos.telefono ?? { codigoArea: '', numero: '' } })
       })
       .catch((err) => {
         if (!cancelado) setErrorCarga(extraerMensaje(err))
@@ -54,7 +54,7 @@ function MiPerfilMedicoPage() {
     try {
       const medicoActualizado = await actualizarMedico(medico.id, { telefono: datos.telefono })
       setMedico(medicoActualizado)
-      reset({ telefono: medicoActualizado.telefono ?? '' })
+      reset({ telefono: medicoActualizado.telefono ?? { codigoArea: '', numero: '' } })
       setGuardadoOk(true)
     } catch (error) {
       setErrores(extraerMensajesError(error))
@@ -115,17 +115,44 @@ function MiPerfilMedicoPage() {
               <input id="matricula" className="form-control" value={medico.matricula} disabled />
             </div>
             <div className="col-12 col-md-6">
-              <label className="form-label" htmlFor="telefono">
+              <label className="form-label" htmlFor="email">
+                Email <span className="text-body-secondary">(no editable)</span>
+              </label>
+              <input
+                id="email"
+                className="form-control"
+                value={typeof medico.usuarioId === 'object' ? medico.usuarioId?.email ?? '' : ''}
+                disabled
+              />
+            </div>
+            <div className="col-6 col-md-3">
+              <label className="form-label" htmlFor="telefono.codigoArea">
+                Cód. de área
+              </label>
+              <input
+                id="telefono.codigoArea"
+                type="tel"
+                className={`form-control${errors.telefono?.codigoArea ? ' is-invalid' : ''}`}
+                {...register('telefono.codigoArea')}
+              />
+              {errors.telefono?.codigoArea && (
+                <div className="invalid-feedback">{errors.telefono.codigoArea.message}</div>
+              )}
+            </div>
+            <div className="col-6 col-md-3">
+              <label className="form-label" htmlFor="telefono.numero">
                 Teléfono
               </label>
               <input
-                id="telefono"
+                id="telefono.numero"
                 type="tel"
                 autoComplete="tel"
-                className={`form-control${errors.telefono ? ' is-invalid' : ''}`}
-                {...register('telefono')}
+                className={`form-control${errors.telefono?.numero ? ' is-invalid' : ''}`}
+                {...register('telefono.numero')}
               />
-              {errors.telefono && <div className="invalid-feedback">{errors.telefono.message}</div>}
+              {errors.telefono?.numero && (
+                <div className="invalid-feedback">{errors.telefono.numero.message}</div>
+              )}
             </div>
           </div>
 

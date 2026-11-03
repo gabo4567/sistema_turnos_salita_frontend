@@ -7,6 +7,7 @@ import { extraerMensaje } from '../api/httpClient'
 import type { Turno } from '../types/Turno'
 import type { AnalisisClinico } from '../types/AnalisisClinico'
 import IconoFlechaAtras from '../components/IconoFlechaAtras'
+import { nombreCompleto } from '../utils/texto'
 
 const COLOR_GRAVEDAD: Record<AnalisisClinico['nivelGravedad'], string> = {
   bajo: 'text-bg-success',
@@ -108,7 +109,7 @@ function DetalleTurnoPage() {
           <section className="card mb-4">
             <div className="card-body">
               <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
-                <h2 className="h5 mb-0">{turno.paciente.nombre}</h2>
+                <h2 className="h5 mb-0">{nombreCompleto(turno.paciente)}</h2>
                 <span className="badge text-bg-primary">
                   {ETIQUETAS_ESTADO[turno.estado ?? 'pendiente'] ?? turno.estado}
                 </span>

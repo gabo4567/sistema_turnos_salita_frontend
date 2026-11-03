@@ -17,7 +17,7 @@ const valoresIniciales: MedicoFormValues = {
   apellido: '',
   especialidades: [],
   matricula: '',
-  telefono: '',
+  telefono: { codigoArea: '', numero: '' },
   cupoMaximo: 15,
   email: '',
   password: '',
@@ -85,9 +85,15 @@ function MedicoForm({ onCreated }: MedicoFormProps) {
           <input id="medico-matricula" className={`form-control${errors.matricula ? ' is-invalid' : ''}`} {...register('matricula')} />
           {errors.matricula && <div className="invalid-feedback">{errors.matricula.message}</div>}
         </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label" htmlFor="medico-telefono">Teléfono</label>
-          <input id="medico-telefono" className="form-control" {...register('telefono')} />
+        <div className="col-6 col-md-3">
+          <label className="form-label" htmlFor="medico-telefono-codigoArea">Cód. de área</label>
+          <input id="medico-telefono-codigoArea" className={`form-control${errors.telefono?.codigoArea ? ' is-invalid' : ''}`} {...register('telefono.codigoArea')} />
+          {errors.telefono?.codigoArea && <div className="invalid-feedback">{errors.telefono.codigoArea.message}</div>}
+        </div>
+        <div className="col-6 col-md-3">
+          <label className="form-label" htmlFor="medico-telefono-numero">Teléfono</label>
+          <input id="medico-telefono-numero" className={`form-control${errors.telefono?.numero ? ' is-invalid' : ''}`} {...register('telefono.numero')} />
+          {errors.telefono?.numero && <div className="invalid-feedback">{errors.telefono.numero.message}</div>}
         </div>
         <div className="col-12">
           <label className="form-label d-block">Especialidades</label>

@@ -4,6 +4,31 @@ import type { Especialidad } from '../types/Turno'
 
 const especialidades = ESPECIALIDADES.map((e) => e.valor) as [Especialidad, ...Especialidad[]]
 
+// Teléfono obligatorio (lo usa el médico para editar el suyo propio en "Mi perfil").
+const telefonoSchema = z.object({
+  codigoArea: z
+    .string({ error: 'El código de área es obligatorio' })
+    .regex(/^[0-9]{2,5}$/, 'El código de área no es válido'),
+  numero: z
+    .string({ error: 'El número de teléfono es obligatorio' })
+    .regex(/^[0-9]{7,10}$/, 'El número de teléfono no es válido'),
+})
+
+// Teléfono opcional (alta/edición por admin): como el campo del form
+// siempre manda un objeto (nunca "undefined"), dejar los dos vacíos
+// también es válido — significa "sin teléfono cargado".
+const telefonoOpcionalSchema = z
+  .object({
+    codigoArea: z.string(),
+    numero: z.string(),
+  })
+  .refine(
+    (valor) =>
+      (valor.codigoArea === '' && valor.numero === '') ||
+      (/^[0-9]{2,5}$/.test(valor.codigoArea) && /^[0-9]{7,10}$/.test(valor.numero)),
+    { message: 'Completá código de área y número, o dejá los dos vacíos', path: ['numero'] }
+  )
+
 const camposBase = {
   nombre: z.string({ error: 'El nombre es obligatorio' }).min(1, 'El nombre es obligatorio'),
   apellido: z.string({ error: 'El apellido es obligatorio' }).min(1, 'El apellido es obligatorio'),
@@ -11,7 +36,7 @@ const camposBase = {
     .array(z.enum(especialidades, { error: 'Especialidad no válida' }))
     .min(1, 'Elegí al menos una especialidad'),
   matricula: z.string({ error: 'La matrícula es obligatoria' }).min(1, 'La matrícula es obligatoria'),
-  telefono: z.string().optional(),
+  telefono: telefonoOpcionalSchema,
   cupoMaximo: z
     .number({ error: 'El cupo máximo debe ser un número' })
     .int('El cupo máximo debe ser un número entero')
@@ -29,7 +54,7 @@ export const MedicoSchema = z.object({
 export const ActualizarMedicoSchema = z.object(camposBase)
 
 export const ActualizarTelefonoMedicoSchema = z.object({
-  telefono: z.string({ error: 'El teléfono es obligatorio' }).min(1, 'El teléfono es obligatorio'),
+  telefono: telefonoSchema,
 })
 
 export type MedicoFormValues = z.infer<typeof MedicoSchema>

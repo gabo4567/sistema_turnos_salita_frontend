@@ -44,6 +44,7 @@ function EditarPacientePage() {
         setPacienteId(paciente.id)
         reset({
           nombre: paciente.nombre,
+          apellido: paciente.apellido,
           dni: paciente.dni,
           direccion: { piso: '', departamento: '', barrio: '', ...paciente.direccion },
           email: paciente.email,
