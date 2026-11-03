@@ -1,14 +1,24 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import TurnoCard from '../components/TurnoCard'
-import { getTurnos, cancelarTurno, marcarLlamado, marcarFinalizado, type FiltroEstado } from '../api/turnosApi'
+import Paginador from '../components/Paginador'
+import {
+  getTurnos,
+  listarTurnosPaginado,
+  cancelarTurno,
+  marcarLlamado,
+  marcarFinalizado,
+  type FiltroEstado,
+  type FiltrosListadoTurnos,
+} from '../api/turnosApi'
+import { getMedicos } from '../api/medicosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
-import type { Turno } from '../types/Turno'
+import { useDebounce } from '../hooks/useDebounce'
+import { ESPECIALIDADES } from '../constants/turnos'
+import type { Turno, Especialidad } from '../types/Turno'
+import type { Medico } from '../types/Medico'
 import { nombreCompleto } from '../utils/texto'
-
-const ordenarPorFecha = (turnos: Turno[]) =>
-  [...turnos].sort((a, b) => new Date(a.fechaTurno).getTime() - new Date(b.fechaTurno).getTime())
 
 const esHoy = (fechaTurno: string) => {
   const fecha = new Date(fechaTurno)
@@ -27,34 +37,54 @@ const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'todos', etiqueta: 'Todos' },
 ]
 
-const aISO = (fecha: Date) => {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}`
-}
-
 function TurnosPage() {
   const [busqueda, setBusqueda] = useState('')
-  const [filtro, setFiltro] = useState<'hoy' | 'todos'>('hoy')
+  const busquedaDebounced = useDebounce(busqueda)
+  const [rango, setRango] = useState<'hoy' | 'todos'>('hoy')
   const [estado, setEstado] = useState<FiltroEstado>('activos')
   const [fechaDesde, setFechaDesde] = useState('')
   const [fechaHasta, setFechaHasta] = useState('')
+  const [medico, setMedico] = useState('')
+  const [especialidad, setEspecialidad] = useState<Especialidad | ''>('')
+  const [pagina, setPagina] = useState(1)
   const hayFiltroFecha = Boolean(fechaDesde || fechaHasta)
-  const { datos, setDatos, cargando, error, setError } = useFetch<Turno[]>(
-    () => getTurnos(estado).then(ordenarPorFecha),
-    [estado]
+
+  const filtros: FiltrosListadoTurnos = {
+    estado,
+    medico: medico || undefined,
+    especialidad: especialidad || undefined,
+    ...(hayFiltroFecha ? { fechaDesde: fechaDesde || undefined, fechaHasta: fechaHasta || undefined } : { rango }),
+    busquedaPaciente: busquedaDebounced || undefined,
+    pagina,
+  }
+
+  const { datos, setDatos, cargando, error, setError } = useFetch(
+    () => listarTurnosPaginado(filtros),
+    [estado, medico, especialidad, hayFiltroFecha, fechaDesde, fechaHasta, rango, busquedaDebounced, pagina]
   )
-  const turnos = datos ?? []
+  const turnos = datos?.items ?? []
+
+  const { datos: medicosActivos } = useFetch<Medico[]>(() => getMedicos())
 
   // Aparte del listado filtrable, un fetch propio para las estadísticas del
-  // día — siempre "activos", para que no cambien según qué filtro de
-  // estado haya elegido el usuario para la tabla de abajo.
+  // día — siempre "activos", sin ninguno de los filtros nuevos, para que no
+  // cambien según qué haya elegido el usuario para la tabla de abajo.
   const { datos: datosStats } = useFetch<Turno[]>(() => getTurnos('activos'))
   const turnosStats = datosStats ?? []
+
+  const cambiarFiltro = <T,>(setter: (valor: T) => void) => (valor: T) => {
+    setPagina(1)
+    setter(valor)
+  }
+
+  const recargar = () => listarTurnosPaginado(filtros).then(setDatos)
 
   const llamar = async (id: string) => {
     try {
       const turnoActualizado = await marcarLlamado(id)
-      setDatos((prev) => (prev ?? []).map((turno) => (turno.id === id ? turnoActualizado : turno)))
+      setDatos((prev) =>
+        prev ? { ...prev, items: prev.items.map((t) => (t.id === id ? turnoActualizado : t)) } : prev
+      )
     } catch (err) {
       setError(extraerMensaje(err))
     }
@@ -63,7 +93,9 @@ function TurnosPage() {
   const finalizar = async (id: string) => {
     try {
       const turnoActualizado = await marcarFinalizado(id)
-      setDatos((prev) => (prev ?? []).map((turno) => (turno.id === id ? turnoActualizado : turno)))
+      setDatos((prev) =>
+        prev ? { ...prev, items: prev.items.map((t) => (t.id === id ? turnoActualizado : t)) } : prev
+      )
     } catch (err) {
       setError(extraerMensaje(err))
     }
@@ -74,36 +106,18 @@ function TurnosPage() {
       await cancelarTurno(id)
       // No alcanza con sacarlo de la lista: según el filtro de estado
       // activo (ej. "Cancelados" o "Todos"), el turno cancelado tiene que
-      // seguir apareciendo, así que se vuelve a pedir la lista completa.
-      setDatos(await getTurnos(estado).then(ordenarPorFecha))
+      // seguir apareciendo, así que se vuelve a pedir la página actual.
+      await recargar()
     } catch (err) {
       setError(extraerMensaje(err))
     }
   }
 
   // Para la tira de estadísticas, siempre sobre "activos" (turnosStats),
-  // sin importar qué estado haya elegido el usuario para la tabla.
+  // sin importar qué filtros haya elegido el usuario para la tabla.
   const statsHoy = turnosStats.filter((turno) => esHoy(turno.fechaTurno))
   const enEsperaHoy = statsHoy.filter((turno) => turno.estado === 'pendiente' || turno.estado === 'llamado').length
   const atendidosHoy = statsHoy.filter((turno) => turno.estado === 'atendido').length
-
-  // Para la tabla, sobre el listado filtrado por el estado elegido. Si hay
-  // un rango de fechas cargado, tiene prioridad sobre el toggle Hoy/Todos
-  // (son dos formas de filtrar por fecha, no tiene sentido combinarlas).
-  const porRangoFecha = (turno: Turno) => {
-    const fechaTurnoISO = aISO(new Date(turno.fechaTurno))
-    if (fechaDesde && fechaTurnoISO < fechaDesde) return false
-    if (fechaHasta && fechaTurnoISO > fechaHasta) return false
-    return true
-  }
-
-  const turnosFiltrados = (
-    hayFiltroFecha
-      ? turnos.filter(porRangoFecha)
-      : filtro === 'hoy'
-        ? turnos.filter((turno) => esHoy(turno.fechaTurno))
-        : turnos
-  ).filter((turno) => turno.paciente && nombreCompleto(turno.paciente).toLowerCase().includes(busqueda.toLowerCase()))
 
   return (
     <div className="container text-start py-4">
@@ -142,16 +156,16 @@ function TurnosPage() {
         <div className="btn-group" role="group" aria-label="Filtrar por fecha">
           <button
             type="button"
-            className={`btn btn-sm ${filtro === 'hoy' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setFiltro('hoy')}
+            className={`btn btn-sm ${rango === 'hoy' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => cambiarFiltro(setRango)('hoy')}
             disabled={cargando || hayFiltroFecha}
           >
             Hoy
           </button>
           <button
             type="button"
-            className={`btn btn-sm ${filtro === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
-            onClick={() => setFiltro('todos')}
+            className={`btn btn-sm ${rango === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => cambiarFiltro(setRango)('todos')}
             disabled={cargando || hayFiltroFecha}
           >
             Todos
@@ -166,7 +180,7 @@ function TurnosPage() {
             type="date"
             className="form-control form-control-sm"
             value={fechaDesde}
-            onChange={(e) => setFechaDesde(e.target.value)}
+            onChange={(e) => cambiarFiltro(setFechaDesde)(e.target.value)}
             disabled={cargando}
           />
           <label htmlFor="fechaHasta" className="form-label mb-0 small text-body-secondary">
@@ -177,7 +191,7 @@ function TurnosPage() {
             type="date"
             className="form-control form-control-sm"
             value={fechaHasta}
-            onChange={(e) => setFechaHasta(e.target.value)}
+            onChange={(e) => cambiarFiltro(setFechaHasta)(e.target.value)}
             disabled={cargando}
           />
           {hayFiltroFecha && (
@@ -185,6 +199,7 @@ function TurnosPage() {
               type="button"
               className="btn btn-sm btn-outline-secondary"
               onClick={() => {
+                setPagina(1)
                 setFechaDesde('')
                 setFechaHasta('')
               }}
@@ -200,22 +215,56 @@ function TurnosPage() {
               key={opcion.valor}
               type="button"
               className={`btn btn-sm ${estado === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setEstado(opcion.valor)}
+              onClick={() => cambiarFiltro(setEstado)(opcion.valor)}
               disabled={cargando}
             >
               {opcion.etiqueta}
             </button>
           ))}
         </div>
-        <input
-          type="text"
-          className="form-control flex-grow-1"
-          style={{ minWidth: '200px' }}
-          placeholder="Buscar por paciente..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          disabled={cargando}
-        />
+      </div>
+
+      <div className="row g-3 mb-3">
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar por paciente..."
+            value={busqueda}
+            onChange={(e) => cambiarFiltro(setBusqueda)(e.target.value)}
+            disabled={cargando}
+          />
+        </div>
+        <div className="col-12 col-md-4">
+          <select
+            className="form-select"
+            value={medico}
+            onChange={(e) => cambiarFiltro(setMedico)(e.target.value)}
+            disabled={cargando}
+          >
+            <option value="">Todos los médicos</option>
+            {(medicosActivos ?? []).map((m) => (
+              <option key={m.id} value={m.id}>
+                {nombreCompleto(m)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-12 col-md-4">
+          <select
+            className="form-select"
+            value={especialidad}
+            onChange={(e) => cambiarFiltro(setEspecialidad)(e.target.value as Especialidad | '')}
+            disabled={cargando}
+          >
+            <option value="">Todas las especialidades</option>
+            {ESPECIALIDADES.map((esp) => (
+              <option key={esp.valor} value={esp.valor}>
+                {esp.etiqueta}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {cargando ? (
@@ -232,20 +281,31 @@ function TurnosPage() {
             </div>
           ))}
         </div>
-      ) : turnosFiltrados.length === 0 ? (
+      ) : turnos.length === 0 ? (
         <p className="text-body-secondary">
           {hayFiltroFecha
             ? 'No se encontraron turnos en ese rango de fechas.'
-            : filtro === 'hoy'
+            : rango === 'hoy'
               ? 'No hay turnos para hoy.'
               : 'No se encontraron turnos.'}
         </p>
       ) : (
-        <div className="ledger">
-          {turnosFiltrados.map((turno) => (
-            <TurnoCard key={turno.id} turno={turno} onLlamar={llamar} onFinalizar={finalizar} onCancelar={cancelar} />
-          ))}
-        </div>
+        <>
+          <div className="ledger">
+            {turnos.map((turno) => (
+              <TurnoCard key={turno.id} turno={turno} onLlamar={llamar} onFinalizar={finalizar} onCancelar={cancelar} />
+            ))}
+          </div>
+          {datos && (
+            <Paginador
+              pagina={datos.pagina}
+              totalPaginas={datos.totalPaginas}
+              totalRegistros={datos.totalRegistros}
+              onCambiarPagina={setPagina}
+              disabled={cargando}
+            />
+          )}
+        </>
       )}
     </div>
   )

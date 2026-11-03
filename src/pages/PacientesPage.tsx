@@ -2,43 +2,61 @@ import { useCallback, useState } from 'react'
 import PacienteRow from '../components/PacienteRow'
 import PacienteForm from '../components/PacienteForm'
 import FormularioModal from '../components/FormularioModal'
-import { getPacientes, darDeBajaPaciente, type FiltrosPacientes } from '../api/pacientesApi'
+import Paginador from '../components/Paginador'
+import SelectorOrden from '../components/SelectorOrden'
+import { listarPacientesPaginado, darDeBajaPaciente, type FiltrosPacientes, type OrdenPacientes } from '../api/pacientesApi'
 import { extraerMensaje } from '../api/httpClient'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
 import { useFetch } from '../hooks/useFetch'
+import { useDebounce } from '../hooks/useDebounce'
 import type { Paciente } from '../types/Paciente'
-import { nombreCompleto } from '../utils/texto'
+
+const OPCIONES_ORDEN: { valor: OrdenPacientes; etiqueta: string }[] = [
+  { valor: 'apellido_asc', etiqueta: 'Apellido A-Z' },
+  { valor: 'apellido_desc', etiqueta: 'Apellido Z-A' },
+  { valor: 'reciente', etiqueta: 'Más recientes' },
+  { valor: 'antiguo', etiqueta: 'Más antiguos' },
+]
 
 function PacientesPage() {
   const esAdmin = localStorage.getItem('rol') === 'admin'
   const [mostrarAlta, setMostrarAlta] = useState(false)
   const cerrarAlta = useCallback(() => setMostrarAlta(false), [])
   const [busqueda, setBusqueda] = useState('')
+  const busquedaDebounced = useDebounce(busqueda)
   const [obraSocial, setObraSocial] = useState('')
   const [estado, setEstado] = useState<FiltrosPacientes['estado']>('activos')
-  const { datos, setDatos, cargando, error, setError } = useFetch<Paciente[]>(
-    () => getPacientes({ obraSocial, estado }),
-    [obraSocial, estado]
-  )
-  const pacientes = datos ?? []
+  const [orden, setOrden] = useState<OrdenPacientes>('apellido_asc')
+  const [pagina, setPagina] = useState(1)
 
-  const pacientesFiltrados = pacientes.filter(
-    (paciente) =>
-      nombreCompleto(paciente).toLowerCase().includes(busqueda.toLowerCase()) ||
-      paciente.dni.includes(busqueda)
+  const { datos, setDatos, cargando, error, setError } = useFetch(
+    () => listarPacientesPaginado({ obraSocial, estado, orden, busqueda: busquedaDebounced, pagina }),
+    [obraSocial, estado, orden, busquedaDebounced, pagina]
   )
+  const pacientes = datos?.items ?? []
+
+  const cambiarFiltro = <T,>(setter: (valor: T) => void) => (valor: T) => {
+    setPagina(1)
+    setter(valor)
+  }
 
   const darDeBaja = async (id: string) => {
     try {
       await darDeBajaPaciente(id)
-      setDatos((prev) => (prev ?? []).filter((paciente) => paciente.id !== id))
+      setDatos((prev) =>
+        prev ? { ...prev, items: prev.items.filter((paciente) => paciente.id !== id) } : prev
+      )
     } catch (err) {
       setError(extraerMensaje(err))
     }
   }
 
   const agregarPaciente = (paciente: Paciente) => {
-    setDatos((prev) => [paciente, ...(prev ?? []).filter((actual) => actual.id !== paciente.id)])
+    setDatos((prev) =>
+      prev
+        ? { ...prev, items: [paciente, ...prev.items.filter((actual) => actual.id !== paciente.id)] }
+        : prev
+    )
   }
 
   return (
@@ -60,13 +78,13 @@ function PacientesPage() {
       )}
 
       <div className="row g-3 mb-3">
-        <div className="col-12 col-md-8">
+        <div className="col-12 col-md-5">
           <input
             type="text"
             className="form-control"
             placeholder="Buscar por nombre o DNI..."
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => cambiarFiltro(setBusqueda)(e.target.value)}
             disabled={cargando}
           />
         </div>
@@ -74,7 +92,7 @@ function PacientesPage() {
           <select
             className="form-select"
             value={obraSocial}
-            onChange={(e) => setObraSocial(e.target.value)}
+            onChange={(e) => cambiarFiltro(setObraSocial)(e.target.value)}
             disabled={cargando}
           >
             <option value="">Todas las obras sociales</option>
@@ -85,13 +103,16 @@ function PacientesPage() {
             ))}
           </select>
         </div>
+        <div className="col-12 col-md-3">
+          <SelectorOrden value={orden} onChange={cambiarFiltro(setOrden)} opciones={OPCIONES_ORDEN} disabled={cargando} />
+        </div>
         {esAdmin && (
           <div className="col-12">
             <div className="btn-group" role="group" aria-label="Filtrar por estado">
               <button
                 type="button"
                 className={`btn btn-sm ${estado === 'activos' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => setEstado('activos')}
+                onClick={() => cambiarFiltro(setEstado)('activos')}
                 disabled={cargando}
               >
                 Activos
@@ -99,7 +120,7 @@ function PacientesPage() {
               <button
                 type="button"
                 className={`btn btn-sm ${estado === 'inactivos' ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => setEstado('inactivos')}
+                onClick={() => cambiarFiltro(setEstado)('inactivos')}
                 disabled={cargando}
               >
                 Ver inactivos
@@ -122,14 +143,25 @@ function PacientesPage() {
             </div>
           ))}
         </div>
-      ) : pacientesFiltrados.length === 0 ? (
+      ) : pacientes.length === 0 ? (
         <p className="text-body-secondary">No se encontraron pacientes.</p>
       ) : (
-        <div className="ledger">
-          {pacientesFiltrados.map((paciente) => (
-            <PacienteRow key={paciente.id} paciente={paciente} onDarDeBaja={darDeBaja} />
-          ))}
-        </div>
+        <>
+          <div className="ledger">
+            {pacientes.map((paciente) => (
+              <PacienteRow key={paciente.id} paciente={paciente} onDarDeBaja={darDeBaja} />
+            ))}
+          </div>
+          {datos && (
+            <Paginador
+              pagina={datos.pagina}
+              totalPaginas={datos.totalPaginas}
+              totalRegistros={datos.totalRegistros}
+              onCambiarPagina={setPagina}
+              disabled={cargando}
+            />
+          )}
+        </>
       )}
 
       {mostrarAlta && (

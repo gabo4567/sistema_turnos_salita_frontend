@@ -1,4 +1,4 @@
-import { apiFetch } from './httpClient'
+import { apiFetch, apiFetchPaginado, type PaginaDeResultados } from './httpClient'
 import type { Turno, Especialidad, EstadoTurno } from '../types/Turno'
 import type { TurnoFormValues } from '../schemas/turno.schema'
 
@@ -29,6 +29,33 @@ export type FiltroEstado = EstadoTurno | 'activos' | 'todos'
 
 export function getTurnos(estado?: FiltroEstado): Promise<Turno[]> {
   return apiFetch(`/turnos${estado ? `?estado=${estado}` : ''}`)
+}
+
+export interface FiltrosListadoTurnos {
+  estado?: FiltroEstado
+  medico?: string
+  especialidad?: Especialidad
+  rango?: 'hoy' | 'todos'
+  fechaDesde?: string
+  fechaHasta?: string
+  busquedaPaciente?: string
+  pagina?: number
+  limite?: number
+}
+
+function queryTurnos(filtros: FiltrosListadoTurnos): string {
+  const entradas = Object.entries(filtros)
+    .filter(([, valor]) => valor !== undefined && valor !== '')
+    .map(([clave, valor]) => [clave, String(valor)])
+  const query = new URLSearchParams(entradas).toString()
+  return query ? `?${query}` : ''
+}
+
+// Para TurnosPage: Hoy/Todos, Desde/Hasta, estado, búsqueda por paciente,
+// médico y especialidad se resuelven todos en el backend, para que
+// combinen bien con la paginación.
+export function listarTurnosPaginado(filtros: FiltrosListadoTurnos = {}): Promise<PaginaDeResultados<Turno>> {
+  return apiFetchPaginado(`/turnos${queryTurnos(filtros)}`)
 }
 
 export function getTurnoPorId(id: string): Promise<Turno> {
