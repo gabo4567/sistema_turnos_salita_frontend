@@ -50,8 +50,12 @@ export const MedicoSchema = z.object({
   password: z.string({ error: 'La contraseña es obligatoria' }).min(4, 'La contraseña debe tener al menos 4 caracteres'),
 })
 
-// Edición (admin): no se toca la cuenta de acceso desde esta pantalla.
-export const ActualizarMedicoSchema = z.object(camposBase)
+// Edición (admin/recepcionista): también pueden cambiar el email de la
+// cuenta de acceso del médico (la contraseña no se toca desde esta pantalla).
+export const ActualizarMedicoSchema = z.object({
+  ...camposBase,
+  email: z.email({ error: 'El email es obligatorio o no es válido' }),
+})
 
 export const ActualizarTelefonoMedicoSchema = z.object({
   telefono: telefonoSchema,

@@ -14,7 +14,6 @@ function EditarMedicoPage() {
   const navigate = useNavigate()
 
   const [medicoId, setMedicoId] = useState<string | null>(null)
-  const [email, setEmail] = useState('')
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
@@ -43,7 +42,6 @@ function EditarMedicoPage() {
           return
         }
         setMedicoId(medico.id)
-        setEmail(typeof medico.usuarioId === 'object' ? medico.usuarioId?.email ?? '' : '')
         reset({
           nombre: medico.nombre,
           apellido: medico.apellido,
@@ -51,6 +49,7 @@ function EditarMedicoPage() {
           especialidades: medico.especialidades,
           telefono: medico.telefono ?? { codigoArea: '', numero: '' },
           cupoMaximo: medico.cupoMaximo,
+          email: typeof medico.usuarioId === 'object' ? medico.usuarioId?.email ?? '' : '',
         })
       })
       .catch((err) => {
@@ -162,9 +161,15 @@ function EditarMedicoPage() {
             </div>
             <div className="col-12 col-md-6">
               <label className="form-label" htmlFor="email">
-                Email <span className="text-body-secondary">(no editable)</span>
+                Email
               </label>
-              <input id="email" className="form-control" value={email} disabled />
+              <input
+                id="email"
+                type="email"
+                className={`form-control${errors.email ? ' is-invalid' : ''}`}
+                {...register('email')}
+              />
+              {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
             </div>
             <div className="col-6 col-md-3">
               <label className="form-label" htmlFor="telefono.codigoArea">
