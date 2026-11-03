@@ -16,6 +16,7 @@ import SelectorHorario from '../components/SelectorHorario'
 import type { Paciente } from '../types/Paciente'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
+import { nombreCompleto } from '../utils/texto'
 
 interface TurnoCreadoResumen {
   paciente: Paciente
@@ -113,7 +114,7 @@ function NuevoTurnoPage() {
       : pacientes
           .filter(
             (p) =>
-              p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || p.dni.includes(busqueda)
+              nombreCompleto(p).toLowerCase().includes(busqueda.toLowerCase()) || p.dni.includes(busqueda)
           )
           .slice(0, 8)
 
@@ -169,7 +170,7 @@ function NuevoTurnoPage() {
 
       {turnoCreado && (
         <div className="alert alert-success" role="alert">
-          Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> con{' '}
+          Turno agendado para <strong>{nombreCompleto(turnoCreado.paciente)}</strong> con{' '}
           {turnoCreado.medico
             ? `${turnoCreado.medico.nombre} ${turnoCreado.medico.apellido}`
             : 'el médico asignado'}
@@ -198,7 +199,7 @@ function NuevoTurnoPage() {
         {pacienteSeleccionado ? (
           <div className="d-flex align-items-center justify-content-between border rounded p-3 mb-3">
             <span>
-              <strong>{pacienteSeleccionado.nombre}</strong> — DNI {pacienteSeleccionado.dni}
+              <strong>{nombreCompleto(pacienteSeleccionado)}</strong> — DNI {pacienteSeleccionado.dni}
             </span>
             <button type="button" className="btn btn-link btn-sm" onClick={quitarPaciente}>
               Cambiar
@@ -224,7 +225,7 @@ function NuevoTurnoPage() {
                     className="d-block w-100 text-start btn btn-light border-0 rounded-0"
                     onClick={() => seleccionarPaciente(paciente)}
                   >
-                    {paciente.nombre} — DNI {paciente.dni}
+                    {nombreCompleto(paciente)} — DNI {paciente.dni}
                   </button>
                 ))}
               </div>

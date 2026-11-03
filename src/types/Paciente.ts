@@ -44,6 +44,7 @@ export interface HistorialMedicoEntry {
 export interface Paciente {
   id: string
   nombre: string
+  apellido: string
   dni: string
   direccion: Direccion
   email: string

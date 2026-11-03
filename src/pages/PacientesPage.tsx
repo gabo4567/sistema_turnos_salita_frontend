@@ -7,6 +7,7 @@ import { extraerMensaje } from '../api/httpClient'
 import { OBRAS_SOCIALES } from '../constants/pacientes'
 import { useFetch } from '../hooks/useFetch'
 import type { Paciente } from '../types/Paciente'
+import { nombreCompleto } from '../utils/texto'
 
 function PacientesPage() {
   const esAdmin = localStorage.getItem('rol') === 'admin'
@@ -23,7 +24,7 @@ function PacientesPage() {
 
   const pacientesFiltrados = pacientes.filter(
     (paciente) =>
-      paciente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      nombreCompleto(paciente).toLowerCase().includes(busqueda.toLowerCase()) ||
       paciente.dni.includes(busqueda)
   )
 

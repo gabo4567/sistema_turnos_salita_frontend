@@ -16,6 +16,7 @@ import type { Turno } from '../types/Turno'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
 import IconoFlechaAtras from '../components/IconoFlechaAtras'
+import { nombreCompleto } from '../utils/texto'
 
 function EditarTurnoPage() {
   const { id } = useParams<{ id: string }>()
@@ -178,7 +179,7 @@ function EditarTurnoPage() {
 
           <h2 className="h5 mt-2">Paciente</h2>
           <div className="border rounded p-3 mb-3 text-body-secondary">
-            <strong className="text-body">{turno.paciente?.nombre ?? 'Paciente sin datos'}</strong>
+            <strong className="text-body">{turno.paciente ? nombreCompleto(turno.paciente) : 'Paciente sin datos'}</strong>
             {turno.paciente?.dni && ` — DNI ${turno.paciente.dni}`}
             <span className="d-block small">No se puede cambiar el paciente de un turno ya creado.</span>
           </div>
@@ -240,7 +241,7 @@ function EditarTurnoPage() {
                 {...register('consultorio')}
               >
                 <option value="">Sin asignar</option>
-                {(consultorios ?? []).map((c) => (
+                {consultoriosFiltrados.map((c) => (
                   <option key={c.id} value={c.id}>
                     Consultorio {c.numero}
                   </option>

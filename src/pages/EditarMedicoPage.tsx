@@ -14,6 +14,7 @@ function EditarMedicoPage() {
   const navigate = useNavigate()
 
   const [medicoId, setMedicoId] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [errores, setErrores] = useState<string[]>([])
@@ -42,12 +43,13 @@ function EditarMedicoPage() {
           return
         }
         setMedicoId(medico.id)
+        setEmail(typeof medico.usuarioId === 'object' ? medico.usuarioId?.email ?? '' : '')
         reset({
           nombre: medico.nombre,
           apellido: medico.apellido,
           matricula: medico.matricula,
           especialidades: medico.especialidades,
-          telefono: medico.telefono || '',
+          telefono: medico.telefono ?? { codigoArea: '', numero: '' },
           cupoMaximo: medico.cupoMaximo,
         })
       })
@@ -159,10 +161,36 @@ function EditarMedicoPage() {
               {errors.matricula && <div className="invalid-feedback">{errors.matricula.message}</div>}
             </div>
             <div className="col-12 col-md-6">
-              <label className="form-label" htmlFor="telefono">
+              <label className="form-label" htmlFor="email">
+                Email <span className="text-body-secondary">(no editable)</span>
+              </label>
+              <input id="email" className="form-control" value={email} disabled />
+            </div>
+            <div className="col-6 col-md-3">
+              <label className="form-label" htmlFor="telefono.codigoArea">
+                Cód. de área
+              </label>
+              <input
+                id="telefono.codigoArea"
+                className={`form-control${errors.telefono?.codigoArea ? ' is-invalid' : ''}`}
+                {...register('telefono.codigoArea')}
+              />
+              {errors.telefono?.codigoArea && (
+                <div className="invalid-feedback">{errors.telefono.codigoArea.message}</div>
+              )}
+            </div>
+            <div className="col-6 col-md-3">
+              <label className="form-label" htmlFor="telefono.numero">
                 Teléfono
               </label>
-              <input id="telefono" className="form-control" {...register('telefono')} />
+              <input
+                id="telefono.numero"
+                className={`form-control${errors.telefono?.numero ? ' is-invalid' : ''}`}
+                {...register('telefono.numero')}
+              />
+              {errors.telefono?.numero && (
+                <div className="invalid-feedback">{errors.telefono.numero.message}</div>
+              )}
             </div>
             <div className="col-12">
               <label className="form-label d-block">Especialidades</label>

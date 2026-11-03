@@ -31,7 +31,7 @@ function MedicoRow({ medico, onDarDeBaja }: MedicoRowProps) {
       </span>
       <span className="especialidad">{especialidades}</span>
       <span className="telefono">
-        {medico.telefono || '—'}
+        {medico.telefono ? `${medico.telefono.codigoArea} ${medico.telefono.numero}` : '—'}
         {medico.activo === false && <span className="badge-estado cancelado ms-2">Inactivo</span>}
       </span>
       <span className="d-flex gap-2">

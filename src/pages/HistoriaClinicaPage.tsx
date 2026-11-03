@@ -7,6 +7,8 @@ import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { HistorialMedicoSchema, type HistorialMedicoFormValues } from '../schemas/historialMedico.schema'
 import type { Paciente } from '../types/Paciente'
 import IconoFlechaAtras from '../components/IconoFlechaAtras'
+import { nombreCompleto } from '../utils/texto'
+import { obtenerFechaHoraActual } from '../utils/fecha'
 
 const entradaVacia: HistorialMedicoFormValues = { fecha: '', diagnostico: '', tratamiento: '', medico: '' }
 
@@ -97,7 +99,7 @@ function HistoriaClinicaPage() {
         <>
           <div className="d-flex align-items-center justify-content-between border rounded p-3 mb-4">
             <span>
-              <strong>{paciente.nombre}</strong> — DNI {paciente.dni}
+              <strong>{nombreCompleto(paciente)}</strong> — DNI {paciente.dni}
             </span>
             <span className="text-body-secondary">
               {paciente.obraSocial?.nombre || 'Particular'}
@@ -150,6 +152,7 @@ function HistoriaClinicaPage() {
                 <input
                   id="fecha"
                   type="datetime-local"
+                  max={obtenerFechaHoraActual()}
                   className={`form-control${errors.fecha ? ' is-invalid' : ''}`}
                   {...register('fecha')}
                 />

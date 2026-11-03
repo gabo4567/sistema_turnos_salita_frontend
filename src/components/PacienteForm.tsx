@@ -6,6 +6,7 @@ import { extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import CamposPaciente from './CamposPaciente'
 import { PacienteSchema, type PacienteFormValues } from '../schemas/paciente.schema'
+import { nombreCompleto } from '../utils/texto'
 import type { Paciente } from '../types/Paciente'
 
 interface PacienteFormProps {
@@ -15,6 +16,7 @@ interface PacienteFormProps {
 
 const valoresIniciales: PacienteFormValues = {
   nombre: '',
+  apellido: '',
   dni: '',
   direccion: { calle: '', numero: '', piso: '', departamento: '', barrio: '' },
   email: '',
@@ -55,7 +57,7 @@ function PacienteForm({ onCancel, onCreated }: PacienteFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="text-start" noValidate>
       {pacienteCreado && (
         <div className="alert alert-success" role="alert">
-          Paciente <strong>{pacienteCreado.nombre}</strong> creado exitosamente
+          Paciente <strong>{nombreCompleto(pacienteCreado)}</strong> creado exitosamente
           (DNI {pacienteCreado.dni}).
         </div>
       )}

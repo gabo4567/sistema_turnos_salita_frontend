@@ -6,3 +6,9 @@ export function normalizarTexto(valor: string): string {
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
 }
+
+// Arma "Nombre Apellido" tolerando que el apellido falte (datos viejos,
+// de antes de separar los campos).
+export function nombreCompleto(persona: { nombre?: string; apellido?: string }): string {
+  return [persona.nombre, persona.apellido].filter(Boolean).join(' ')
+}

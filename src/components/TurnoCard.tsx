@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Turno } from '../types/Turno'
 import { useConfirm } from '../hooks/useConfirm'
+import { nombreCompleto } from '../utils/texto'
 
 const formatearDia = (fechaTurno: string) => {
   const fecha = new Date(fechaTurno)
@@ -69,7 +70,7 @@ function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps)
       <span>
         <span className="paciente d-block">
           <span className="etiqueta-dato">Paciente: </span>
-          {turno.paciente?.nombre ?? 'Paciente sin datos'}
+          {turno.paciente ? nombreCompleto(turno.paciente) : 'Paciente sin datos'}
         </span>
         {turno.medico && (
           <span className="medico-turno d-block">

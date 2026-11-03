@@ -16,10 +16,12 @@ import SelectorHorario from '../components/SelectorHorario'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
 import type { Turno } from '../types/Turno'
+import { nombreCompleto } from '../utils/texto'
 
 const valoresIniciales: RecepcionFormValues = {
   datosPaciente: {
     nombre: '',
+    apellido: '',
     dni: '',
     direccion: { calle: '', numero: '', piso: '', departamento: '', barrio: '' },
     email: '',
@@ -123,7 +125,7 @@ function NuevaRecepcionPage() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {turnoCreado && (
           <div className="alert alert-success" role="alert">
-            Turno agendado para <strong>{turnoCreado.paciente.nombre}</strong> con{' '}
+            Turno agendado para <strong>{nombreCompleto(turnoCreado.paciente)}</strong> con{' '}
             {turnoCreado.medico ? `${turnoCreado.medico.nombre} ${turnoCreado.medico.apellido}` : 'el médico asignado'}
             {turnoCreado.consultorio && ` en el consultorio ${turnoCreado.consultorio.numero}`} (
             {ESPECIALIDADES.find((e) => e.valor === turnoCreado.especialidad)?.etiqueta} —{' '}

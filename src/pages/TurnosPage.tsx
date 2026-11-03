@@ -5,6 +5,7 @@ import { getTurnos, cancelarTurno, marcarLlamado, marcarFinalizado, type FiltroE
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import type { Turno } from '../types/Turno'
+import { nombreCompleto } from '../utils/texto'
 
 const ordenarPorFecha = (turnos: Turno[]) =>
   [...turnos].sort((a, b) => new Date(a.fechaTurno).getTime() - new Date(b.fechaTurno).getTime())
@@ -102,7 +103,7 @@ function TurnosPage() {
       : filtro === 'hoy'
         ? turnos.filter((turno) => esHoy(turno.fechaTurno))
         : turnos
-  ).filter((turno) => turno.paciente?.nombre?.toLowerCase().includes(busqueda.toLowerCase()))
+  ).filter((turno) => turno.paciente && nombreCompleto(turno.paciente).toLowerCase().includes(busqueda.toLowerCase()))
 
   return (
     <div className="container text-start py-4">

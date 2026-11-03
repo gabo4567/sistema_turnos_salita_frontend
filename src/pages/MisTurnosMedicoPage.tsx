@@ -13,7 +13,7 @@ import { useFetch } from '../hooks/useFetch'
 import { useConfirm } from '../hooks/useConfirm'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { normalizarTexto } from '../utils/texto'
+import { normalizarTexto, nombreCompleto } from '../utils/texto'
 import type { Turno } from '../types/Turno'
 
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
@@ -77,7 +77,7 @@ function MisTurnosMedicoPage() {
   }
 
   const turnos = (datos ?? []).filter((turno) =>
-    turno.paciente?.nombre && normalizarTexto(turno.paciente.nombre).includes(normalizarTexto(busqueda))
+    turno.paciente && normalizarTexto(nombreCompleto(turno.paciente)).includes(normalizarTexto(busqueda))
   )
 
   const handleLlamar = async (id: string) => {
@@ -222,7 +222,7 @@ function MisTurnosMedicoPage() {
                   {fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                 </span>
                 <span>
-                  <span className="paciente d-block">{turno.paciente?.nombre ?? 'Paciente sin datos'}</span>
+                  <span className="paciente d-block">{turno.paciente ? nombreCompleto(turno.paciente) : 'Paciente sin datos'}</span>
                   <span className="obra-social">
                     {estado === 'cancelado' && turno.observaciones
                       ? turno.observaciones
