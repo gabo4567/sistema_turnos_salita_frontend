@@ -1,20 +1,20 @@
 import { useState } from 'react'
 import {
-  getMisTurnosMedico,
+  listarMisTurnosMedicoPaginado,
   cancelarTurno,
   marcarAusenciaMedico,
   marcarLlamado,
   marcarFinalizado,
-  type PeriodoFiltro,
   type FiltroEstado,
 } from '../api/turnosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
+import { useDebounce } from '../hooks/useDebounce'
 import { useConfirm } from '../hooks/useConfirm'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { normalizarTexto, nombreCompleto } from '../utils/texto'
-import type { Turno } from '../types/Turno'
+import { nombreCompleto } from '../utils/texto'
+import Paginador from '../components/Paginador'
 
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
   { valor: 'pendiente', etiqueta: 'Pendientes' },
@@ -41,44 +41,41 @@ const CLASES_ESTADO: Record<string, string> = {
   no_asistio: 'no-asistio',
 }
 
-const OPCIONES_PERIODO: { valor: PeriodoFiltro | 'todos'; etiqueta: string }[] = [
-  { valor: 'hoy', etiqueta: 'Hoy' },
-  { valor: 'semana', etiqueta: 'Esta semana' },
-  { valor: 'mes', etiqueta: 'Este mes' },
-  { valor: '6meses', etiqueta: 'Últimos 6 meses' },
-  { valor: 'todos', etiqueta: 'Todos' },
-]
-
 function MisTurnosMedicoPage() {
   const [estado, setEstado] = useState<FiltroEstado>('pendiente')
-  const [periodo, setPeriodo] = useState<PeriodoFiltro | 'todos'>('hoy')
+  const [rango, setRango] = useState<'hoy' | 'todos'>('hoy')
+  const [fechaDesde, setFechaDesde] = useState('')
+  const [fechaHasta, setFechaHasta] = useState('')
   const [busqueda, setBusqueda] = useState('')
+  const busquedaDebounced = useDebounce(busqueda)
+  const [pagina, setPagina] = useState(1)
+  const hayFiltroFecha = Boolean(fechaDesde || fechaHasta)
   const [errorAccion, setErrorAccion] = useState<string | null>(null)
   const [avisoAusencia, setAvisoAusencia] = useState<string | null>(null)
   useAutoDismiss(avisoAusencia, () => setAvisoAusencia(null))
   const confirmar = useConfirm()
 
-  const { datos, setDatos, cargando, error } = useFetch<Turno[]>(
-    () =>
-      getMisTurnosMedico({
-        estado: estado === 'todos' ? undefined : estado,
-        periodo: periodo === 'todos' ? undefined : periodo,
-      }),
-    [estado, periodo]
-  )
-
-  const recargar = async () => {
-    setDatos(
-      await getMisTurnosMedico({
-        estado: estado === 'todos' ? undefined : estado,
-        periodo: periodo === 'todos' ? undefined : periodo,
-      })
-    )
+  const filtros = {
+    estado,
+    ...(hayFiltroFecha ? { fechaDesde: fechaDesde || undefined, fechaHasta: fechaHasta || undefined } : { rango }),
+    busquedaPaciente: busquedaDebounced || undefined,
+    pagina,
   }
 
-  const turnos = (datos ?? []).filter((turno) =>
-    turno.paciente && normalizarTexto(nombreCompleto(turno.paciente)).includes(normalizarTexto(busqueda))
+  const { datos, setDatos, cargando, error } = useFetch(
+    () => listarMisTurnosMedicoPaginado(filtros),
+    [estado, rango, hayFiltroFecha, fechaDesde, fechaHasta, busquedaDebounced, pagina]
   )
+  const turnos = datos?.items ?? []
+
+  const cambiarFiltro = <T,>(setter: (valor: T) => void) => (valor: T) => {
+    setPagina(1)
+    setter(valor)
+  }
+
+  const recargar = async () => {
+    setDatos(await listarMisTurnosMedicoPaginado(filtros))
+  }
 
   const handleLlamar = async (id: string) => {
     setErrorAccion(null)
@@ -162,27 +159,70 @@ function MisTurnosMedicoPage() {
         </div>
       )}
 
-      <div className="d-flex flex-wrap gap-2 mb-3">
+      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
+        <div className="btn-group" role="group" aria-label="Filtrar por fecha">
+          <button
+            type="button"
+            className={`btn btn-sm ${rango === 'hoy' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => cambiarFiltro(setRango)('hoy')}
+            disabled={cargando || hayFiltroFecha}
+          >
+            Hoy
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${rango === 'todos' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => cambiarFiltro(setRango)('todos')}
+            disabled={cargando || hayFiltroFecha}
+          >
+            Todos
+          </button>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <label htmlFor="fechaDesde" className="form-label mb-0 small text-body-secondary">
+            Desde
+          </label>
+          <input
+            id="fechaDesde"
+            type="date"
+            className="form-control form-control-sm"
+            value={fechaDesde}
+            onChange={(e) => cambiarFiltro(setFechaDesde)(e.target.value)}
+            disabled={cargando}
+          />
+          <label htmlFor="fechaHasta" className="form-label mb-0 small text-body-secondary">
+            Hasta
+          </label>
+          <input
+            id="fechaHasta"
+            type="date"
+            className="form-control form-control-sm"
+            value={fechaHasta}
+            onChange={(e) => cambiarFiltro(setFechaHasta)(e.target.value)}
+            disabled={cargando}
+          />
+          {hayFiltroFecha && (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                setPagina(1)
+                setFechaDesde('')
+                setFechaHasta('')
+              }}
+              disabled={cargando}
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
         <div className="btn-group" role="group" aria-label="Filtrar por estado">
           {OPCIONES_ESTADO.map((opcion) => (
             <button
               key={opcion.valor}
               type="button"
               className={`btn btn-sm ${estado === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setEstado(opcion.valor)}
-              disabled={cargando}
-            >
-              {opcion.etiqueta}
-            </button>
-          ))}
-        </div>
-        <div className="btn-group" role="group" aria-label="Filtrar por período">
-          {OPCIONES_PERIODO.map((opcion) => (
-            <button
-              key={opcion.valor}
-              type="button"
-              className={`btn btn-sm ${periodo === opcion.valor ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setPeriodo(opcion.valor)}
+              onClick={() => cambiarFiltro(setEstado)(opcion.valor)}
               disabled={cargando}
             >
               {opcion.etiqueta}
@@ -197,7 +237,7 @@ function MisTurnosMedicoPage() {
         style={{ maxWidth: '320px' }}
         placeholder="Buscar paciente..."
         value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
+        onChange={(e) => cambiarFiltro(setBusqueda)(e.target.value)}
         disabled={cargando}
       />
 
@@ -206,6 +246,7 @@ function MisTurnosMedicoPage() {
       ) : turnos.length === 0 ? (
         <p className="text-body-secondary">No se encontraron turnos para este filtro.</p>
       ) : (
+        <>
         <div className="ledger">
           {turnos.map((turno) => {
             const estado = turno.estado ?? 'pendiente'
@@ -266,6 +307,16 @@ function MisTurnosMedicoPage() {
             )
           })}
         </div>
+        {datos && (
+          <Paginador
+            pagina={datos.pagina}
+            totalPaginas={datos.totalPaginas}
+            totalRegistros={datos.totalRegistros}
+            onCambiarPagina={setPagina}
+            disabled={cargando}
+          />
+        )}
+        </>
       )}
     </div>
   )

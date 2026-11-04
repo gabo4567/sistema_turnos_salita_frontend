@@ -116,15 +116,15 @@ function Login() {
             </div>
           </div>
 
-          <div className="text-center mb-4">
+          <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
+            {isSubmitting ? 'Ingresando...' : 'Ingresar'}
+          </button>
+
+          <div className="text-center mt-3">
             <Link to="/olvide-password" className="small">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-
-          <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-            {isSubmitting ? 'Ingresando...' : 'Ingresar'}
-          </button>
         </form>
       </div>
     </div>
