@@ -1,4 +1,5 @@
 import type { Direccion, Telefono, ObraSocialInfo } from '../types/Paciente'
+import type { Especialidad } from '../types/Turno'
 import { ApiError } from './httpClient'
 
 const AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth`
@@ -26,6 +27,8 @@ export interface PerfilStaff {
   rol: 'admin' | 'recepcionista' | 'medico'
   nombre: string
   email: string
+  // Solo presente cuando rol es 'medico'.
+  especialidades?: Especialidad[]
 }
 
 export interface PerfilPaciente {
