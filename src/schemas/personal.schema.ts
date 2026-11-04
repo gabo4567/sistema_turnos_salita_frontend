@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { MedicoSchema } from './medico.schema'
+import { MedicoSchema, horariosFormSchema } from './medico.schema'
 import { UsuarioSchema } from './usuario.schema'
 import type { Especialidad } from '../types/Turno'
 
@@ -20,6 +20,7 @@ export const NuevoPersonalSchema = z
     especialidades: z.array(z.enum(especialidades)),
     telefono: z.object({ codigoArea: z.string(), numero: z.string() }),
     cupoMaximo: z.number(),
+    horarios: horariosFormSchema,
   })
   .superRefine((datos, contexto) => {
     if (!datos.rol) {

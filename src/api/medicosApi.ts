@@ -1,6 +1,14 @@
 import { apiFetch, apiFetchPaginado, type PaginaDeResultados } from './httpClient'
-import type { Medico } from '../types/Medico'
+import type { Medico, BloqueHorarioMedico } from '../types/Medico'
 import type { MedicoFormValues, ActualizarMedicoFormValues } from '../schemas/medico.schema'
+
+// Igual que el form, pero con `horarios` ya convertido al array que espera
+// el backend (ver horariosAPayload en schemas/medico.schema.ts) en vez de
+// las 6 filas "densas" que usa el formulario.
+export type CrearMedicoPayload = Omit<MedicoFormValues, 'horarios'> & { horarios: BloqueHorarioMedico[] }
+export type ActualizarMedicoPayload = Partial<Omit<ActualizarMedicoFormValues, 'horarios'>> & {
+  horarios?: BloqueHorarioMedico[]
+}
 
 export type OrdenMedicos = 'apellido_asc' | 'apellido_desc' | 'reciente' | 'antiguo'
 
@@ -35,14 +43,14 @@ export function getMiMedico(): Promise<Medico> {
   return apiFetch('/medicos/me')
 }
 
-export function crearMedico(medico: MedicoFormValues): Promise<Medico> {
+export function crearMedico(medico: CrearMedicoPayload): Promise<Medico> {
   return apiFetch('/medicos', {
     method: 'POST',
     body: JSON.stringify(medico),
   })
 }
 
-export function actualizarMedico(id: string, medico: Partial<ActualizarMedicoFormValues>): Promise<Medico> {
+export function actualizarMedico(id: string, medico: ActualizarMedicoPayload): Promise<Medico> {
   return apiFetch(`/medicos/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(medico),

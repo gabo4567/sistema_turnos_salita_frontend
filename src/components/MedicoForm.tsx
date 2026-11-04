@@ -5,7 +5,8 @@ import { crearMedico } from '../api/medicosApi'
 import { extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { MedicoSchema, type MedicoFormValues } from '../schemas/medico.schema'
+import { MedicoSchema, horariosAFormulario, horariosAPayload, type MedicoFormValues } from '../schemas/medico.schema'
+import HorariosMedicoEditor from './HorariosMedicoEditor'
 import type { Medico } from '../types/Medico'
 
 interface MedicoFormProps {
@@ -19,6 +20,7 @@ const valoresIniciales: MedicoFormValues = {
   matricula: '',
   telefono: { codigoArea: '', numero: '' },
   cupoMaximo: 15,
+  horarios: horariosAFormulario(undefined),
   email: '',
   password: '',
 }
@@ -31,6 +33,7 @@ function MedicoForm({ onCreated }: MedicoFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<MedicoFormValues>({
@@ -43,7 +46,7 @@ function MedicoForm({ onCreated }: MedicoFormProps) {
     setMedicoCreado(null)
 
     try {
-      const medico = await crearMedico(datos)
+      const medico = await crearMedico({ ...datos, horarios: horariosAPayload(datos.horarios) })
       setMedicoCreado(medico)
       onCreated?.(medico)
       reset(valoresIniciales)
@@ -125,6 +128,9 @@ function MedicoForm({ onCreated }: MedicoFormProps) {
             {...register('cupoMaximo', { valueAsNumber: true })}
           />
           {errors.cupoMaximo && <div className="invalid-feedback">{errors.cupoMaximo.message}</div>}
+        </div>
+        <div className="col-12">
+          <HorariosMedicoEditor register={register} watch={watch} errors={errors} />
         </div>
         <div className="col-12"><hr /><p className="text-body-secondary mb-2">Cuenta de acceso del médico</p></div>
         <div className="col-12 col-md-6">

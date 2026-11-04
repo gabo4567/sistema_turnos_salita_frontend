@@ -23,3 +23,21 @@ export function generarHorariosDelDia(): string[] {
 
   return horarios
 }
+
+// Para los <select> de horaInicio/horaFin al cargar el horario de un
+// médico: a diferencia de generarHorariosDelDia(), acá sí incluye las
+// 20:00 (como horaFin — "atiende hasta las 20:00" es un valor válido).
+export function generarOpcionesHorarioConCierre(): string[] {
+  return [...generarHorariosDelDia(), `${String(HORA_CIERRE).padStart(2, '0')}:00`]
+}
+
+// 1=lunes...6=sábado, coincide con Date.getUTCDay() y con lo que guarda el
+// backend. Domingo no es una opción, la salita no abre ese día.
+export const DIAS_SEMANA: { valor: number; etiqueta: string }[] = [
+  { valor: 1, etiqueta: 'Lunes' },
+  { valor: 2, etiqueta: 'Martes' },
+  { valor: 3, etiqueta: 'Miércoles' },
+  { valor: 4, etiqueta: 'Jueves' },
+  { valor: 5, etiqueta: 'Viernes' },
+  { valor: 6, etiqueta: 'Sábado' },
+]

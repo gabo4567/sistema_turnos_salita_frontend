@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { esFinDeSemana } from '../utils/fecha'
 import type { Especialidad } from '../types/Turno'
 
 const especialidades = ESPECIALIDADES.map((e) => e.valor) as [Especialidad, ...Especialidad[]]
@@ -13,10 +12,10 @@ export const TurnoSchema = z.object({
   especialidad: z.enum(especialidades, { error: 'Especialidad no válida' }),
   medico: z.string({ error: 'El médico es obligatorio' }).min(1, 'El médico es obligatorio'),
   consultorio: z.string().optional(),
-  fecha: z
-    .string({ error: 'La fecha es obligatoria' })
-    .min(1, 'La fecha es obligatoria')
-    .refine((fecha) => !esFinDeSemana(fecha), 'No se pueden sacar turnos los sábados ni domingos'),
+  // Ya no se bloquea fin de semana acá: depende del horario de cada médico
+  // (puede atender sábados). Lo filtra SelectorHorario (no ofrece horarios
+  // si el médico no atiende ese día) y lo valida el backend.
+  fecha: z.string({ error: 'La fecha es obligatoria' }).min(1, 'La fecha es obligatoria'),
   hora: z.string({ error: 'Elegí un horario' }).min(1, 'Elegí un horario'),
   observaciones: z.string().max(500, 'El motivo no puede superar los 500 caracteres').optional(),
 })
