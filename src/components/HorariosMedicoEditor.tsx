@@ -9,7 +9,7 @@ interface HorariosMedicoEditorProps<T extends FieldValues> {
   errors?: FieldErrors<T>
 }
 
-// Tabla fija de 6 filas (lunes a sábado): el índice de cada fila coincide
+// Tabla fija de 5 filas (lunes a viernes): el índice de cada fila coincide
 // con el orden de DIAS_SEMANA, que es el mismo que arma horariosAFormulario()
 // al cargar el form. Reutilizado en el alta de médico (modal y Nuevo
 // Personal), Editar Médico y Mi Perfil.
