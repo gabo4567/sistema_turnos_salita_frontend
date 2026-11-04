@@ -97,7 +97,7 @@ function MiPerfilMedicoPage() {
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           {guardadoOk && (
             <div className="alert alert-success" role="status">
-              Teléfono actualizado correctamente.
+              Datos actualizados correctamente.
             </div>
           )}
 
