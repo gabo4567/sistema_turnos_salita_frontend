@@ -5,8 +5,9 @@ export interface TelefonoMedico {
   numero: string
 }
 
-// 1=lunes...6=sábado. Un médico sin bloques cargados atiende lunes a
-// viernes, horario completo de la salita (ver DIAS_SEMANA en constants/turnos).
+// 1=lunes...5=viernes (la salita no abre sábados ni domingos). Un médico
+// sin bloques cargados todavía no puede recibir turnos (ver DIAS_SEMANA en
+// constants/turnos y medicoSinHorarioConfigurado en utils/horariosMedico).
 export interface BloqueHorarioMedico {
   diaSemana: number
   horaInicio: string

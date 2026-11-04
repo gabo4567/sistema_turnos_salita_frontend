@@ -31,13 +31,12 @@ export function generarOpcionesHorarioConCierre(): string[] {
   return [...generarHorariosDelDia(), `${String(HORA_CIERRE).padStart(2, '0')}:00`]
 }
 
-// 1=lunes...6=sábado, coincide con Date.getUTCDay() y con lo que guarda el
-// backend. Domingo no es una opción, la salita no abre ese día.
+// 1=lunes...5=viernes, coincide con Date.getUTCDay() y con lo que guarda el
+// backend. La salita no abre sábados ni domingos, no son una opción.
 export const DIAS_SEMANA: { valor: number; etiqueta: string }[] = [
   { valor: 1, etiqueta: 'Lunes' },
   { valor: 2, etiqueta: 'Martes' },
   { valor: 3, etiqueta: 'Miércoles' },
   { valor: 4, etiqueta: 'Jueves' },
   { valor: 5, etiqueta: 'Viernes' },
-  { valor: 6, etiqueta: 'Sábado' },
 ]

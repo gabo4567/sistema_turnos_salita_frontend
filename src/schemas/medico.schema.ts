@@ -32,7 +32,7 @@ const telefonoOpcionalSchema = z
 
 const HORA_REGEX = /^([01]\d|2[0-3]):(00|30)$/
 
-// El formulario siempre manda las 6 filas (lunes a sábado), tildadas o no
+// El formulario siempre manda las 5 filas (lunes a viernes), tildadas o no
 // — esta es la validación del formulario "denso". horariosFormAPayload()
 // convierte eso al array que espera el backend (solo los días tildados).
 const filaHorarioSchema = z
@@ -47,7 +47,7 @@ const filaHorarioSchema = z
     { message: 'Completá un horario válido, o destildá el día', path: ['horaFin'] }
   )
 
-export const horariosFormSchema = z.array(filaHorarioSchema).length(6)
+export const horariosFormSchema = z.array(filaHorarioSchema).length(5)
 
 export type FilaHorarioForm = z.infer<typeof filaHorarioSchema>
 
