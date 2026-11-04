@@ -7,6 +7,8 @@ import { crearMedico } from '../api/medicosApi'
 import { extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
+import { horariosAFormulario, horariosAPayload } from '../schemas/medico.schema'
+import HorariosMedicoEditor from '../components/HorariosMedicoEditor'
 import { NuevoPersonalSchema, type NuevoPersonalFormValues } from '../schemas/personal.schema'
 
 const valoresIniciales: NuevoPersonalFormValues = {
@@ -19,6 +21,7 @@ const valoresIniciales: NuevoPersonalFormValues = {
   especialidades: [],
   telefono: { codigoArea: '', numero: '' },
   cupoMaximo: 15,
+  horarios: horariosAFormulario(undefined),
 }
 
 function NuevoPersonalPage() {
@@ -53,6 +56,7 @@ function NuevoPersonalPage() {
           matricula: datos.matricula,
           telefono: datos.telefono,
           cupoMaximo: datos.cupoMaximo,
+          horarios: horariosAPayload(datos.horarios),
           email: datos.email,
           password: datos.password,
         })
@@ -206,6 +210,9 @@ function NuevoPersonalPage() {
                 {errors.especialidades && (
                   <div className="text-danger small mt-1">{errors.especialidades.message}</div>
                 )}
+              </div>
+              <div className="col-12">
+                <HorariosMedicoEditor register={register} watch={watch} errors={errors} />
               </div>
             </div>
           </>

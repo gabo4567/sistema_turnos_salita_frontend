@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { getDisponibilidad } from '../api/turnosApi'
-import { generarHorariosDelDia } from '../constants/turnos'
 import { esFechaDeHoy, horaActualRedondeada } from '../utils/fecha'
+import { horariosDelMedicoParaFecha } from '../utils/horariosMedico'
+import type { Medico } from '../types/Medico'
 
 interface SelectorHorarioProps {
-  medicoId: string
+  medico: Medico | undefined
   fecha: string
   horaSeleccionada: string
   onSeleccionar: (hora: string) => void
@@ -13,9 +14,8 @@ interface SelectorHorarioProps {
   excluirTurnoId?: string
 }
 
-const horarios = generarHorariosDelDia()
-
-function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, error, excluirTurnoId }: SelectorHorarioProps) {
+function SelectorHorario({ medico, fecha, horaSeleccionada, onSeleccionar, error, excluirTurnoId }: SelectorHorarioProps) {
+  const medicoId = medico?.id
   const [ocupados, setOcupados] = useState<string[]>([])
   const [cargando, setCargando] = useState(false)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
@@ -56,6 +56,12 @@ function SelectorHorario({ medicoId, fecha, horaSeleccionada, onSeleccionar, err
 
   if (errorCarga) {
     return <p className="text-danger mb-0">{errorCarga}</p>
+  }
+
+  const horarios = horariosDelMedicoParaFecha(medico, fecha)
+
+  if (horarios.length === 0) {
+    return <p className="text-body-secondary mb-0">El médico no atiende ese día. Elegí otra fecha.</p>
   }
 
   const esHoy = esFechaDeHoy(fecha)

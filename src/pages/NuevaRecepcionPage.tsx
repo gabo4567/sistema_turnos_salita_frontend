@@ -235,7 +235,7 @@ function NuevaRecepcionPage() {
             <label className="form-label d-block">Horario</label>
             <input type="hidden" {...register('hora')} />
             <SelectorHorario
-              medicoId={medicoElegido}
+              medico={(medicos ?? []).find((m) => m.id === medicoElegido)}
               fecha={fechaElegida}
               horaSeleccionada={horaElegida}
               onSeleccionar={(hora) => setValue('hora', hora, { shouldValidate: true })}

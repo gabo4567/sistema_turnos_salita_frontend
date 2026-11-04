@@ -4,7 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { actualizarMedico, getMiMedico } from '../api/medicosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
-import { ActualizarTelefonoMedicoSchema, type ActualizarTelefonoMedicoFormValues } from '../schemas/medico.schema'
+import {
+  ActualizarPerfilPropioMedicoSchema,
+  horariosAFormulario,
+  horariosAPayload,
+  type ActualizarPerfilPropioMedicoFormValues,
+} from '../schemas/medico.schema'
+import HorariosMedicoEditor from '../components/HorariosMedicoEditor'
 import type { Medico } from '../types/Medico'
 
 function MiPerfilMedicoPage() {
@@ -18,11 +24,12 @@ function MiPerfilMedicoPage() {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ActualizarTelefonoMedicoFormValues>({
-    resolver: zodResolver(ActualizarTelefonoMedicoSchema),
-    defaultValues: { telefono: { codigoArea: '', numero: '' } },
+  } = useForm<ActualizarPerfilPropioMedicoFormValues>({
+    resolver: zodResolver(ActualizarPerfilPropioMedicoSchema),
+    defaultValues: { telefono: { codigoArea: '', numero: '' }, horarios: horariosAFormulario(undefined) },
   })
 
   useEffect(() => {
@@ -32,7 +39,10 @@ function MiPerfilMedicoPage() {
       .then((datos) => {
         if (cancelado) return
         setMedico(datos)
-        reset({ telefono: datos.telefono ?? { codigoArea: '', numero: '' } })
+        reset({
+          telefono: datos.telefono ?? { codigoArea: '', numero: '' },
+          horarios: horariosAFormulario(datos.horarios),
+        })
       })
       .catch((err) => {
         if (!cancelado) setErrorCarga(extraerMensaje(err))
@@ -46,15 +56,21 @@ function MiPerfilMedicoPage() {
     }
   }, [reset])
 
-  const onSubmit = async (datos: ActualizarTelefonoMedicoFormValues) => {
+  const onSubmit = async (datos: ActualizarPerfilPropioMedicoFormValues) => {
     if (!medico) return
     setErrores([])
     setGuardadoOk(false)
 
     try {
-      const medicoActualizado = await actualizarMedico(medico.id, { telefono: datos.telefono })
+      const medicoActualizado = await actualizarMedico(medico.id, {
+        telefono: datos.telefono,
+        horarios: horariosAPayload(datos.horarios),
+      })
       setMedico(medicoActualizado)
-      reset({ telefono: medicoActualizado.telefono ?? { codigoArea: '', numero: '' } })
+      reset({
+        telefono: medicoActualizado.telefono ?? { codigoArea: '', numero: '' },
+        horarios: horariosAFormulario(medicoActualizado.horarios),
+      })
       setGuardadoOk(true)
     } catch (error) {
       setErrores(extraerMensajesError(error))
@@ -66,7 +82,7 @@ function MiPerfilMedicoPage() {
       <p className="section-label mb-1">Tu cuenta</p>
       <h1 className="mb-2">Mi perfil</h1>
       <p className="text-body-secondary mb-4">
-        Solo podés modificar tu teléfono. Para cambiar tu nombre o matrícula, pedíselo a un administrador.
+        Solo podés modificar tu teléfono y tu horario de atención. Para cambiar tu nombre o matrícula, pedíselo a un administrador.
       </p>
 
       {cargando && <p className="text-body-secondary">Cargando datos del perfil...</p>}
@@ -153,6 +169,9 @@ function MiPerfilMedicoPage() {
               {errors.telefono?.numero && (
                 <div className="invalid-feedback">{errors.telefono.numero.message}</div>
               )}
+            </div>
+            <div className="col-12">
+              <HorariosMedicoEditor register={register} watch={watch} errors={errors} />
             </div>
           </div>
 

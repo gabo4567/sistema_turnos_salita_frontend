@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { ESPECIALIDADES } from '../constants/turnos'
+import { ESPECIALIDADES, DIAS_SEMANA } from '../constants/turnos'
 import type { Especialidad } from '../types/Turno'
+import type { BloqueHorarioMedico } from '../types/Medico'
 
 const especialidades = ESPECIALIDADES.map((e) => e.valor) as [Especialidad, ...Especialidad[]]
 
@@ -29,6 +30,46 @@ const telefonoOpcionalSchema = z
     { message: 'Completá código de área y número, o dejá los dos vacíos', path: ['numero'] }
   )
 
+const HORA_REGEX = /^([01]\d|2[0-3]):(00|30)$/
+
+// El formulario siempre manda las 6 filas (lunes a sábado), tildadas o no
+// — esta es la validación del formulario "denso". horariosFormAPayload()
+// convierte eso al array que espera el backend (solo los días tildados).
+const filaHorarioSchema = z
+  .object({
+    diaSemana: z.number(),
+    activo: z.boolean(),
+    horaInicio: z.string(),
+    horaFin: z.string(),
+  })
+  .refine(
+    (fila) => !fila.activo || (HORA_REGEX.test(fila.horaInicio) && HORA_REGEX.test(fila.horaFin) && fila.horaInicio < fila.horaFin),
+    { message: 'Completá un horario válido, o destildá el día', path: ['horaFin'] }
+  )
+
+export const horariosFormSchema = z.array(filaHorarioSchema).length(6)
+
+export type FilaHorarioForm = z.infer<typeof filaHorarioSchema>
+
+// Para cargar el form (alta en blanco, o edición con lo que ya tenga el
+// médico): siempre las 6 filas, tildando las que vengan en `horarios`.
+export function horariosAFormulario(horarios: BloqueHorarioMedico[] | undefined): FilaHorarioForm[] {
+  return DIAS_SEMANA.map(({ valor }) => {
+    const existente = horarios?.find((b) => b.diaSemana === valor)
+    return existente
+      ? { diaSemana: valor, activo: true, horaInicio: existente.horaInicio, horaFin: existente.horaFin }
+      : { diaSemana: valor, activo: false, horaInicio: '08:00', horaFin: '20:00' }
+  })
+}
+
+// Al enviar: solo los días tildados, sin el flag `activo` (el backend no lo
+// conoce).
+export function horariosAPayload(filas: FilaHorarioForm[]): BloqueHorarioMedico[] {
+  return filas
+    .filter((fila) => fila.activo)
+    .map(({ diaSemana, horaInicio, horaFin }) => ({ diaSemana, horaInicio, horaFin }))
+}
+
 const camposBase = {
   nombre: z.string({ error: 'El nombre es obligatorio' }).min(1, 'El nombre es obligatorio'),
   apellido: z.string({ error: 'El apellido es obligatorio' }).min(1, 'El apellido es obligatorio'),
@@ -41,6 +82,7 @@ const camposBase = {
     .number({ error: 'El cupo máximo debe ser un número' })
     .int('El cupo máximo debe ser un número entero')
     .positive('El cupo máximo debe ser mayor a 0'),
+  horarios: horariosFormSchema,
 }
 
 // Alta: además de los datos del médico, crea su cuenta de acceso.
@@ -57,10 +99,12 @@ export const ActualizarMedicoSchema = z.object({
   email: z.email({ error: 'El email es obligatorio o no es válido' }),
 })
 
-export const ActualizarTelefonoMedicoSchema = z.object({
+// Edición por el propio médico ("Mi perfil"): solo teléfono y horario.
+export const ActualizarPerfilPropioMedicoSchema = z.object({
   telefono: telefonoSchema,
+  horarios: horariosFormSchema,
 })
 
 export type MedicoFormValues = z.infer<typeof MedicoSchema>
 export type ActualizarMedicoFormValues = z.infer<typeof ActualizarMedicoSchema>
-export type ActualizarTelefonoMedicoFormValues = z.infer<typeof ActualizarTelefonoMedicoSchema>
+export type ActualizarPerfilPropioMedicoFormValues = z.infer<typeof ActualizarPerfilPropioMedicoSchema>

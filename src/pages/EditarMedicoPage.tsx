@@ -6,7 +6,8 @@ import { getMedicos, actualizarMedico } from '../api/medicosApi'
 import { extraerMensaje, extraerMensajesError } from '../api/httpClient'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
-import { ActualizarMedicoSchema, type ActualizarMedicoFormValues } from '../schemas/medico.schema'
+import { ActualizarMedicoSchema, horariosAFormulario, horariosAPayload, type ActualizarMedicoFormValues } from '../schemas/medico.schema'
+import HorariosMedicoEditor from '../components/HorariosMedicoEditor'
 import IconoFlechaAtras from '../components/IconoFlechaAtras'
 
 function EditarMedicoPage() {
@@ -23,6 +24,7 @@ function EditarMedicoPage() {
   const {
     register,
     handleSubmit,
+    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ActualizarMedicoFormValues>({
@@ -49,6 +51,7 @@ function EditarMedicoPage() {
           especialidades: medico.especialidades,
           telefono: medico.telefono ?? { codigoArea: '', numero: '' },
           cupoMaximo: medico.cupoMaximo,
+          horarios: horariosAFormulario(medico.horarios),
           email: typeof medico.usuarioId === 'object' ? medico.usuarioId?.email ?? '' : '',
         })
       })
@@ -70,7 +73,7 @@ function EditarMedicoPage() {
 
     try {
       if (!medicoId) return
-      await actualizarMedico(medicoId, datos)
+      await actualizarMedico(medicoId, { ...datos, horarios: horariosAPayload(datos.horarios) })
       setGuardadoOk(true)
     } catch (error) {
       setErrores(extraerMensajesError(error))
@@ -231,6 +234,9 @@ function EditarMedicoPage() {
                 {...register('cupoMaximo', { valueAsNumber: true })}
               />
               {errors.cupoMaximo && <div className="invalid-feedback">{errors.cupoMaximo.message}</div>}
+            </div>
+            <div className="col-12">
+              <HorariosMedicoEditor register={register} watch={watch} errors={errors} />
             </div>
           </div>
 
