@@ -66,19 +66,24 @@ export function getMisTurnos(estado?: FiltroEstado): Promise<Turno[]> {
   return apiFetch(`/turnos/mis-turnos${estado ? `?estado=${estado}` : ''}`)
 }
 
-export type PeriodoFiltro = 'hoy' | 'semana' | 'mes' | '6meses'
-
+// Mismos filtros que el listado general, sin médico ni especialidad
+// (siempre son los del médico logueado).
 export interface FiltrosMisTurnosMedico {
   estado?: FiltroEstado
-  periodo?: PeriodoFiltro
+  rango?: 'hoy' | 'todos'
+  fechaDesde?: string
+  fechaHasta?: string
+  busquedaPaciente?: string
+  pagina?: number
+  limite?: number
 }
 
-export function getMisTurnosMedico(filtros: FiltrosMisTurnosMedico = {}): Promise<Turno[]> {
-  const parametros = new URLSearchParams()
-  if (filtros.estado) parametros.set('estado', filtros.estado)
-  if (filtros.periodo) parametros.set('periodo', filtros.periodo)
-  const query = parametros.toString()
-  return apiFetch(`/turnos/mis-turnos-medico${query ? `?${query}` : ''}`)
+// Para MisTurnosMedicoPage: Hoy/Todos, Desde/Hasta, estado y búsqueda por
+// paciente se resuelven en el backend, igual que en el listado general.
+export function listarMisTurnosMedicoPaginado(
+  filtros: FiltrosMisTurnosMedico = {}
+): Promise<PaginaDeResultados<Turno>> {
+  return apiFetchPaginado(`/turnos/mis-turnos-medico${queryTurnos(filtros)}`)
 }
 
 export function getDisponibilidad(medicoId: string, fecha: string, excluirTurnoId?: string): Promise<DisponibilidadResponse> {
