@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getMiPerfil, type Perfil } from '../api/authApi'
 import { extraerMensaje } from '../api/httpClient'
+import { ESPECIALIDADES } from '../constants/turnos'
 
 interface PerfilModalProps {
   onCerrar: () => void
@@ -23,6 +24,17 @@ function camposDelPerfil(perfil: Perfil): Array<[string, string]> {
       ['Teléfono', `${perfil.telefono.codigoArea} ${perfil.telefono.numero}`],
       ['Dirección', direccion],
       ['Obra social', perfil.obraSocial.nombre],
+    ]
+  }
+
+  if (perfil.rol === 'medico' && perfil.especialidades?.length) {
+    const etiquetas = perfil.especialidades
+      .map((valor) => ESPECIALIDADES.find((e) => e.valor === valor)?.etiqueta ?? valor)
+      .join(', ')
+
+    return [
+      ['Email', perfil.email],
+      ['Especialidades', etiquetas],
     ]
   }
 
