@@ -92,7 +92,7 @@ function HorariosMedicoEditor<T extends FieldValues>({ register, watch, errors }
         </table>
       </div>
       <p className="text-body-secondary small mb-0">
-        Si no tildás ningún día, el médico queda con el horario por defecto de la salita (lunes a viernes, horario completo).
+        Si no tildás ningún día, el médico queda sin horario cargado y no va a poder recibir turnos nuevos hasta que se configure.
       </p>
     </div>
   )
