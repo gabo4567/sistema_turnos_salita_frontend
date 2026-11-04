@@ -9,21 +9,21 @@ export function diaSemanaDe(fecha: string): number {
   return new Date(fecha).getUTCDay()
 }
 
+// Un médico sin horario cargado no tiene turnos disponibles — ver
+// medicoSinHorarioConfigurado(), que distingue ese caso de "no atiende
+// este día" para mostrar un mensaje distinto en la grilla.
+export function medicoSinHorarioConfigurado(medico: Medico | undefined): boolean {
+  return !medico?.horarios || medico.horarios.length === 0
+}
+
 // Horarios que la grilla puede ofrecer para este médico y esta fecha, antes
 // de descontar los ya ocupados (eso lo resuelve getDisponibilidad aparte).
-// Vacío significa "el médico no atiende este día".
+// Vacío significa "el médico no atiende este día" (o no tiene horario
+// cargado en absoluto — chequeado aparte con medicoSinHorarioConfigurado).
 export function horariosDelMedicoParaFecha(medico: Medico | undefined, fecha: string): string[] {
-  if (!fecha) return []
+  if (!fecha || !medico?.horarios || medico.horarios.length === 0) return []
 
   const dia = diaSemanaDe(fecha)
-
-  if (!medico?.horarios || medico.horarios.length === 0) {
-    // Sin horario configurado: lunes a viernes, horario completo de la
-    // salita — el comportamiento de siempre.
-    if (dia === 0 || dia === 6) return []
-    return horariosCompletos
-  }
-
   const bloque = medico.horarios.find((b) => b.diaSemana === dia)
   if (!bloque) return []
 

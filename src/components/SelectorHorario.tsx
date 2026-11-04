@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getDisponibilidad } from '../api/turnosApi'
 import { esFechaDeHoy, horaActualRedondeada } from '../utils/fecha'
-import { horariosDelMedicoParaFecha } from '../utils/horariosMedico'
+import { horariosDelMedicoParaFecha, medicoSinHorarioConfigurado } from '../utils/horariosMedico'
 import type { Medico } from '../types/Medico'
 
 interface SelectorHorarioProps {
@@ -56,6 +56,15 @@ function SelectorHorario({ medico, fecha, horaSeleccionada, onSeleccionar, error
 
   if (errorCarga) {
     return <p className="text-danger mb-0">{errorCarga}</p>
+  }
+
+  if (medicoSinHorarioConfigurado(medico)) {
+    return (
+      <p className="text-warning mb-0">
+        Este médico todavía no tiene horario de atención cargado. Pedile a un administrador o al propio médico
+        que lo configure.
+      </p>
+    )
   }
 
   const horarios = horariosDelMedicoParaFecha(medico, fecha)
