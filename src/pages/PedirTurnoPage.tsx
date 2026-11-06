@@ -11,6 +11,7 @@ import { useFetch } from '../hooks/useFetch'
 import { PedirTurnoSchema, type PedirTurnoFormValues } from '../schemas/turno.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
+import BuscadorSelect from '../components/BuscadorSelect'
 import type { Medico } from '../types/Medico'
 
 const valoresIniciales: PedirTurnoFormValues = {
@@ -49,11 +50,28 @@ function PedirTurnoPage() {
     .filter((m) => !especialidad || m.especialidades.includes(especialidad))
     .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
 
+  // Red de seguridad solo para cuando médicos termina de cargar después de
+  // que ya había una especialidad elegida (elegir una tarjeta de especialidad
+  // ya auto-selecciona el primero más abajo). No depende de medicoElegido: si
+  // dependiera, se reactivaría cada vez que el combobox limpia la selección
+  // mientras el usuario está escribiendo para buscar, pisando lo que tipea.
   useEffect(() => {
     if (especialidad && !medicoElegido && medicosFiltrados.length > 0) {
       setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
     }
-  }, [especialidad, medicoElegido, medicosFiltrados, setValue])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medicos])
+
+  const seleccionarEspecialidad = (nuevaEspecialidad: PedirTurnoFormValues['especialidad']) => {
+    setValue('especialidad', nuevaEspecialidad, { shouldValidate: true })
+
+    const medicosParaEsp = (medicos ?? [])
+      .filter((m) => m.especialidades.includes(nuevaEspecialidad))
+      .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
+    setValue('medico', medicosParaEsp[0]?.id ?? '', { shouldValidate: true })
+
+    setValue('hora', '')
+  }
 
   const onSubmit = async (datos: PedirTurnoFormValues) => {
     setErrores([])
@@ -105,11 +123,7 @@ function PedirTurnoPage() {
                   key={esp.valor}
                   type="button"
                   className={`especialidad-card${especialidad === esp.valor ? ' activa' : ''}`}
-                  onClick={() => {
-                    setValue('especialidad', esp.valor, { shouldValidate: true })
-                    setValue('medico', '')
-                    setValue('hora', '')
-                  }}
+                  onClick={() => seleccionarEspecialidad(esp.valor)}
                 >
                   <span className="especialidad-icono" aria-hidden="true">
                     <IconoEspecialidad especialidad={esp.valor} />
@@ -124,22 +138,21 @@ function PedirTurnoPage() {
             <label className="form-label" htmlFor="medico">
               Médico
             </label>
-            <select
+            <input type="hidden" {...register('medico')} />
+            <BuscadorSelect
               id="medico"
-              className={`form-select${errors.medico ? ' is-invalid' : ''}`}
-              disabled={cargandoMedicos || !especialidad}
-              {...register('medico', { onChange: () => setValue('hora', '') })}
-            >
-              <option value="" disabled>
-                {especialidad ? 'Seleccioná una opción' : 'Elegí primero una especialidad'}
-              </option>
-              {medicosFiltrados.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.nombre} {m.apellido}
-                </option>
-              ))}
-            </select>
-            {errors.medico && <div className="invalid-feedback">{errors.medico.message}</div>}
+              opciones={medicosFiltrados.map((m) => ({ valor: m.id, etiqueta: `${m.nombre} ${m.apellido}` }))}
+              valor={medicoElegido}
+              onSeleccionar={(nuevoMedico) => {
+                setValue('medico', nuevoMedico, { shouldValidate: true })
+                setValue('hora', '')
+              }}
+              placeholder="Escribí o elegí un médico..."
+              placeholderDeshabilitado={especialidad ? undefined : 'Elegí primero una especialidad'}
+              deshabilitado={cargandoMedicos || !especialidad}
+              error={errors.medico?.message}
+              mensajeSinOpciones="No hay médicos que coincidan."
+            />
             {especialidad && medicosFiltrados.length === 0 && (
               <div className="form-text text-danger">
                 No hay médicos cargados para esta especialidad.
