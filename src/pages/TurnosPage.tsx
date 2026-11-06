@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import TurnoCard from '../components/TurnoCard'
 import Paginador from '../components/Paginador'
 import {
@@ -15,6 +15,7 @@ import { getMedicos } from '../api/medicosApi'
 import { extraerMensaje } from '../api/httpClient'
 import { useFetch } from '../hooks/useFetch'
 import { useDebounce } from '../hooks/useDebounce'
+import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import type { Turno, Especialidad } from '../types/Turno'
 import type { Medico } from '../types/Medico'
@@ -38,6 +39,12 @@ const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
 ]
 
 function TurnosPage() {
+  const location = useLocation()
+  const [turnoAgendado, setTurnoAgendado] = useState(
+    Boolean((location.state as { turnoAgendado?: boolean } | null)?.turnoAgendado)
+  )
+  useAutoDismiss(turnoAgendado, () => setTurnoAgendado(false))
+
   const [busqueda, setBusqueda] = useState('')
   const busquedaDebounced = useDebounce(busqueda)
   const [rango, setRango] = useState<'hoy' | 'todos'>('hoy')
@@ -130,6 +137,12 @@ function TurnosPage() {
           Nuevo turno
         </Link>
       </div>
+
+      {turnoAgendado && (
+        <div className="alert alert-success" role="status">
+          Turno agendado correctamente.
+        </div>
+      )}
 
       {error && (
         <div className="alert alert-danger" role="alert">

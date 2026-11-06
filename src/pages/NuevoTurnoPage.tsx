@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,6 +13,7 @@ import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { TurnoSchema, type TurnoFormValues } from '../schemas/turno.schema'
 import { obtenerFechaMinima } from '../utils/fecha'
 import SelectorHorario from '../components/SelectorHorario'
+import BuscadorSelect from '../components/BuscadorSelect'
 import type { Paciente } from '../types/Paciente'
 import type { Medico } from '../types/Medico'
 import type { Consultorio } from '../types/Consultorio'
@@ -51,6 +52,11 @@ function NuevoTurnoPage() {
   const [errores, setErrores] = useState<string[]>([])
   const [turnoCreado, setTurnoCreado] = useState<TurnoCreadoResumen | null>(null)
   useAutoDismiss(turnoCreado, () => setTurnoCreado(null))
+
+  // Qué botón disparó el submit: se guarda en un ref (no en estado) porque
+  // se necesita leer de forma sincrónica apenas handleSubmit resuelve, antes
+  // de que un re-render pueda perder el valor.
+  const accionGuardadoRef = useRef<'ir-a-lista' | 'agregar-otro'>('ir-a-lista')
 
   const {
     register,
@@ -96,17 +102,46 @@ function NuevoTurnoPage() {
       return prioridadA - prioridadB || a.numero.localeCompare(b.numero)
     })
 
+  // Red de seguridad solo para cuando médicos/consultorios terminan de cargar
+  // después de que ya había una especialidad elegida (la elección normal de
+  // especialidad ya auto-selecciona el primero en seleccionarEspecialidad).
+  // No depende de medicoElegido/consultorioElegido: si dependiera, se
+  // reactivaría cada vez que el combobox limpia la selección mientras el
+  // usuario está escribiendo para buscar, pisando lo que está tipeando.
   useEffect(() => {
     if (especialidad && !medicoElegido && medicosFiltrados.length > 0) {
       setValue('medico', medicosFiltrados[0].id, { shouldValidate: true })
     }
-  }, [especialidad, medicoElegido, medicosFiltrados, setValue])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medicos])
 
   useEffect(() => {
     if (especialidad && !consultorioElegido && consultoriosFiltrados.length > 0) {
       setValue('consultorio', consultoriosFiltrados[0].id, { shouldValidate: true })
     }
-  }, [especialidad, consultorioElegido, consultoriosFiltrados, setValue])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consultorios])
+
+  const seleccionarEspecialidad = (nuevaEspecialidad: string) => {
+    const especialidadTipada = nuevaEspecialidad as TurnoFormValues['especialidad']
+    setValue('especialidad', especialidadTipada, { shouldValidate: true })
+
+    const medicosParaEsp = (medicos ?? [])
+      .filter((m) => m.especialidades.includes(especialidadTipada))
+      .sort((a, b) => a.apellido.localeCompare(b.apellido) || a.nombre.localeCompare(b.nombre))
+    setValue('medico', medicosParaEsp[0]?.id ?? '', { shouldValidate: true })
+
+    const consultoriosParaEsp = (consultorios ?? [])
+      .filter((c) => c.especialidad === especialidadTipada || !c.especialidad)
+      .sort((a, b) => {
+        const prioridadA = a.especialidad === especialidadTipada ? 0 : 1
+        const prioridadB = b.especialidad === especialidadTipada ? 0 : 1
+        return prioridadA - prioridadB || a.numero.localeCompare(b.numero)
+      })
+    setValue('consultorio', consultoriosParaEsp[0]?.id ?? '', { shouldValidate: true })
+
+    setValue('hora', '')
+  }
 
   const coincidencias =
     busqueda.trim() === ''
@@ -140,15 +175,20 @@ function NuevoTurnoPage() {
       const fechaTurno = new Date(`${fecha}T${hora}:00`).toISOString()
 
       await crearTurno({ ...resto, fechaTurno })
-      setTurnoCreado({
-        paciente: pacienteSeleccionado,
-        especialidad: datos.especialidad,
-        fechaTurno,
-        medico: medicos?.find((m) => m.id === datos.medico),
-        consultorio: consultorios?.find((c) => c.id === datos.consultorio),
-      })
-      setPacienteSeleccionado(null)
-      reset(valoresIniciales)
+
+      if (accionGuardadoRef.current === 'agregar-otro') {
+        setTurnoCreado({
+          paciente: pacienteSeleccionado,
+          especialidad: datos.especialidad,
+          fechaTurno,
+          medico: medicos?.find((m) => m.id === datos.medico),
+          consultorio: consultorios?.find((c) => c.id === datos.consultorio),
+        })
+        setPacienteSeleccionado(null)
+        reset(valoresIniciales)
+      } else {
+        navigate('/', { state: { turnoAgendado: true } })
+      }
     } catch (error) {
       setErrores(extraerMensajesError(error))
     }
@@ -239,48 +279,36 @@ function NuevoTurnoPage() {
             <label className="form-label" htmlFor="especialidad">
               Especialidad
             </label>
-            <select
+            <input type="hidden" {...register('especialidad')} />
+            <BuscadorSelect
               id="especialidad"
-              className={`form-select${errors.especialidad ? ' is-invalid' : ''}`}
-              {...register('especialidad', {
-                onChange: () => {
-                  setValue('medico', '')
-                  setValue('consultorio', '')
-                  setValue('hora', '')
-                },
-              })}
-            >
-              <option value="" disabled>
-                Seleccioná una opción
-              </option>
-              {ESPECIALIDADES.map((esp) => (
-                <option key={esp.valor} value={esp.valor}>
-                  {esp.etiqueta}
-                </option>
-              ))}
-            </select>
-            {errors.especialidad && <div className="invalid-feedback">{errors.especialidad.message}</div>}
+              opciones={ESPECIALIDADES.map((esp) => ({ valor: esp.valor, etiqueta: esp.etiqueta }))}
+              valor={especialidad}
+              onSeleccionar={seleccionarEspecialidad}
+              placeholder="Escribí o elegí una especialidad..."
+              error={errors.especialidad?.message}
+              mensajeSinOpciones="No hay especialidades que coincidan."
+            />
           </div>
           <div className="col-12 col-md-4">
             <label className="form-label" htmlFor="medico">
               Médico
             </label>
-            <select
+            <input type="hidden" {...register('medico')} />
+            <BuscadorSelect
               id="medico"
-              className={`form-select${errors.medico ? ' is-invalid' : ''}`}
-              disabled={cargandoMedicos || !especialidad}
-              {...register('medico', { onChange: () => setValue('hora', '') })}
-            >
-              <option value="" disabled>
-                {especialidad ? 'Seleccioná una opción' : 'Elegí primero una especialidad'}
-              </option>
-              {medicosFiltrados.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.nombre} {m.apellido}
-                </option>
-              ))}
-            </select>
-            {errors.medico && <div className="invalid-feedback">{errors.medico.message}</div>}
+              opciones={medicosFiltrados.map((m) => ({ valor: m.id, etiqueta: `${m.nombre} ${m.apellido}` }))}
+              valor={medicoElegido}
+              onSeleccionar={(nuevoMedico) => {
+                setValue('medico', nuevoMedico, { shouldValidate: true })
+                setValue('hora', '')
+              }}
+              placeholder="Escribí o elegí un médico..."
+              placeholderDeshabilitado={especialidad ? undefined : 'Elegí primero una especialidad'}
+              deshabilitado={cargandoMedicos || !especialidad}
+              error={errors.medico?.message}
+              mensajeSinOpciones="No hay médicos que coincidan."
+            />
             {especialidad && medicosFiltrados.length === 0 && (
               <div className="form-text text-danger">
                 No hay médicos cargados para esta especialidad.
@@ -349,8 +377,21 @@ function NuevoTurnoPage() {
             type="submit"
             className="btn btn-primary"
             disabled={isSubmitting || !pacienteSeleccionado}
+            onClick={() => {
+              accionGuardadoRef.current = 'ir-a-lista'
+            }}
           >
             {isSubmitting ? 'Guardando...' : 'Agendar turno'}
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting || !pacienteSeleccionado}
+            onClick={() => {
+              accionGuardadoRef.current = 'agregar-otro'
+            }}
+          >
+            {isSubmitting ? 'Guardando...' : 'Agendar y cargar otro turno'}
           </button>
           <button type="button" className="btn btn-outline-danger" onClick={() => navigate(-1)}>
             Cancelar

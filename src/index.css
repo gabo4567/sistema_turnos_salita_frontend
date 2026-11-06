@@ -305,6 +305,11 @@ p {
   border-radius: 999px;
 }
 
+.sidebar-brand-texto {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .sidebar.colapsado .sidebar-brand-texto {
   display: none;
 }
@@ -891,6 +896,48 @@ p {
 
 .especialidad-icono {
   display: inline-flex;
+}
+
+.buscador-select {
+  position: relative;
+}
+
+.buscador-select-opciones {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.buscador-select-opcion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.buscador-select-opcion:hover,
+.buscador-select-opcion.activa {
+  background: color-mix(in srgb, var(--color-primary) 8%, white);
+  color: var(--color-primary);
+}
+
+.buscador-select-vacio {
+  padding: 8px 12px;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
 }
 
 /* Celulares: el sidebar lateral pasa a ser una barra horizontal arriba */
