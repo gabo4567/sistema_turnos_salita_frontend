@@ -687,6 +687,19 @@ p {
   background: color-mix(in srgb, var(--color-critical) 12%, white);
 }
 
+.badge-reprogramado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, white);
+  white-space: nowrap;
+}
+
 /* Selector de horario (grilla de turnos de 30') */
 .selector-horario-leyenda {
   display: flex;

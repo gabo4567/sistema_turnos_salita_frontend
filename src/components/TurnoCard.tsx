@@ -89,7 +89,10 @@ function TurnoCard({ turno, onLlamar, onFinalizar, onCancelar }: TurnoCardProps)
           </span>
         ) : null}
       </span>
-      <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>{ETIQUETAS_ESTADO[estado] ?? estado}</span>
+      <span className="d-flex flex-column align-items-start gap-1">
+        <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>{ETIQUETAS_ESTADO[estado] ?? estado}</span>
+        {turno.reprogramado && <span className="badge-reprogramado">Reprogramado</span>}
+      </span>
       <span className="d-flex gap-2">
         <Link to={`/turnos/${turno.id}`} className="btn btn-outline-secondary btn-sm">
           Detalle

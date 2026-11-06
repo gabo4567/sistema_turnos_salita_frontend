@@ -19,6 +19,15 @@ export function obtenerFechaHoraActual(): string {
   return `${obtenerFechaMinima()}T${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`
 }
 
+// "2026-11-11" -> "miércoles 11/11". Arma la fecha con -03:00 explícito
+// (no local ni Z) para que no dependa del huso horario del navegador — ver
+// el mismo supuesto en el backend (Argentina es UTC-3 fijo, sin horario de
+// verano).
+export function formatearFechaLarga(fecha: string): string {
+  const fechaObjeto = new Date(`${fecha}T12:00:00-03:00`)
+  return fechaObjeto.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'numeric' })
+}
+
 // Hora actual en formato "HH:mm", redondeada hacia arriba al próximo :00 o
 // :30 — para tachar en la grilla de horarios los bloques que ya pasaron
 // cuando la fecha elegida es hoy.

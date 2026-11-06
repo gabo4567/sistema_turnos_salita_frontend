@@ -123,9 +123,25 @@ function MisTurnosPage() {
                       : ESPECIALIDADES.find((e) => e.valor === turno.especialidad)?.etiqueta}
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
+                  {turno.reprogramado && turno.fechaOriginal && (
+                    <span className="small text-body-secondary d-block">
+                      Reprogramado — antes era el{' '}
+                      {new Date(turno.fechaOriginal).toLocaleString('es-AR', {
+                        day: 'numeric',
+                        month: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
+                      hs. {turno.motivoReprogramacion ?? 'El médico no pudo atender ese día'}.
+                    </span>
+                  )}
                 </span>
-                <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
-                  {ETIQUETAS_ESTADO[estado] ?? estado}
+                <span className="d-flex flex-column align-items-start gap-1">
+                  <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
+                    {ETIQUETAS_ESTADO[estado] ?? estado}
+                  </span>
+                  {turno.reprogramado && <span className="badge-reprogramado">Reprogramado</span>}
                 </span>
                 <span className="d-flex gap-2">
                   {pendiente && (
