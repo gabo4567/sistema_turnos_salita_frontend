@@ -3,6 +3,7 @@ import {
   listarMisTurnosMedicoPaginado,
   cancelarTurno,
   marcarAusenciaMedico,
+  obtenerResumenAusenciaMedico,
   marcarLlamado,
   marcarFinalizado,
   type FiltroEstado,
@@ -14,6 +15,7 @@ import { useConfirm } from '../hooks/useConfirm'
 import { useAutoDismiss } from '../hooks/useAutoDismiss'
 import { ESPECIALIDADES } from '../constants/turnos'
 import { nombreCompleto } from '../utils/texto'
+import { formatearFechaLarga } from '../utils/fecha'
 import Paginador from '../components/Paginador'
 
 const OPCIONES_ESTADO: { valor: FiltroEstado; etiqueta: string }[] = [
@@ -114,21 +116,38 @@ function MisTurnosMedicoPage() {
   }
 
   const handleAusenciaHoy = async () => {
+    setErrorAccion(null)
+
+    let resumen
+    try {
+      resumen = await obtenerResumenAusenciaMedico()
+    } catch (err) {
+      setErrorAccion(extraerMensaje(err))
+      return
+    }
+
+    if (resumen.cantidadTurnosHoy === 0) {
+      setAvisoAusencia('No tenías turnos pendientes hoy.')
+      return
+    }
+
+    const destino = resumen.proximaFechaQueAtiende
+      ? `Se van a reprogramar al ${formatearFechaLarga(resumen.proximaFechaQueAtiende)} (tu próximo día de atención), al mismo horario que tenía cada uno.`
+      : 'No se pudieron reprogramar porque todavía no tenés horarios de atención cargados: se van a cancelar.'
+
     const ok = await confirmar(
-      '¿Cancelar TODOS tus turnos pendientes de hoy? Esta acción no se puede deshacer.',
+      `Tenés ${resumen.cantidadTurnosHoy} turno(s) agendado(s) para hoy. ${destino} ¿Confirmás?`,
       { variante: 'peligro', textoConfirmar: 'No puedo atender hoy' }
     )
     if (!ok) return
 
-    setErrorAccion(null)
     setAvisoAusencia(null)
     try {
       const resultado = await marcarAusenciaMedico()
-      setAvisoAusencia(
-        resultado.cancelados > 0
-          ? `Se cancelaron ${resultado.cancelados} turno(s) de hoy.`
-          : 'No tenías turnos pendientes hoy.'
-      )
+      const partes: string[] = []
+      if (resultado.reprogramados > 0) partes.push(`Se reprogramaron ${resultado.reprogramados} turno(s).`)
+      if (resultado.cancelados > 0) partes.push(`Se cancelaron ${resultado.cancelados} turno(s) por falta de lugar.`)
+      setAvisoAusencia(partes.length > 0 ? partes.join(' ') : 'No tenías turnos pendientes hoy.')
       await recargar()
     } catch (err) {
       setErrorAccion(extraerMensaje(err))
@@ -271,8 +290,11 @@ function MisTurnosMedicoPage() {
                     {turno.consultorio && ` · Consultorio ${turno.consultorio.numero}`}
                   </span>
                 </span>
-                <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
-                  {ETIQUETAS_ESTADO[estado] ?? estado}
+                <span className="d-flex flex-column align-items-start gap-1">
+                  <span className={`badge-estado ${CLASES_ESTADO[estado] ?? estado}`}>
+                    {ETIQUETAS_ESTADO[estado] ?? estado}
+                  </span>
+                  {turno.reprogramado && <span className="badge-reprogramado">Reprogramado</span>}
                 </span>
                 <span className="d-flex gap-2">
                   {pendiente && (

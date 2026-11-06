@@ -15,4 +15,9 @@ export interface Turno {
   fechaTurno: string
   estado?: EstadoTurno
   observaciones?: string
+  // Se completan solo si el turno se reprogramó automáticamente porque el
+  // médico marcó "no puedo atender hoy" — quedan para siempre, no se borran.
+  reprogramado?: boolean
+  fechaOriginal?: string
+  motivoReprogramacion?: string
 }

@@ -110,8 +110,11 @@ function DetalleTurnoPage() {
             <div className="card-body">
               <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
                 <h2 className="h5 mb-0">{nombreCompleto(turno.paciente)}</h2>
-                <span className="badge text-bg-primary">
-                  {ETIQUETAS_ESTADO[turno.estado ?? 'pendiente'] ?? turno.estado}
+                <span className="d-flex gap-2">
+                  {turno.reprogramado && <span className="badge-reprogramado">Reprogramado</span>}
+                  <span className="badge text-bg-primary">
+                    {ETIQUETAS_ESTADO[turno.estado ?? 'pendiente'] ?? turno.estado}
+                  </span>
                 </span>
               </div>
               <dl className="row mb-0">
@@ -124,6 +127,17 @@ function DetalleTurnoPage() {
                     timeStyle: 'short',
                   })}
                 </dd>
+                {turno.reprogramado && turno.fechaOriginal && (
+                  <>
+                    <dt className="col-sm-3">Reprogramado</dt>
+                    <dd className="col-sm-9">
+                      Originalmente era el{' '}
+                      {new Date(turno.fechaOriginal).toLocaleString('es-AR', { dateStyle: 'long', timeStyle: 'short' })}
+                      {' — '}
+                      {turno.motivoReprogramacion ?? 'El médico no pudo atender ese día'}.
+                    </dd>
+                  </>
+                )}
                 <dt className="col-sm-3">Especialidad</dt>
                 <dd className="col-sm-9 text-capitalize">{turno.especialidad}</dd>
                 <dt className="col-sm-3">Médico</dt>

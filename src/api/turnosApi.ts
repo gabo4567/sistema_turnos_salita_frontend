@@ -102,7 +102,18 @@ export function cancelarTurno(id: string): Promise<Turno> {
   return apiFetch(`/turnos/${id}`, { method: 'DELETE' })
 }
 
-export function marcarAusenciaMedico(): Promise<{ cancelados: number }> {
+export interface ResumenAusenciaMedico {
+  cantidadTurnosHoy: number
+  proximaFechaQueAtiende: string | null
+}
+
+// Antes de confirmar, para mostrarle al médico cuántos turnos tiene hoy y a
+// qué día se moverían si confirma.
+export function obtenerResumenAusenciaMedico(): Promise<ResumenAusenciaMedico> {
+  return apiFetch('/turnos/ausencia-medico/resumen')
+}
+
+export function marcarAusenciaMedico(): Promise<{ reprogramados: number; cancelados: number }> {
   return apiFetch('/turnos/ausencia-medico', { method: 'PATCH' })
 }
 
